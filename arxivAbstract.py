@@ -12,13 +12,12 @@ import csv
 import pandas as pd
 
 search = arxiv.Search(
-  query = "au:Slim AND au:Essid",
+  query = "au:Maite AND au:Taboada",   
   sort_by = arxiv.SortCriterion.SubmittedDate
 )
 
 
-
-with open('abstract.csv', 'w', newline='') as file:
+with open('abstract.csv', 'w', newline='', encoding="utf-8") as file:
     writer = csv.writer(file)
     writer.writerow(["title","authors", "abstract","doi","primary_category","categories"])
     for result in search.results():
@@ -35,6 +34,6 @@ print(a)
 
 i=0
 for j in a.values:
-    if "Slim Essid" in j:
+    if "Maite Taboada" in j:
         i=i+1
 print(i)
