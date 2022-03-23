@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import csv
 from itertools import zip_longest
 import pandas as pd
+import re
 
 
 def get_data(name):
@@ -50,15 +51,22 @@ def get_data(name):
         
         links  = soup.find_all("div",{"class","issue-item__content-right"})
         text=str(links[0]).strip()
+        
         left = '<a href=\"/profile'
         right = '\" title=\"'+name+'\"'
-    
+        
         id = text[text.index(left)+len(left):text.index(right)]
+        
+        if len(id) > 15 :
+
+            id = re.search('<a href=\"/profile(.*)', id).group(1)
+            
         link="https://dl.acm.org/profile"+id
+        #print("id  : ",id)
         page_num = 0
         while True :
             link_all_papers="https://dl.acm.org/profile"+id+"/publications?Role=author&pageSize=50&startPage="+str(page_num)
-            #print("id  : ",id)
+            
             #get all papers
             
             result = requests.get(link_all_papers)
@@ -117,12 +125,33 @@ def get_data(name):
             
             page_num +=1
             #print("page switched")
-        print(df)
         return df
     else: 
         print("there is no such an author !")
         
         
+def construct_csv(list_authors):
+    df_final = pd.DataFrame(columns=['author', 'papers'])
     
-    
-get_data("Janez Brank")
+    for a in list_authors:
+        
+        df = get_data(a)
+        list_papers = []
+        for x in df.itertuples():
+            list_papers.append([x.title,x.abstract])
+        
+        if len(list_papers)==0:
+            list_papers.append("No data available")
+        
+        df_ = {'author': a, 'papers': list_papers}
+        df_final = df_final.append(df_, ignore_index = True)
+        
+    print(df_final)
+    df_final.to_csv("authors_data_ACM.csv", encoding='utf-8',index=False)
+    return df_final
+
+#exemple
+
+list_authors = ["Janez Brank", "Hoda Heidari"]
+df = construct_csv(list_authors)    
+
