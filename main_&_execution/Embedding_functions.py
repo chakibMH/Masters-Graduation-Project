@@ -52,10 +52,10 @@ def embedde_phrases_from_DataFrame(df_sents, embedder):
 
     """
     
-    abst_sen = df_sents.iloc[0,0]
+    df_sents = df_sents.iloc[0,0]
     
     # list of phrases
-    list_of_phrases = ast.literal_eval(abst_sen)
+    list_of_phrases = ast.literal_eval(df_sents)
     
     #eliminer les chaines vides
     list_of_phrases = [e for e in list_of_phrases if e != '']
@@ -72,3 +72,28 @@ def embedde_phrases_from_DataFrame(df_sents, embedder):
     return list_embd_phraes
 
 
+def embedde_single_query(query, embedder):
+    """
+    
+
+    Parameters
+    ----------
+    query : str
+        query to be embedded.
+    embedder : 
+        embedding model.
+
+    Returns
+    -------
+    Embedding of query --> shape (1, dim).
+
+    """
+    
+    emb_q = embedder.encode([query])
+    
+    return emb_q
+    
+    
+    
+    
+    

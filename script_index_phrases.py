@@ -24,7 +24,7 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 # file name
 
-filename = "mean_emb_sentence_indexFlatL2"
+filename = "roberta_emb_sentences_indexFlatL2"
 
 # index all the data set
 index = dataset_Indexer(papers, embedder, filename)

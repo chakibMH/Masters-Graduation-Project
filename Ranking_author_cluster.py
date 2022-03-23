@@ -5,11 +5,8 @@ Created on Fri Mar 11 14:59:01 2022
 @author: chaki
 """
 import ast
-import faiss
 import numpy as np
-from embedder import create_abstract_sentence_embeddings, calculate_average_abstract_embedding
-from Embedding_functions import embedde_paper_phrases
-
+from Embedding_functions import embedde_paper_phrases, embedde_single_query
 import math
 
 
@@ -203,7 +200,7 @@ def authors_expertise_to_paper(paper_id, papers, authors, embedder):
     return dict_expertise
 
     
-def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy = 'max', k=1000):
+def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy = 'min', k=1000):
     """
     
 
@@ -222,9 +219,9 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
     strategy : str, optional
         Define a strategy to give score for document based on its selected phrases.
         Available strategies:
-            max strategy: score of paper is defined by the maximum score of all its phrases.
+            min strategy: score of paper is defined by the minimum score of all its phrases.
             mean strategy: score of paper is defined by the mean score of all its phrases.
-        The default is 'max'.
+        The default is 'min'.
     k : int, optional
         number of nearest neighbors (phrases) to the query to be returned. The default is 1000. 
 
@@ -237,12 +234,12 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
     """
     
     # embedding thr query
-    query_emb = embedder.encode([query])
+    query_emb = embedde_single_query(query, embedder)
     
     df = sen_index.search(query_emb, k)
     
-    if strategy == 'max':
-        df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].max()
+    if strategy == 'min':
+        df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].min()
         
     elif strategy == 'mean':
         df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
@@ -273,6 +270,8 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
             
             sim_D_A = dict_expertise[a]
             
+            print(sim_Q_D)
+            print(sim_D_A)
             
             # check if first time
             

@@ -35,55 +35,56 @@ class sentence_indexFlatL2():
         """
         i = self._faiss_index.ntotal
         order = 0
-        i = 1
+        j = 1
         total = len(sen_batch)
         for v in sen_batch:
-            print(" "*12+"Phrase [ ", i," / ", total, " ]")
+            print(" "*12+"Phrase [ ", j," / ", total, " ]")
+            j += 1
             self._meta[i] = {'paper_id':paper_id,'order_in_paper':order}
             i += 1
             order += 1
             v = v.reshape((1,self._dim))
             self._faiss_index.add(v)
             
-        def search(self, query, k=1000):
-            """
-            
+    def search(self, query, k=1000):
+        """
+        
 
-            Parameters
-            ----------
-            query : numpay array
-                embedding of the query.
-            k : int, optional
-                number of returned phrases. The default is 1000.
+        Parameters
+        ----------
+        query : numpay array
+            embedding of the query.
+        k : int, optional
+            number of returned phrases. The default is 1000.
 
-            Returns
-            -------
-            DataFrame with those columns:
-                id_ph: Id of phrase
-                paper_id: Id of paper
-                dist_phrase_with_query: score between phrase and query
+        Returns
+        -------
+        DataFrame with those columns:
+            id_ph: Id of phrase
+            paper_id: Id of paper
+            dist_phrase_with_query: score between phrase and query
 
-            """
+        """
+        
+        D, I = self._faiss_index.search(query, k)
+        
+        
+        # create data frame for results
+        
+        data = []
+        
+        
+        
+        for id_ph, dist in zip(I[0],D[0]):
             
-            D, I = self._faiss_index.search(query, k)
+            paper_id = self._meta[id_ph]['paper_id']
             
-            
-            # create data frame for results
-            
-            data = []
-            
-            
-            
-            for id_ph, dist in zip(I,D):
-                
-                paper_id = self._meta[i]['paper_id']
-                
-                data.append([id_ph, paper_id, dist])
-            
-            df = pd.DataFrame(columns=["id_ph", "paper_id", "dist_phrase_with_query"], data=data)
-            
-            return df
-            
+            data.append([id_ph, paper_id, dist])
+        
+        df = pd.DataFrame(columns=["id_ph", "paper_id", "dist_phrase_with_query"], data=data)
+        
+        return df
+        
             
 def save_index(index, filename):
     """
@@ -104,7 +105,7 @@ def save_index(index, filename):
     
     #save meta data
     
-    with open(filename+"_metaData", 'wb') as f:
+    with open("."+filename+"_metaData", 'wb') as f:
         p = pickle.Pickler(f)
         p.dump(index._meta)
     
@@ -198,7 +199,7 @@ def dataset_Indexer(papers, embedder, filename):
     total = all_ids.shape[0]
     for paper_id in all_ids[1:]:
         
-        print("## progression document : [ ", i, " / ", total, " ]")
+        print("## progression document id : ",paper_id," ==>  [ ", i, " / ", total, " ]")
         i += 1
         
         # get the data frame
