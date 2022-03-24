@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 22 20:41:28 2022
-
 @author: HP
 """
 
@@ -11,6 +10,7 @@ import csv
 from itertools import zip_longest
 import pandas as pd
 import re
+import ast
 
 
 def get_data(name):
@@ -150,8 +150,59 @@ def construct_csv(list_authors):
     df_final.to_csv("authors_data_ACM.csv", encoding='utf-8',index=False)
     return df_final
 
+def match_name(name):
+    pass
+
+def get_real_npubs(authors, papers):
+    
+    auths = authors.id.values
+    
+    all_p_ids = papers.id.values
+    
+    real_number = []
+    i=0
+    for auth_id in auths:
+        i+=1
+        print(i)
+        
+        p_ids = get_papers_of_author(auth_id, authors)
+        
+        cpt = 0
+        
+        for p in p_ids:
+            
+            if p in all_p_ids:
+                cpt += 1
+        
+        real_number.append(cpt)
+        
+    
+    df_final = pd.DataFrame({'author':auths, 'papers': real_number})
+    
+    return df_final
+        
+        
+    
+
+def get_papers_of_author(auth_id, auth):
+    
+    auth_row = auth.loc[auth.id == auth_id,['pubs']]
+    
+    # list of dict 
+    auth_papers = ast.literal_eval(auth_row.iloc[0,0])
+    
+    #list of papers id
+    p_ids = [int(d['i']) for d in auth_papers]
+    
+    return p_ids
+    
+
+def get_authors_name(authors):
+    
+    return list(authors.name.values)
+    
+
 #exemple
 
 list_authors = ["Janez Brank", "Hoda Heidari"]
-df = construct_csv(list_authors)    
-
+df = construct_csv(list_authors)
