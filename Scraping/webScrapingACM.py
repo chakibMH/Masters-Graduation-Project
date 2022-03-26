@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 22 20:41:28 2022
-
 @author: HP
 """
 
@@ -11,55 +10,23 @@ import csv
 from itertools import zip_longest
 import pandas as pd
 import re
+import ast
+import unicodedata
 
 
 def get_data(name):
-
-    authors_list = []
-    abstracts = []
-    links = []
-    papers_titles = []
-    links_papers = []
     
-    
-    req = requests.Session()
-    
-    name_url = name.replace(" ", "+")
-    
-    result = req.get("https://dl.acm.org/action/doSearch?AllField="+name_url)
-    
-    src = result.content
-    
-    #print(src)
-    
-    
-    soup = BeautifulSoup(src, "lxml")
-    
-    authors  = soup.find("div",{"class","issue-item__content-right"}).ul
-    respon_text = ""
-    for li in authors.find_all("li"):
-        respon_text += li.text
-    
-    authors_list.append(respon_text)
-    
-    #authors= soup.find_all("div", {"class":"issue-item__content-right"})
-    
-    #print(authors_list[0])
-    if authors_list[0].find(name) != -1 :
-        
+    def collect_abstracts(pos):
         #get id author
         
-        links  = soup.find_all("div",{"class","issue-item__content-right"})
-        text=str(links[0]).strip()
-        
-        left = '<a href=\"/profile'
-        right = '\" title=\"'+name+'\"'
-        
-        id = text[text.index(left)+len(left):text.index(right)]
-        
-        if len(id) > 15 :
+        pos_deb=pos-40
+        pos_fin=pos+40
+        text=txt[pos_deb:pos_fin]
 
-            id = re.search('<a href=\"/profile(.*)', id).group(1)
+        left = '\"/profile'
+        right = '\" title=\"'
+
+        id = text[text.index(left)+len(left):text.index(right)]
             
         link="https://dl.acm.org/profile"+id
         #print("id  : ",id)
@@ -84,7 +51,7 @@ def get_data(name):
             #print(page_limit)
             
             if (page_num > page_limit // 50):
-                print("pages ended")
+                #print("pages ended")
                 break
             
             papers_title = soup.find_all("h5", {"class":"issue-item__title"})
@@ -126,8 +93,43 @@ def get_data(name):
             page_num +=1
             #print("page switched")
         return df
+        
+
+    authors_list = []
+    abstracts = []
+    links = []
+    papers_titles = []
+    links_papers = []
+    
+    
+    req = requests.Session()
+    
+    name_url = name.replace(" ", "+")
+    
+    result = req.get("https://dl.acm.org/action/doSearch?AllField="+name_url)
+    
+    src = result.content
+    
+    #print(src)
+    
+    
+    soup = BeautifulSoup(src, "lxml")
+    
+    txt = soup.find_all("div", {"class","issue-item__content-right"})
+    txt = str(txt)
+    pos = txt.find(name)
+    
+    name_2 = strip_accents("Eden Chlamtáč")
+    pos_2 = txt.find(name_2)
+    
+    if pos != -1:
+        
+        return collect_abstracts(pos)
     else: 
-        print("there is no such an author !")
+        if pos_2 != -1:
+            return collect_abstracts(pos_2)
+        else :
+            print("there is no such an author !")
         
         
 def construct_csv(list_authors):
@@ -150,8 +152,62 @@ def construct_csv(list_authors):
     df_final.to_csv("authors_data_ACM.csv", encoding='utf-8',index=False)
     return df_final
 
+def match_name(name):
+    pass
+
+def get_real_npubs(authors, papers):
+    
+    auths = authors.id.values
+    
+    all_p_ids = papers.id.values
+    
+    real_number = []
+    i=0
+    for auth_id in auths:
+        i+=1
+        print(i)
+        
+        p_ids = get_papers_of_author(auth_id, authors)
+        
+        cpt = 0
+        
+        for p in p_ids:
+            
+            if p in all_p_ids:
+                cpt += 1
+        
+        real_number.append(cpt)
+        
+    
+    df_final = pd.DataFrame({'author':auths, 'papers': real_number})
+    
+    return df_final
+        
+        
+    
+
+def get_papers_of_author(auth_id, auth):
+    
+    auth_row = auth.loc[auth.id == auth_id,['pubs']]
+    
+    # list of dict 
+    auth_papers = ast.literal_eval(auth_row.iloc[0,0])
+    
+    #list of papers id
+    p_ids = [int(d['i']) for d in auth_papers]
+    
+    return p_ids
+    
+
+def get_authors_name(authors):
+    
+    return list(authors.name.values)
+    
+
+def strip_accents(s):
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn')
 #exemple
 
-list_authors = ["Janez Brank", "Hoda Heidari"]
-df = construct_csv(list_authors)    
-
+list_authors = ["Janez Brank", "Hoda Heidari","Eden Chlamtáč"]
+df = construct_csv(list_authors)
