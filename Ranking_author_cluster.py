@@ -8,6 +8,7 @@ import ast
 import numpy as np
 from Embedding_functions import embedde_paper_phrases, embedde_single_query
 import math
+from distance_functions import dist2sim
 
 
 # embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
