@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import ast
+import numpy as np
+from sklearn.preprocessing import normalize
 
 def embedde_paper_phrases(list_of_phrases, model):
     """
@@ -27,7 +29,13 @@ def embedde_paper_phrases(list_of_phrases, model):
         # p is str
         emb_p = model.encode(p)
         
-        list_embd_phraes.append(emb_p)
+        # normalize vector
+        
+        # l2 is default norm
+        norm_emb_p = np.float32(normalize([emb_p])[0])
+        
+        
+        list_embd_phraes.append(norm_emb_p)
         
     return list_embd_phraes
 
@@ -67,9 +75,19 @@ def embedde_phrases_from_DataFrame(df_sents, embedder):
         # p is str
         emb_p = embedder.encode(p)
         
-        list_embd_phraes.append(emb_p)
+        
+        # normalize 
+        
+        # l2 is default norm
+        norm_emb_p = np.float32(normalize([emb_p])[0])
+        
+        list_embd_phraes.append(norm_emb_p)
         
     return list_embd_phraes
+
+
+
+    
 
 
 def embedde_single_query(query, embedder):
@@ -89,9 +107,59 @@ def embedde_single_query(query, embedder):
 
     """
     
-    emb_q = embedder.encode([query])
+    # emb_q = embedder.encode([query])
     
-    return emb_q
+    emb_q = embedder.encode(query)[0]
+    
+    
+    # l2 is default norm
+    norm_query = np.float32(normalize([emb_q])[0])
+    
+    return norm_query
+
+
+def get_mean_embedding(paper_id, papers, embedder):
+        """
+        
+    
+        Parameters
+        ----------
+        paper_id : int
+            Id of paper.
+        papers : DataFrame
+            paper data set.
+        embedder : sentence embrdder
+            Embedde paper's sentences to array.
+    
+        Returns
+        -------
+        Array
+            mean of all ambedded sentences.
+    
+        """
+        print("paper id : ",paper_id)
+        df_sent = papers.loc[papers.id == paper_id, ['cleaned_abstract_sentences']]
+        if df_sent.index.empty:
+            #cant return None
+            return np.zeros(1)
+        else:
+            abst_sen = df_sent.iloc[0,0]
+            
+            # list of phrases
+            abst_sen_to_list = ast.literal_eval(abst_sen)
+            
+            
+            flat_sentence_embeddings = embedde_paper_phrases(abst_sen_to_list, embedder)
+            
+            mean_emb = np.mean(flat_sentence_embeddings, axis=0)
+            
+            # normalize all the vector at the end
+            
+            mean_emb = mean_emb.reshape(1, -1)
+            
+            norm_mean_emb = np.float32(normalize(mean_emb)[0])
+        
+            return norm_mean_emb
     
     
     

@@ -2,7 +2,7 @@
 import pandas as pd
 import ast
 from sentence_transformers import SentenceTransformer, util
-from Embedding_functions import embedde_paper_phrases
+from Embedding_functions import embedde_paper_phrases, embedde_single_query
 from custom_faiss_indexer import sentence_indexFlatL2
 
 
@@ -11,7 +11,7 @@ from custom_faiss_indexer import sentence_indexFlatL2
 
 # read papers data set
 
-papers = pd.read_csv("papers.csv")
+#papers = pd.read_csv("papers.csv")
 
 # paper id for test
 
@@ -49,7 +49,7 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 
 # embedde
-flat_sentence_embeddings = embedde_paper_phrases(abst_sen_to_list)
+flat_sentence_embeddings = embedde_paper_phrases(abst_sen_to_list, embedder)
 
 
 # add array of embedded sentences to index
@@ -69,7 +69,7 @@ query = ["big bang theory"]
 
 # embedding of query
 
-emb_query = embedder.encode(query)
+emb_query = embedde_single_query(query, embedder)
 
 print("query embedding shape : ",emb_query.shape)
 

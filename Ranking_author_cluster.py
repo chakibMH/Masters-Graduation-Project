@@ -6,7 +6,7 @@ Created on Fri Mar 11 14:59:01 2022
 """
 import ast
 import numpy as np
-from Embedding_functions import embedde_paper_phrases, embedde_single_query
+from Embedding_functions import embedde_paper_phrases, embedde_single_query, get_mean_embedding
 import math
 from distance_functions import dist2sim
 
@@ -79,42 +79,7 @@ def calcul_centeroid(data):
 
 
 
-def get_mean_embedding(paper_id, papers, embedder):
-        """
-        
-    
-        Parameters
-        ----------
-        paper_id : int
-            Id of paper.
-        papers : DataFrame
-            paper data set.
-        embedder : sentence embrdder
-            Embedde paper's sentences to array.
-    
-        Returns
-        -------
-        Array
-            mean of all ambedded sentences.
-    
-        """
-        print("paper id : ",paper_id)
-        df_sent = papers.loc[papers.id == paper_id, ['cleaned_abstract_sentences']]
-        if df_sent.index.empty:
-            #cant return None
-            return np.zeros(1)
-        else:
-            abst_sen = df_sent.iloc[0,0]
-            
-            # list of phrases
-            abst_sen_to_list = ast.literal_eval(abst_sen)
-            
-            
-            flat_sentence_embeddings = embedde_paper_phrases(abst_sen_to_list, embedder)
-            
-            mean_emb = np.mean(flat_sentence_embeddings, axis=0)
-        
-            return mean_emb
+
 
     
 
@@ -267,9 +232,14 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
         for a in auth_of_p_id:
             
             # now is uniform 
-            sim_Q_D = df_res.loc[p_id]
+            dist_Q_D = df_res.loc[p_id]
             
-            sim_D_A = dict_expertise[a]
+            # transform dist to sim
+            sim_Q_D = dist2sim(dist_Q_D)
+            
+            dist_D_A = dict_expertise[a]
+            
+            sim_D_A = dist2sim(dist_D_A)
             
             print(sim_Q_D)
             print(sim_D_A)

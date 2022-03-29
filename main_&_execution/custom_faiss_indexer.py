@@ -23,10 +23,10 @@ class sentence_indexFlatL2():
 
         Parameters
         ----------
-        sen_batch : list of 
-            DESCRIPTION.
-        paper_id : TYPE
-            DESCRIPTION.
+        sen_batch : list of phrases
+            All embedded prases of a single doc.
+        paper_id : int
+            paper id, this data will be mapped with every phrase from sen_batch in _meta.
 
         Returns
         -------
@@ -184,7 +184,7 @@ def dataset_Indexer(papers, embedder, filename):
     
     
     # get the dim
-    dim = sent_batch[0].shape[0]
+    dim = sent_batch[0].shape[0] 
     
     # create custom index object
     index = sentence_indexFlatL2(dim)
