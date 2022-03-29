@@ -67,7 +67,7 @@ index.add_single_doc(flat_sentence_embeddings, paper_id)
 
 # query 
 
-query = ["big bang theory"]
+query = "big bang theory"
 
 # embedding of query
 

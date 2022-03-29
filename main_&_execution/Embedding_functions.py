@@ -109,7 +109,7 @@ def embedde_single_query(query, embedder):
     
     # emb_q = embedder.encode([query])
     
-    emb_q = embedder.encode(query)[0]
+    emb_q = embedder.encode([query])[0]
     
     
     # l2 is default norm
