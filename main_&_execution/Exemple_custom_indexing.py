@@ -35,7 +35,7 @@ abst_sen_to_list = [e for e in abst_sen_to_list if e != '']
 #lenght of sen embedding
 dim = 768
 
-# create index
+# create custom  index
 index = sentence_indexFlatL2(dim)
 
 
@@ -43,7 +43,9 @@ index = sentence_indexFlatL2(dim)
 
 # embedde sentences
 
-# embedder for test
+# sentence embedder for test
+
+# to do : sci bert
 
 embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
@@ -73,4 +75,4 @@ emb_query = embedde_single_query(query, embedder)
 
 print("query embedding shape : ",emb_query.shape)
 
-
+index.search(np.array([emb_query]), 10)
