@@ -15,6 +15,50 @@ from bs4 import BeautifulSoup
 import csv
 from itertools import zip_longest
 
+
+
+authors_list = []
+abstracts = []
+links = []
+papers_titles = []
+links_papers = []
+
+name = "Janez Brank"
+
+req = requests.Session()
+
+name_url = name.replace(" ", "+")
+
+result = req.get("https://dl.acm.org/action/doSearch?AllField="+name_url)
+
+src = result.content
+
+#print(src)
+
+
+soup = BeautifulSoup(src, "lxml")
+
+authors  = soup.find("div",{"class","issue-item__content-right"}).ul
+print(authors)
+respon_text = ""
+for li in authors.find_all("li"):
+    respon_text += li.text
+
+authors_list.append(respon_text)
+
+#authors= soup.find_all("div", {"class":"issue-item__content-right"})
+
+print(authors_list)
+# if authors_list[0].find(name) != -1 :
+links  = soup.find_all("div",{"class","issue-item__content"})
+#print(links)
+
+for i in range(len(links)):
+    links_papers.append(links[i].text)
+    #print("\n\n\n", links_papers[i])
+    
+
+'''
 job_titles = []
 company_names = []
 links = []
@@ -72,7 +116,7 @@ with open("/Users/HP/Documents/GitHub/PFE_CODE/jobs.csv","w") as myfile:
 
 
 '''
-
+'''
 import cloudscraper
 import requests
 from bs4 import BeautifulSoup

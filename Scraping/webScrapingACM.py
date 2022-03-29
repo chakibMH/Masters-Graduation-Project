@@ -12,27 +12,22 @@ import pandas as pd
 import re
 import ast
 import unicodedata
+from scraping_utility import match_name
 
 
 def get_data(name):
     
-    def collect_abstracts(pos):
+    def collect_abstracts(a):
         #get id author
         
-        pos_deb=pos-40
-        pos_fin=pos+40
-        text=txt[pos_deb:pos_fin]
 
-        left = '\"/profile'
-        right = '\" title=\"'
-
-        id = text[text.index(left)+len(left):text.index(right)]
+        id = a[1]
             
-        link="https://dl.acm.org/profile"+id
+        link="https://dl.acm.org"+id
         #print("id  : ",id)
         page_num = 0
         while True :
-            link_all_papers="https://dl.acm.org/profile"+id+"/publications?Role=author&pageSize=50&startPage="+str(page_num)
+            link_all_papers="https://dl.acm.org"+id+"/publications?Role=author&pageSize=50&startPage="+str(page_num)
             
             #get all papers
             
@@ -117,17 +112,23 @@ def get_data(name):
     
     txt = soup.find_all("div", {"class","issue-item__content-right"})
     txt = str(txt)
-    pos = txt.find(name)
+    # pos = txt.find(name)
     
-    name_2 = strip_accents("Eden Chlamtáč")
-    pos_2 = txt.find(name_2)
+    # name_2 = strip_accents(name)
+    # pos_2 = txt.find(name_2)
+    authors_list_ = []
+    authors_list_ = get_list_authors(txt)
     
-    if pos != -1:
+    find_author(authors_list,name)
+    a=find_author(authors_list_,name)
+    
+    if a != False :
         
-        return collect_abstracts(pos)
+        return collect_abstracts(a)
     else: 
-        if pos_2 != -1:
-            return collect_abstracts(pos_2)
+        a  = find_author(authors_list_,strip_accents(name))
+        if a != False :
+            return collect_abstracts(a)
         else :
             print("there is no such an author !")
         
@@ -151,9 +152,6 @@ def construct_csv(list_authors):
     print(df_final)
     df_final.to_csv("authors_data_ACM.csv", encoding='utf-8',index=False)
     return df_final
-
-def match_name(name):
-    pass
 
 def get_real_npubs(authors, papers):
     
@@ -184,7 +182,59 @@ def get_real_npubs(authors, papers):
     return df_final
         
         
+def find_author(authors_list,name):
     
+    for a in authors_list:
+        if  match_name(a[0],name) :
+            return a
+            break
+    
+    return False
+
+def get_list_authors(txt):
+
+    authors_list = []
+    
+    txt_len = len(txt)
+    pos_deb = txt.find("href=\"/profile") 
+    
+    
+    pos_fin = txt.find("><img alt=") 
+    
+    
+    
+    while pos_deb != -1 and pos_fin != -1 :
+        
+        text=txt[pos_deb:pos_fin]
+    
+        
+        pos_deb_1 = text.find("/profile") 
+    
+    
+        pos_fin_1 = text.find("\" title") 
+    
+    
+        url=text[pos_deb_1:pos_fin_1]
+    
+        
+        text_len = len(text) 
+     
+        pos_deb_1 = text.find("title") + 7
+    
+        name=text[pos_deb_1:(text_len-1)]
+    
+        authors_list.append([name,url])
+        #*********************************************************#
+        txt = txt[(pos_deb+text_len+6):(txt_len-1)]
+    
+        txt_len  = len(txt)
+        
+        pos_deb = txt.find("href=\"/profile") 
+    
+        pos_fin = txt.find("><img alt=") 
+    
+    
+    return authors_list
 
 def get_papers_of_author(auth_id, auth):
     
@@ -208,6 +258,6 @@ def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s)
                   if unicodedata.category(c) != 'Mn')
 #exemple
-
-list_authors = ["Janez Brank", "Hoda Heidari","Eden Chlamtáč"]
+#["Janez Brank", "Hoda Heidari","Eden Chlamtáč"]
+list_authors = ["Janez Brank"]
 df = construct_csv(list_authors)
