@@ -137,11 +137,12 @@ def get_data(name):
         
 def construct_csv(list_authors):
     df_final = pd.DataFrame(columns=['author', 'papers'])
-    
+    i=1
     for a in list_authors:
-        
+        print("author : ",i)
+        i=i+1
         df = get_data(a)
-        print(df)
+        #print(df)
         list_papers = []
         if df.empty == False :
             
@@ -154,7 +155,7 @@ def construct_csv(list_authors):
         df_ = {'author': a, 'papers': list_papers}
         df_final = df_final.append(df_, ignore_index = True)
         
-    print(df_final)
+    #print(df_final)
     df_final.to_csv("authors_data_ACM.csv", encoding='utf-8',index=False)
     return df_final
 
@@ -168,7 +169,7 @@ def get_real_npubs(authors, papers):
     i=0
     for auth_id in auths:
         i+=1
-        print(i)
+        #print(i)
         
         p_ids = get_papers_of_author(auth_id, authors)
         
@@ -263,6 +264,12 @@ def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s)
                   if unicodedata.category(c) != 'Mn')
 #exemple
-#["Janez Brank", "Hoda Heidari","Eden Chlamtáč"]
-list_authors = ["J. R. Deller"]
+# #["Janez Brank", "Hoda Heidari","Eden Chlamtáč"]
+# list_authors = ["Janez Brank", "Hoda Heidari","A.S.L.O Campanharo"]
+# df = construct_csv(list_authors)
+
+df_all_authors = pd.read_csv ('authors.csv')
+all_names = df_all_authors.name
+list_authors = all_names.head(20)
 df = construct_csv(list_authors)
+
