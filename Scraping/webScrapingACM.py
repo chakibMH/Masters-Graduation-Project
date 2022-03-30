@@ -15,6 +15,7 @@ import unicodedata
 from scraping_utility import match_name
 
 
+
 def get_data(name):
     
     def collect_abstracts(a):
@@ -131,7 +132,8 @@ def get_data(name):
             return collect_abstracts(a)
         else :
             print("there is no such an author !")
-        
+            dfObj = pd.DataFrame(columns=['title', 'abstract'])
+            return dfObj
         
 def construct_csv(list_authors):
     df_final = pd.DataFrame(columns=['author', 'papers'])
@@ -139,13 +141,16 @@ def construct_csv(list_authors):
     for a in list_authors:
         
         df = get_data(a)
+        print(df)
         list_papers = []
-        for x in df.itertuples():
-            list_papers.append([x.title,x.abstract])
-        
-        if len(list_papers)==0:
-            list_papers.append("No data available")
-        
+        if df.empty == False :
+            
+            for x in df.itertuples():
+                list_papers.append([x.title,x.abstract])
+            
+            if len(list_papers)==0:
+                list_papers.append("No data available")
+            
         df_ = {'author': a, 'papers': list_papers}
         df_final = df_final.append(df_, ignore_index = True)
         
@@ -259,5 +264,5 @@ def strip_accents(s):
                   if unicodedata.category(c) != 'Mn')
 #exemple
 #["Janez Brank", "Hoda Heidari","Eden Chlamtáč"]
-list_authors = ["Janez Brank"]
+list_authors = ["J. R. Deller"]
 df = construct_csv(list_authors)
