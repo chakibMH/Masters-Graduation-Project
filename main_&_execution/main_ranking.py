@@ -17,7 +17,7 @@ authors = pd.read_csv("authors.csv")
 papers = pd.read_csv("papers.csv")
 
 # this varable may change depending on location of index
-filename = "emb_sentence_indexFlatL2"
+filename = "roberta_emb_sentences_indexFlatL2"
 
 # load index
 index = load_index(filename)
