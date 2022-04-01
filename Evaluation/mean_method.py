@@ -115,7 +115,7 @@ def get_most_similar_ids(query, index, k=10, tfidf_classifier=None):
         query_emb = tfidf_classifier.transform([query])[0]
         normalized_query = np.float32([query_emb])[0]
     else:
-        q_list = query.split('-')
+        q_list = query.split('@')
         l = []
         for q in q_list:
             e = embedder.encode([q.lower()])[0]
