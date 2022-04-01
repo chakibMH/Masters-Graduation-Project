@@ -283,7 +283,21 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
     
     
     
+# save the dict
+
+import pickle
+
+with open("cluster_analysis_result","wb") as f:
+    p = pickle.Pickler(f)
+    p.dump(score_authors_dict)
     
+    
+    
+# to load
+
+with open("cluster_analysis_result", "rb") as f:
+          u = pickle.Unpickler(f)
+          result = u.load()
     
     
     
