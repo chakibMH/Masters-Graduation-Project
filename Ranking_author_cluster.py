@@ -6,9 +6,21 @@ Created on Fri Mar 11 14:59:01 2022
 """
 import ast
 import numpy as np
-from Embedding_functions import embedde_paper_phrases, embedde_single_query, get_mean_embedding
+# from Embedding_functions import  embedde_single_query, get_mean_embedding
 import math
-from distance_functions import dist2sim
+# from distance_functions import dist2sim
+
+def dist2sim(d):
+    """
+    Converts cosine distance into cosine similarity.
+
+    Parameters:
+    d (int): Cosine distance.
+
+    Returns:
+    sim (list of tuples): Cosine similarity.
+    """
+    return 1 - d / 2
 
 
 # embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
@@ -202,7 +214,9 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
     # embedding thr query
     query_emb = embedde_single_query(query, embedder)
     
+    print("searching...")
     df = sen_index.search(query_emb, k)
+    print("relevant phrases extracted...")
     
     if strategy == 'min':
         df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].min()
@@ -211,6 +225,8 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
         df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
     else:
         print("erreur pas d'autres strategies")
+    
+    print("relevant doc determined...")
     
     ids_of_sim_papers = list(df_res.index)
     
@@ -221,7 +237,8 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
     
     for p_id in ids_of_sim_papers:
         
-        dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
+        # waiting for scraping ... to introduce dist with auth's cluster
+        # dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
         
         # expo (  s[Q, D] * s[D, A] )
         
@@ -237,21 +254,30 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
             # transform dist to sim
             sim_Q_D = dist2sim(dist_Q_D)
             
-            dist_D_A = dict_expertise[a]
+            # waiting for scraping ... to introduce dist with auth's cluster
+            # dist_D_A = dict_expertise[a]
             
-            sim_D_A = dist2sim(dist_D_A)
+            # sim_D_A = dist2sim(dist_D_A)
             
             print(sim_Q_D)
-            print(sim_D_A)
+            # print(sim_D_A)
             
             # check if first time
             
             if a in score_authors_dict.keys():
                 
-                score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
+                # score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
+                score_authors_dict[a] += math.exp(sim_Q_D)
                 
             else:
-                score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
+                # score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
+                score_authors_dict[a] = math.exp(sim_Q_D)
+                
+    # sort the dict
+    
+    d = sorted(score_authors_dict.items(), key = lambda x:x[1],reverse=True)
+    
+    score_authors_dict = {e[0]:e[1] for e in d}
                 
     return   score_authors_dict     
     

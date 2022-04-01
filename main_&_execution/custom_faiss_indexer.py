@@ -2,6 +2,7 @@
 import faiss
 import pickle
 import pandas as pd
+
 from Embedding_functions import embedde_phrases_from_DataFrame
 
 

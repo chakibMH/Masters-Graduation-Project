@@ -115,7 +115,7 @@ def embedde_single_query(query, embedder):
     # l2 is default norm
     norm_query = np.float32(normalize([emb_q])[0])
     
-    return norm_query
+    return np.array([norm_query])
 
 
 def get_mean_embedding(paper_id, papers, embedder):

@@ -11,6 +11,11 @@ from Embedding_functions import embedde_single_query
 from sentence_transformers import SentenceTransformer, util
 from Ranking_author_cluster import get_relevant_experts
 
+import pandas as pd
+
+authors = pd.read_csv("authors.csv")
+papers = pd.read_csv("papers.csv")
+
 # this varable may change depending on location of index
 filename = "emb_sentence_indexFlatL2"
 
@@ -23,10 +28,10 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 # query for test
 
-query = "algorithms used in genetics"
+query = "cluster analysis"
 
 # embedde the query
-# emb_q = embedde_single_query(query, embedder)
+emb_q = embedde_single_query(query, embedder)
 
 score_authors_dict = get_relevant_experts(query, index, papers, authors, embedder)
 

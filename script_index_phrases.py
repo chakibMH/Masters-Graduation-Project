@@ -10,8 +10,8 @@ import pandas as pd
 
 from sentence_transformers import SentenceTransformer, util
 
-
-from custom_faiss_index import dataset_Indexer
+import time
+#from custom_faiss_index import dataset_Indexer
 
 # read the data set
 
@@ -26,7 +26,12 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 filename = "roberta_emb_sentences_indexFlatL2"
 
+
+s = time.time()
 # index all the data set
 index = dataset_Indexer(papers, embedder, filename)
 
+e = time.time()
 
+d = e-s
+print("temps necessaire : ",d)
