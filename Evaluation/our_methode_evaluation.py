@@ -22,13 +22,11 @@ from collections import Counter
 import ast
 from more_itertools import unique_everseen
 from sentence_transformers import SentenceTransformer
-from collections import defaultdict
-import math
-
 
 
 def dist2sim(d):
     return 1 - d / 2
+
 
 def load_relevant_index(type="separate_sbert"):
     index = None
@@ -47,113 +45,6 @@ def load_relevant_index(type="separate_sbert"):
     elif type == "pooled_glove":
         index = faiss.read_index("Mapped_indeces/glove_faiss.index")
     return index
-
-
-def load_data_and_authors(data_path="papers.csv", 
-                          authors_path="authors.csv"):
-    data = pd.read_csv(data_path)
-    authors = pd.read_csv(authors_path)
-    return data, authors
-
-def retrieve_author_by_id(author_id):
-    return authors[authors.id == int(author_id)]
-
-def get_authors_by_id(id_):
-    try:
-        return data[data.id == id_].authors.values[0]
-    except:
-        print(id_)
-        return [{"id": -999999}]
-
-def retrieve_author_tags(author_id):
-    try:
-        return ast.literal_eval(authors[authors.id == author_id].tags.values[0])
-    except:
-        return {}
-
-def check_if_author_relevant(author_id, query):
-    query = query.lower()
-    tags = [t['t'].lower() for t in retrieve_author_tags(author_id)]
-    if tags:
-        if query in tags:
-            return True
-        else:
-            return False
-    else:
-        return "Not in the dataset or no tags present!"
-from ast import literal_eval    
-
-def prune_results_for_authors_wo_tags(results, query, how_many=10):
-    ids = results[0]
-    distances = results[1]
-    
-    relevant_ids = []
-    relevant_distances = []
-    # For now, I check if the first author is not in the set, I throw the paper away, because I now
-    # only look at first author for evaluation. But later if I have another strategy for retrieving author per paper
-    # we can change this logic back to "all authors not in the set".
-    for rid, rd in zip(ids, distances):
-         
-        authors = [a["id"] for a in literal_eval(get_authors_by_id(rid))]
-        #print("authors : ", get_authors_by_id(rid))
-        relevancy = [check_if_author_relevant(int(a), query) for a in authors]
-        #print("relevancy  : ", relevancy )
-        # if relevancy != ['Not in the dataset or no tags present!']*len(relevancy):
-        #     relevant_ids.append(rid)
-        #     relevant_distances.append(rd)
-        if relevancy[0] != 'Not in the dataset or no tags present!':
-            relevant_ids.append(rid)
-            relevant_distances.append(rd)
-    
-    
-    return relevant_ids[:how_many], relevant_distances[:how_many]
-
-def get_most_similar_ids(query, index, k=10, tfidf_classifier=None):
-    # First, embed the query, normalize the vector and convert to float32
-
-    if tfidf_classifier:
-        query_emb = tfidf_classifier.transform([query])[0]
-        normalized_query = np.float32([query_emb])[0]
-    else:
-        query_emb = embedder.encode([query])[0]
-        #print("query_emb : ",query_emb)
-        normalized_query = np.float32(normalize([query_emb])[0])
-        #print("normalized_query : ",normalized_query)
-
-    assert type(normalized_query[0]).__name__ == 'float32'
-
-    #Next, run the index search
-    s = time.time()
-    dists, idxs = index.search(np.array([normalized_query]), k)
-    #print("dists : ",dists)
-    # print("Search execution time:")
-    # print((time.time() - s), "s.")
-    # print("IDS, sorted by similarity:")
-    # print(idxs[0])
-    # print('Similarity scores:')
-    # print(dist2sim(dists[0]))
-    return idxs[0], dist2sim(dists[0])
-
-def retrieve_results(query, index, k=10, verbose=False, tfidf=False):
-    initial_retrieval = k*5
-    s = time.time()
-    if tfidf:
-        print("tfidf")
-        #most_similar_raw = get_most_similar_ids(query, index, initial_retrieval, tfidf_clf)
-    else:
-        most_similar_raw = get_most_similar_ids(query, index, initial_retrieval)
-    s1 = time.time()
-    pruned = prune_results_for_authors_wo_tags(most_similar_raw, query, k)
-    s2 = time.time()
-    if verbose:
-        print(f"Full search execution time: {time.time() - s} seconds")
-        print(f"from which {s1-s} s. in the search and {s2 - s1} s. in the pruning.")
-        print("===")
-        print("Pruned IDS, sorted by similarity:")
-        print(pruned[0])
-        print('Similarity scores:')
-        print(pruned[1])
-    return pruned
 
 def get_authors_by_id(id_):
     try:
@@ -192,6 +83,9 @@ def get_author_ranking_exact(query, index, k=10, tfidf=False):
             continue
 
     return ranking
+
+from collections import defaultdict
+import math
 
 def retrieve_pub_count_by_id(author_id):
     return authors[authors.id == int(author_id)].n_pubs.values[0]
@@ -346,61 +240,32 @@ def get_information_by_author_id(aid, query, tfidf=False):
     print("===")
     pprint(f"Approximately relevant: {check_if_author_relevant_approximate(int(aid), query, tfidf=tfidf)}")
     
-    
-def get_author_ranking_exact_v2(query1,query2, index,result_top_10, k=10, tfidf=False, strategy="uniform",
-                                normalized=False, norm_alpha=100, extra_term=10):
-   
-    if tfidf:
-        print("tfidf")
-    else:
-        i, d = get_most_similar_ids(query2.lower(), index, 100)
-        #i, d = get_most_similar_ids(query2, index, 100)
-
-    
-    top_n = result_top_10
-
-    relevancies = [check_if_author_relevant(int(aid), query1) for aid, _ in top_n]
-
-    ranking = {}
-
-    for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
-        if author not in ranking.keys():
-            ranking[author] = {"relevancy": relevancy, "rank": rank}
-        else:
-            continue
-
-    return ranking
-
-
-def get_author_ranking_approximate_v2(query1,query2, index,result_top_10, k=10, similarity_threshold=0.7, tfidf=False, strategy="uniform",
-                                      normalized=False, norm_alpha=100, extra_term=10):
-   
-    if tfidf:
-        print("tfidf")
-    else:
-        i, d = get_most_similar_ids(query2.lower(), index, 100)
-        #i, d = get_most_similar_ids(query2, index, 100)
-
-    
-    top_n = result_top_10
-
-    relevancies = [check_if_author_relevant_approximate(int(aid), query1, similarity_threshold, tfidf=tfidf) for aid, _
-                   in top_n]
-
-    ranking = {}
-
-    for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
-        if author not in ranking.keys():
-            ranking[author] = {"relevancy": relevancy, "rank": rank}
-        else:
-            continue
-
-    return ranking
 
 def get_title_by_id(id_):
     return data[data.id == id_].title.values[0]
 
 def retrieve_authors(query, index, k=10, strategy="binary", normalized=False, norm_alpha=100, extra_term=10):
+    """
+    Produces an author ranking given a query and adds various metadata about the authors.
+    This is the main retrieval method of the system. Each author's affiliation is looked up
+    from their MAG entry at ma-graph.org, and additional author information is looked up
+    through exact name look-up on WikiData. The final, enriched ranking of authors is 
+    returned through the API endpoint.
+    
+    Parameters:
+    query (string): The search query
+    index (obj): The loaded FAISS index populated by paper embeddings
+    k (int): The amount of authors to retrieve
+    strategy (string): The data fusion strategy used for assigning author score per paper
+    normalized (bool): Whether normalization should be applied to the scores, boosting less prolific
+    authors and "punishing" highly prolific authors
+    norm_alpha (int or float): The inverse strength of normalization (higher alpha means less normalization)
+    extra_term (int): Extra normalization damping term, further reduces normalization effect
+    
+    Returns:
+    enriched_top_n (list): A list of k most relevant authors to the query, where each author is contained within a dictionary
+    which was enriched with various additional metadata.
+    """
     
     s = time.time()
     if k*10 < 100:
@@ -434,10 +299,10 @@ def retrieve_authors(query, index, k=10, strategy="binary", normalized=False, no
             reasons = list(unique_everseen(reasons))
 
             return [{'paper': {"id": str(item["paper"]),
-                               "title": get_title_by_id(str(item['paper'])),
-                               "year": int('2000'),
+                               "title": "tirle",
+                               "year": "year",
                                # "abstract": get_abstract_by_id(str(item['paper'])),
-                               "tags": ["tag"],
+                               "tags": "fos",
                                "magPage": f"https://academic.microsoft.com/paper/{item['paper']}",
                                "semanticScholarPage": f"https://api.semanticscholar.org/MAG:{item['paper']}"}, 'score': float(item['score'])} for item in reasons]
 
@@ -555,10 +420,224 @@ def mean_precision_at_n(results, n=5):
     
     return mpan
 
+def load_data_and_authors(data_path="papers.csv", 
+                          authors_path="authors.csv"):
+    data = pd.read_csv(data_path)
+    authors = pd.read_csv(authors_path)
+    return data, authors
 
+def get_author_ranking_exact_v2(query1,query2, index, k=10, tfidf=False, strategy="uniform",
+                                normalized=False, norm_alpha=100, extra_term=10):
+    """
+    Produces an author ranking given a query and adds relevancy flag to the author
+    based on the exact topic evaluation criteria. Used for evaluating the system.
+    
+    Parameters:
+    query (string): The search query
+    index (obj): The loaded FAISS index populated by paper embeddings
+    k (int): The amount of authors to retrieve
+    tfidf (bool): Whether the tf-idf embeddings are used for retrieval instead of SBERT.
+    strategy (string): The data fusion strategy used for assigning author score per paper
+    normalized (bool): Whether normalization should be applied to the scores, boosting less prolific
+    authors and "punishing" highly prolific authors
+    norm_alpha (int or float): The inverse strength of normalization (higher alpha means less normalization)
+    extra_term (int): Extra normalization damping term, further reduces normalization effect
+    
+    Returns:
+    ranking (dict): A mapping of authors to their retrieved rank and their 
+    relevancy in relation to the query
+    """
+    if tfidf:
+        print("tfidf")
+    else:
+        i, d = get_most_similar_ids(query2.lower(), index, 100)
+        #i, d = get_most_similar_ids(query2, index, 100)
+
+    
+
+    res = df_read[query1].copy()
+    # sort values
+    res.sort_values(inplace=True)
+    # dict like cluster analysis' one
+    dic_q = res.to_dict()
+    result_top_10 = produce_authors_ranking_new(dic_q)[:10]
+    
+    top_n = result_top_10
+
+    relevancies = [check_if_author_relevant(aid[0], query1) for aid in top_n]
+
+    ranking = {}
+
+    for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
+        if author not in ranking.keys():
+            ranking[author] = {"relevancy": relevancy, "rank": rank}
+        else:
+            continue
+
+    return ranking
+
+
+def get_author_ranking_approximate_v2(query1,query2, index, k=10, similarity_threshold=0.7, tfidf=False, strategy="uniform",
+                                      normalized=False, norm_alpha=100, extra_term=10):
+    """
+    Produces an author ranking given a query and adds relevancy flag to the author
+    based on the approximate topic evaluation criteria. Used for evaluating the system.
+    
+    Parameters:
+    query (string): The search query
+    index (obj): The loaded FAISS index populated by paper embeddings
+    k (int): The amount of authors to retrieve
+    similarity_threshold (float): The approximate topic query similarity threshold
+    tfidf (bool): Whether the tf-idf embeddings are used for retrieval instead of SBERT.
+    strategy (string): The data fusion strategy used for assigning author score per paper
+    normalized (bool): Whether normalization should be applied to the scores, boosting less prolific
+    authors and "punishing" highly prolific authors
+    norm_alpha (int or float): The inverse strength of normalization (higher alpha means less normalization)
+    extra_term (int): Extra normalization damping term, further reduces normalization effect
+    
+    Returns:
+    ranking (dict): A mapping of authors to their retrieved rank and their 
+    relevancy in relation to the query
+    """
+    if tfidf:
+        print("tfidf")
+    else:
+        i, d = get_most_similar_ids(query2.lower(), index, 100)
+        #i, d = get_most_similar_ids(query2, index, 100
+    
+
+    
+    
+    res = df_read[query1].copy()
+    # sort values
+    res.sort_values(inplace=True)
+    # dict like cluster analysis' one
+    dic_q = res.to_dict()
+    result_top_10 = produce_authors_ranking_new(dic_q)[:10]
+    
+    top_n = result_top_10
+
+
+    relevancies = [check_if_author_relevant_approximate(aid[0], query1, similarity_threshold, tfidf=tfidf) for aid in top_n]
+
+    ranking = {}
+
+    for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
+        if author not in ranking.keys():
+            ranking[author] = {"relevancy": relevancy, "rank": rank}
+        else:
+            continue
+
+    return ranking
+
+def retrieve_author_by_id(author_id):
+    return authors[authors.id == int(author_id)]
+
+def get_authors_by_id(id_):
+    try:
+        return data[data.id == id_].authors.values[0]
+    except:
+        print(id_)
+        return [{"id": -999999}]
+
+def retrieve_author_tags(author_id):
+    try:
+        return ast.literal_eval(authors[authors.id == author_id].tags.values[0])
+    except:
+        return {}
+
+def check_if_author_relevant(author_id, query):
+    query = query.lower()
+    tags = [t['t'].lower() for t in retrieve_author_tags(author_id)]
+    if tags:
+        if query in tags:
+            return True
+        else:
+            return False
+    else:
+        return "Not in the dataset or no tags present!"
+from ast import literal_eval    
+
+def prune_results_for_authors_wo_tags(results, query, how_many=10):
+    ids = results[0]
+    distances = results[1]
+    
+    relevant_ids = []
+    relevant_distances = []
+    # For now, I check if the first author is not in the set, I throw the paper away, because I now
+    # only look at first author for evaluation. But later if I have another strategy for retrieving author per paper
+    # we can change this logic back to "all authors not in the set".
+    for rid, rd in zip(ids, distances):
+         
+        authors = [a["id"] for a in literal_eval(get_authors_by_id(rid))]
+        #print("authors : ", get_authors_by_id(rid))
+        relevancy = [check_if_author_relevant(int(a), query) for a in authors]
+        #print("relevancy  : ", relevancy )
+        # if relevancy != ['Not in the dataset or no tags present!']*len(relevancy):
+        #     relevant_ids.append(rid)
+        #     relevant_distances.append(rd)
+        if relevancy[0] != 'Not in the dataset or no tags present!':
+            relevant_ids.append(rid)
+            relevant_distances.append(rd)
+    
+    
+    return relevant_ids[:how_many], relevant_distances[:how_many]
+
+def get_most_similar_ids(query, index, k=10, tfidf_classifier=None):
+    # First, embed the query, normalize the vector and convert to float32
+
+    if tfidf_classifier:
+        query_emb = tfidf_classifier.transform([query])[0]
+        normalized_query = np.float32([query_emb])[0]
+    else:
+        query_emb = embedder.encode([query])[0]
+        #print("query_emb : ",query_emb)
+        normalized_query = np.float32(normalize([query_emb])[0])
+        #print("normalized_query : ",normalized_query)
+
+    assert type(normalized_query[0]).__name__ == 'float32'
+
+    #Next, run the index search
+    s = time.time()
+    dists, idxs = index.search(np.array([normalized_query]), k)
+    #print("dists : ",dists)
+    # print("Search execution time:")
+    # print((time.time() - s), "s.")
+    # print("IDS, sorted by similarity:")
+    # print(idxs[0])
+    # print('Similarity scores:')
+    # print(dist2sim(dists[0]))
+    return idxs[0], dist2sim(dists[0])
+
+def retrieve_results(query, index, k=10, verbose=False, tfidf=False):
+    initial_retrieval = k*5
+    s = time.time()
+    if tfidf:
+        print("tfidf")
+    else:
+        most_similar_raw = get_most_similar_ids(query, index, initial_retrieval)
+    s1 = time.time()
+    pruned = prune_results_for_authors_wo_tags(most_similar_raw, query, k)
+    s2 = time.time()
+    if verbose:
+        print(f"Full search execution time: {time.time() - s} seconds")
+        print(f"from which {s1-s} s. in the search and {s2 - s1} s. in the pruning.")
+        print("===")
+        print("Pruned IDS, sorted by similarity:")
+        print(pruned[0])
+        print('Similarity scores:')
+        print(pruned[1])
+    return pruned
+
+def produce_authors_ranking_new(result):
+    sortd = [(k, v) for k, v in sorted(result.items(), key=lambda item: item[1], reverse=True)]
+    return sortd
+
+#/***********************************************************************************/
 
 embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 # res = faiss.StandardGpuResources()  # use a single GPU
+
 
 data_and_authors = load_data_and_authors()
 data = data_and_authors[0]
@@ -566,39 +645,52 @@ authors = data_and_authors[1]
 
 index = load_relevant_index("separate_sbert")
 
-import pickle
-# to load
-with open("cluster_analysis_result", "rb") as f:
-          u = pickle.Unpickler(f)
-          result = u.load()
-          
-#result_sorted = dict(sorted(result.items(), key=lambda item: item[1] , reverse=True))ù
+
+df_read = pd.read_csv("relvents_auths_all_queries.csv",index_col=0)
+
+queries = df_read.columns.values
+
+#df_results = pd.DataFrame(columns=["Query","Exact binary MRR@10","Approximate binary MRR@10","Exact binary MAP@10","Approximate binary MAP@10","Exact binary MP@10:","Approximate binary MP@10","Exact binary MP@5","Approximate binary MP@5","Exact uniform MRR@10","Approximate uniform MRR@10","Exact uniform MAP@10","Approximate uniform MAP@10","Exact uniform MP@10","Approximate uniform MP@10","Exact uniform MP@5","Approximate uniform MP@5"])
 
 
-def produce_authors_ranking_new(result):
-    sortd = [(k, v) for k, v in sorted(result.items(), key=lambda item: item[1], reverse=True)]
-    return sortd
+#i=1
+#for q in queries:
+    #print("query : ",q," / indice : ":i)
+    #i=i+1
+    
+    #res = df_read[q].copy()
+    # sort values
+    #res.sort_values(inplace=True)
+    # dict like cluster analysis' one
+    #dic_q = res.to_dict()
+    #result_top_10 = produce_authors_ranking_new(dic_q)[:10]
+    
+    #queries1 = [q]
+    #queries2 = [q]
 
-result_top_10 = produce_authors_ranking_new(result)[:10]
+    
+
+exact = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1 in queries]
+
+    
+approximate = [get_author_ranking_approximate_v2(query1,query1, index, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1 in queries]
 
 
-
-queries1 = ['cluster analysis']
-queries2 = ['cluster analysis']
-
-exact = [get_author_ranking_exact_v2(query1,query2, index,result_top_10, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1,query2 in zip(queries1,queries2)]
+exact_uniform = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
 
 
-approximate = [get_author_ranking_approximate_v2(query1,query2, index,result_top_10, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1,query2 in zip(queries1,queries2)]
+approximate_uniform = [get_author_ranking_approximate_v2(query1,query1,index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
 
+#dict = {"Query":q,"Exact binary MRR@10": mean_reciprocal_rank(exact),"Approximate binary MRR@10":mean_reciprocal_rank(approximate),"Exact binary MAP@10":mean_average_precision(exact),"Approximate binary MAP@10":mean_average_precision(approximate),"Exact binary MP@10":mean_precision_at_n(exact, 10),"Approximate binary MP@10":mean_precision_at_n(approximate, 10),"Exact binary MP@5":mean_precision_at_n(exact, 5),"Approximate binary MP@5":mean_precision_at_n(approximate, 5),"Exact uniform MRR@10":mean_reciprocal_rank(exact_uniform),"Approximate uniform MRR@10":mean_reciprocal_rank(approximate_uniform),"Exact uniform MAP@10":mean_average_precision(exact_uniform),"Approximate uniform MAP@10":mean_average_precision(approximate_uniform),"Exact uniform MP@10":mean_precision_at_n(exact_uniform, 10),"Approximate uniform MP@10":mean_precision_at_n(approximate_uniform, 10),"Exact uniform MP@5":mean_precision_at_n(exact_uniform, 5),"Approximate uniform MP@5":mean_precision_at_n(approximate_uniform, 5)}
+#df_results = df_results.append(dict, ignore_index = True)
 
-
-exact_uniform = [get_author_ranking_exact_v2(query1,query2, index,result_top_10, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1,query2 in zip(queries1,queries2)]
-
-
-approximate_uniform = [get_author_ranking_approximate_v2(query1,query2, index,result_top_10, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1,query2 in zip(queries1,queries2)]
-
-
-#r="Exact binary MRR@10:"+ str(mean_reciprocal_rank(exact))+" / Approximate binary MRR@10:"+ str(mean_reciprocal_rank(approximate))+" / Exact binary MAP@10:"+ str(mean_average_precision(exact))+" / Approximate binary MAP@10:"+ str(mean_average_precision(approximate))+" / Exact binary MP@10:"+ str(mean_precision_at_n(exact, 10))+" / Approximate binary MP@10:"+ str(mean_precision_at_n(approximate, 10))+" / Exact binary MP@5:"+ str(mean_precision_at_n(exact, 5))+" / Approximate binary MP@5:"+ str(mean_precision_at_n(approximate, 5))+" // Exact uniform MRR@10:"+ str(mean_reciprocal_rank(exact_uniform))+" / Approximate uniform MRR@10:"+ str(mean_reciprocal_rank(approximate_uniform))+" / Exact uniform MAP@10:"+ str(mean_average_precision(exact_uniform))+" / Approximate uniform MAP@10:"+ str(mean_average_precision(approximate_uniform))+" / Exact uniform MP@10:"+ str(mean_precision_at_n(exact_uniform, 10))+" / Approximate uniform MP@10:"+ str(mean_precision_at_n(approximate_uniform, 10))+" / Exact uniform MP@5:"+ str(mean_precision_at_n(exact_uniform, 5))+" / Approximate uniform MP@5:"+ str(mean_precision_at_n(approximate_uniform, 5))
 print("Exact binary MRR@10:", mean_reciprocal_rank(exact)," / Approximate binary MRR@10:", mean_reciprocal_rank(approximate)," / Exact binary MAP@10:", mean_average_precision(exact)," / Approximate binary MAP@10:", mean_average_precision(approximate)," / Exact binary MP@10:", mean_precision_at_n(exact, 10)," / Approximate binary MP@10:", mean_precision_at_n(approximate, 10)," / Exact binary MP@5:", mean_precision_at_n(exact, 5)," / Approximate binary MP@5:", mean_precision_at_n(approximate, 5)," // Exact uniform MRR@10:", mean_reciprocal_rank(exact_uniform)," / Approximate uniform MRR@10:", mean_reciprocal_rank(approximate_uniform)," / Exact uniform MAP@10:", mean_average_precision(exact_uniform)," / Approximate uniform MAP@10:", mean_average_precision(approximate_uniform)," / Exact uniform MP@10:", mean_precision_at_n(exact_uniform, 10)," / Approximate uniform MP@10:", mean_precision_at_n(approximate_uniform, 10)," / Exact uniform MP@5:", mean_precision_at_n(exact_uniform, 5)," / Approximate uniform MP@5:", mean_precision_at_n(approximate_uniform, 5))
 
+# import pandas as pd
+# df_results.to_csv("our_method_evaluation_results.csv")
+
+
+# eval_1=df_results['Approximate uniform MP@5'].tolist()
+# eval_1 = np.array(eval_1) 
+# eval_1 = [0 if pd.isna(x) else x for x in eval_1]
+# pan = np.mean(eval_1)
