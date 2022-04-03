@@ -43,10 +43,10 @@ exact = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy
 approximate = [get_author_ranking_approximate_v2(query1,query1, index, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1 in queries]
 
 
-exact_uniform = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
+# exact_uniform = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
 
 
-approximate_uniform = [get_author_ranking_approximate_v2(query1,query1,index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
+# approximate_uniform = [get_author_ranking_approximate_v2(query1,query1,index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
 
 #dict = {"Query":q,"Exact binary MRR@10": mean_reciprocal_rank(exact),"Approximate binary MRR@10":mean_reciprocal_rank(approximate),"Exact binary MAP@10":mean_average_precision(exact),"Approximate binary MAP@10":mean_average_precision(approximate),"Exact binary MP@10":mean_precision_at_n(exact, 10),"Approximate binary MP@10":mean_precision_at_n(approximate, 10),"Exact binary MP@5":mean_precision_at_n(exact, 5),"Approximate binary MP@5":mean_precision_at_n(approximate, 5),"Exact uniform MRR@10":mean_reciprocal_rank(exact_uniform),"Approximate uniform MRR@10":mean_reciprocal_rank(approximate_uniform),"Exact uniform MAP@10":mean_average_precision(exact_uniform),"Approximate uniform MAP@10":mean_average_precision(approximate_uniform),"Exact uniform MP@10":mean_precision_at_n(exact_uniform, 10),"Approximate uniform MP@10":mean_precision_at_n(approximate_uniform, 10),"Exact uniform MP@5":mean_precision_at_n(exact_uniform, 5),"Approximate uniform MP@5":mean_precision_at_n(approximate_uniform, 5)}
 #df_results = df_results.append(dict, ignore_index = True)

@@ -94,7 +94,7 @@ def produce_authors_ranking_new(result):
     sortd = [(k, v) for k, v in sorted(result.items(), key=lambda item: item[1], reverse=True)]
     return sortd
 
-def get_author_ranking_exact_v2(query1,relvents_auths_all_queries, authors, k=10,  strategy="uniform",
+def get_author_ranking_exact_v2(query1,relvents_auths_all_queries, authors, k=50,  strategy="uniform",
                                 normalized=False, norm_alpha=100, extra_term=10):
     """
     Produces an author ranking given a query and adds relevancy flag to the author
