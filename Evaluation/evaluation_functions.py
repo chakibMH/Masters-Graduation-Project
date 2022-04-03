@@ -142,7 +142,7 @@ def get_author_ranking_exact_v2(query1,relvents_auths_all_queries, authors, k=50
     return ranking
 
 
-def get_author_ranking_approximate_v2(query1,  relvents_auths_all_queries, authors, embedder,k=10, similarity_threshold=0.7, strategy="uniform",
+def get_author_ranking_approximate_v2(query1,  relvents_auths_all_queries, authors, embedder,k=50, similarity_threshold=0.7, strategy="uniform",
                                       normalized=False, norm_alpha=100, extra_term=10):
     """
     Produces an author ranking given a query and adds relevancy flag to the author
