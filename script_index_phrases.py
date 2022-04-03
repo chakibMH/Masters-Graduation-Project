@@ -3,7 +3,8 @@
   script to index the sentences.
   
   Once executed, it is faster to load the index by using load function of the custom_faiss_indexer module.
-  
+
+@author: chakib
 """
   
 import pandas as pd

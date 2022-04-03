@@ -56,6 +56,8 @@ queries = df.columns.values
 
 for q in queries:
     res = df[q]
+    # sort values
+    res.sort_values(inplace=True)
     # dict like cluster analysis' one
     dic_q = res.to_dict()
     
