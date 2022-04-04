@@ -54,7 +54,7 @@ def check_if_author_relevant(authors, author_id, query):
 
 def check_if_author_relevant_approximate(author_id, query, embedder, similarity_threshold=0.7, tfidf=False):
     query = query.lower()
-    tags = [t['t'].lower() for t in retrieve_author_tags(author_id)]
+    tags = [t['t'].lower() for t in retrieve_author_tags(authors,author_id)]
     if tfidf:
         print("tfidf")
     else:
@@ -122,7 +122,7 @@ def get_author_ranking_exact_v2(query1,relvents_auths_all_queries, authors, k=50
 
     res = relvents_auths_all_queries[query1].copy()
     # sort values
-    #res.sort_values(inplace=True)
+    res.sort_values(inplace=True)
     # dict like cluster analysis' one
     dic_q = res.to_dict()
     result_top_k = produce_authors_ranking_new(dic_q)[:k]
@@ -171,16 +171,17 @@ def get_author_ranking_approximate_v2(query1,  relvents_auths_all_queries, autho
     
     res = relvents_auths_all_queries[query1].copy()
     # sort values
-    #res.sort_values(inplace=True)
+    res.sort_values(inplace=True)
     # dict like cluster analysis' one
     dic_q = res.to_dict()
+    print("here")
     result_top_k = produce_authors_ranking_new(dic_q)[:k]
     
     top_n = result_top_k
 
-
+    
     relevancies = [check_if_author_relevant_approximate(aid[0], query1, embedder, similarity_threshold) for aid in top_n]
-
+    print("here")
     ranking = {}
 
     for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
