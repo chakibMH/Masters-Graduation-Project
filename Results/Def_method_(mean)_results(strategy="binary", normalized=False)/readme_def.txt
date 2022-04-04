@@ -1,1 +1,21 @@
-Exact binary MRR@50:0.804 / Exact binary MRR@10:0.855 / Approximate binary MRR@50:0.897 / Approximate binary MRR@10:0.923 / Exact binary MAP@50:0.409 / Exact binary MAP@10:0.551 / Approximate binary MAP@50:0.577 / Approximate binary MAP@10:0.718 / Exact binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:{5: 0.664, 10: 0.638, 15: 0.621, 20: 0.607, 25: 0.597, 30: 0.59, 35: 0.584, 40: 0.578, 45: 0.573, 50: 0.567} / Approximate binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:{5: 0.804, 10: 0.788, 15: 0.775, 20: 0.763, 25: 0.754, 30: 0.747, 35: 0.74, 40: 0.735, 45: 0.729, 50: 0.723}
+Exact binary MRR@50:0.804 
+
+Exact binary MRR@10:0.855 
+
+Approximate binary MRR@50:0.897 
+
+Approximate binary MRR@10:0.923 
+
+Exact binary MAP@50:0.409 
+
+Exact binary MAP@10:0.551 
+
+Approximate binary MAP@50:0.577 
+
+Approximate binary MAP@10:0.718 
+
+Exact binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+{5: 0.664, 10: 0.638, 15: 0.621, 20: 0.607, 25: 0.597, 30: 0.59, 35: 0.584, 40: 0.578, 45: 0.573, 50: 0.567} 
+
+Approximate binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+{5: 0.804, 10: 0.788, 15: 0.775, 20: 0.763, 25: 0.754, 30: 0.747, 35: 0.74, 40: 0.735, 45: 0.729, 50: 0.723}
