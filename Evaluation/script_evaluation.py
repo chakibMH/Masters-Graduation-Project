@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from sentence_transformers import SentenceTransformer
+from evaluation_functions import load_data_and_authors,load_relevant_index,get_author_ranking_exact_v2,get_author_ranking_approximate_v2,mean_reciprocal_rank,mean_average_precision,mean_precision_at_n
+import pandas as pd
 #/***********************************************************************************/
 
 embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
-# res = faiss.StandardGpuResources()  # use a single GPU
 
 
 data_and_authors = load_data_and_authors()
@@ -13,9 +15,9 @@ authors = data_and_authors[1]
 index = load_relevant_index("separate_sbert")
 
 
-df_read = pd.read_csv("relvents_auths_all_queries.csv",index_col=0)
+relvents_auths_all_queries = pd.read_csv("relvents_auths_all_queries.csv",index_col=0)
 
-queries = df_read.columns.values
+queries = relvents_auths_all_queries.columns.values
 
 #df_results = pd.DataFrame(columns=["Query","Exact binary MRR@10","Approximate binary MRR@10","Exact binary MAP@10","Approximate binary MAP@10","Exact binary MP@10:","Approximate binary MP@10","Exact binary MP@5","Approximate binary MP@5","Exact uniform MRR@10","Approximate uniform MRR@10","Exact uniform MAP@10","Approximate uniform MAP@10","Exact uniform MP@10","Approximate uniform MP@10","Exact uniform MP@5","Approximate uniform MP@5"])
 
@@ -35,13 +37,46 @@ queries = df_read.columns.values
     #queries1 = [q]
     #queries2 = [q]
 
+
+
+# import time
+# start_time = time.time()
+
+# exact = [get_author_ranking_exact_v2(query1, relvents_auths_all_queries,authors,k=50, strategy="uniform", normalized=False, norm_alpha=100, extra_term=10) for query1 in queries]
+  
+# approximate = [get_author_ranking_approximate_v2(query1, relvents_auths_all_queries,authors,embedder, k=50, strategy="uniform",normalized=False, norm_alpha=100, extra_term=10) for query1 in queries]
+
+# print("--- %s seconds ---" % (time.time() - start_time))
+
+import time
+start_time = time.time()
+
+exact2=[]
+approximate2=[]
+for query1 in queries:
     
+    exact2.append(get_author_ranking_exact_v2(query1, relvents_auths_all_queries,authors,k=50, strategy="uniform", normalized=False, norm_alpha=100, extra_term=10) )
+    approximate2.append(get_author_ranking_approximate_v2(query1, relvents_auths_all_queries,authors,embedder, k=50, strategy="uniform",normalized=False, norm_alpha=100, extra_term=10))
 
-exact = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1 in queries]
+print("--- %s seconds ---" % (time.time() - start_time))
 
-    
-approximate = [get_author_ranking_approximate_v2(query1,query1, index, tfidf=False, strategy="binary", normalized=True, norm_alpha=1) for query1 in queries]
 
+#///////////////////////////**********************///////////////////////
+
+#Save ranking
+
+#///////////////////////////**********************///////////////////////
+
+df_results = pd.DataFrame(columns=["Query","Exact","Approximate"])
+
+i=0
+for q in queries:
+    dict = {"Query":q,"Exact":exact2[i],"Approximate":approximate2[i]}
+    df_results = df_results.append(dict, ignore_index = True)
+    i=i+1
+
+import pandas as pd
+df_results.to_csv("our_method_rankig.csv")
 
 # exact_uniform = [get_author_ranking_exact_v2(query1,query1, index, tfidf=False, strategy="uniform", normalized=True, norm_alpha=1) for query1 in queries]
 
@@ -51,13 +86,123 @@ approximate = [get_author_ranking_approximate_v2(query1,query1, index, tfidf=Fal
 #dict = {"Query":q,"Exact binary MRR@10": mean_reciprocal_rank(exact),"Approximate binary MRR@10":mean_reciprocal_rank(approximate),"Exact binary MAP@10":mean_average_precision(exact),"Approximate binary MAP@10":mean_average_precision(approximate),"Exact binary MP@10":mean_precision_at_n(exact, 10),"Approximate binary MP@10":mean_precision_at_n(approximate, 10),"Exact binary MP@5":mean_precision_at_n(exact, 5),"Approximate binary MP@5":mean_precision_at_n(approximate, 5),"Exact uniform MRR@10":mean_reciprocal_rank(exact_uniform),"Approximate uniform MRR@10":mean_reciprocal_rank(approximate_uniform),"Exact uniform MAP@10":mean_average_precision(exact_uniform),"Approximate uniform MAP@10":mean_average_precision(approximate_uniform),"Exact uniform MP@10":mean_precision_at_n(exact_uniform, 10),"Approximate uniform MP@10":mean_precision_at_n(approximate_uniform, 10),"Exact uniform MP@5":mean_precision_at_n(exact_uniform, 5),"Approximate uniform MP@5":mean_precision_at_n(approximate_uniform, 5)}
 #df_results = df_results.append(dict, ignore_index = True)
 
-print("Exact binary MRR@10:", mean_reciprocal_rank(exact)," / Approximate binary MRR@10:", mean_reciprocal_rank(approximate)," / Exact binary MAP@10:", mean_average_precision(exact)," / Approximate binary MAP@10:", mean_average_precision(approximate)," / Exact binary MP@10:", mean_precision_at_n(exact, 10)," / Approximate binary MP@10:", mean_precision_at_n(approximate, 10)," / Exact binary MP@5:", mean_precision_at_n(exact, 5)," / Approximate binary MP@5:", mean_precision_at_n(approximate, 5)," // Exact uniform MRR@10:", mean_reciprocal_rank(exact_uniform)," / Approximate uniform MRR@10:", mean_reciprocal_rank(approximate_uniform)," / Exact uniform MAP@10:", mean_average_precision(exact_uniform)," / Approximate uniform MAP@10:", mean_average_precision(approximate_uniform)," / Exact uniform MP@10:", mean_precision_at_n(exact_uniform, 10)," / Approximate uniform MP@10:", mean_precision_at_n(approximate_uniform, 10)," / Exact uniform MP@5:", mean_precision_at_n(exact_uniform, 5)," / Approximate uniform MP@5:", mean_precision_at_n(approximate_uniform, 5))
+#///////////////////////////**********************///////////////////////
 
-# import pandas as pd
-# df_results.to_csv("our_method_evaluation_results.csv")
+#Save methode results
+
+#///////////////////////////**********************///////////////////////
+
+# text = "Exact binary MRR@10:"+ str(mean_reciprocal_rank(exact2))+" / Approximate binary MRR@10:"+ str(mean_reciprocal_rank(approximate2))+" / Exact binary MAP@10:"+ str(mean_average_precision(exact2))+" / Approximate binary MAP@10:"+ str(mean_average_precision(approximate2))+" / Exact binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:"+ str(mean_precision_at_n(exact2, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]))+" / Approximate binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:"+ str(mean_precision_at_n(approximate2, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]))
+
+# with open('readme.txt', 'w') as f:
+#     f.write(text)
 
 
 # eval_1=df_results['Approximate uniform MP@5'].tolist()
 # eval_1 = np.array(eval_1) 
 # eval_1 = [0 if pd.isna(x) else x for x in eval_1]
 # pan = np.mean(eval_1)
+
+
+
+exact=exact2
+approximate=approximate2
+
+l=[]
+b=[]
+for s in range(len(exact)):
+    
+    l2={k:exact[s][k] for k in list(exact[s])[:10]}
+    l.append(l2)
+    b2={k:approximate[s][k] for k in list(approximate[s])[:10]}
+    b.append(b2)
+
+text = "Exact binary MRR@50:"+ str(mean_reciprocal_rank(exact))+" / Exact binary MRR@10:"+ str(mean_reciprocal_rank(l))+" / Approximate binary MRR@50:"+ str(mean_reciprocal_rank(approximate))+" / Approximate binary MRR@10:"+ str(mean_reciprocal_rank(b))+" / Exact binary MAP@50:"+ str(mean_average_precision(exact))+" / Exact binary MAP@10:"+ str(mean_average_precision(l)) +" / Approximate binary MAP@50:"+ str(mean_average_precision(approximate))+" / Approximate binary MAP@10:"+ str(mean_average_precision(b))+" / Exact binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:"+ str(mean_precision_at_n(exact, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]))+" / Approximate binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:"+ str(mean_precision_at_n(approximate, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]))
+
+with open('original_results.txt', 'w') as f:
+    f.write(text)
+
+
+#///////////////////////////**********************///////////////////////
+
+#Save metrics
+
+#///////////////////////////**********************///////////////////////
+
+import math
+
+df_results_eval = pd.DataFrame(columns=["Query",
+                                        "Exact binary MRR@50",
+                                        "Exact binary MRR@10",
+                                        "Approximate binary MRR@50",
+                                        "Approximate binary MRR@10",
+                                        "Exact binary MAP@50",
+                                        "Exact binary MAP@10",
+                                        "Approximate binary MAP@50",
+                                        "Approximate binary MAP@10",
+                                        "Exact binary MP@5",
+                                        "Exact binary MP@10",
+                                        "Exact binary MP@15",
+                                        "Exact binary MP@20",
+                                        "Exact binary MP@25",
+                                        "Exact binary MP@30",
+                                        "Exact binary MP@35",
+                                        "Exact binary MP@40",
+                                        "Exact binary MP@45",
+                                        "Exact binary MP@50",
+                                        "Approximate binary MP@5",
+                                        "Approximate binary MP@10",
+                                        "Approximate binary MP@15",
+                                        "Approximate binary MP@20",
+                                        "Approximate binary MP@25",
+                                        "Approximate binary MP@30",
+                                        "Approximate binary MP@35",
+                                        "Approximate binary MP@40",
+                                        "Approximate binary MP@45",
+                                        "Approximate binary MP@50"])
+
+i=0
+for q in queries:
+    l=[]
+    l.append(exact[i])
+    b=[]
+    b.append(approximate[i])
+    
+    l2=[{k:exact[i][k] for k in list(exact[i])[:10]}]
+    b2=[{k:approximate[i][k] for k in list(approximate[i])[:10]}]
+    dict = {"Query":q,"Exact binary MRR@50":  ( 0 if math.isnan( mean_reciprocal_rank(l)) else mean_reciprocal_rank(l)),"Exact binary MRR@10":  ( 0 if math.isnan( mean_reciprocal_rank(l2)) else mean_reciprocal_rank(l2)),"Approximate binary MRR@50":( 0 if math.isnan(mean_reciprocal_rank(b)) else mean_reciprocal_rank(b)),"Approximate binary MRR@10":( 0 if math.isnan(mean_reciprocal_rank(b2)) else mean_reciprocal_rank(b2)) ,"Exact binary MAP@50":( 0 if math.isnan(mean_average_precision(l)) else mean_average_precision(l)) ,"Exact binary MAP@10":( 0 if math.isnan(mean_average_precision(l2)) else mean_average_precision(l2)),"Approximate binary MAP@50":mean_average_precision(b),"Approximate binary MAP@10":mean_average_precision(b2),"Exact binary MP@5":mean_precision_at_n(l, list_n=[5]).get(5),"Exact binary MP@10":mean_precision_at_n(l, list_n=[10]).get(10),"Exact binary MP@15":mean_precision_at_n(l, list_n=[15]).get(15),"Exact binary MP@20":mean_precision_at_n(l, list_n=[20]).get(20),"Exact binary MP@25":mean_precision_at_n(l, list_n=[25]).get(25),"Exact binary MP@30":mean_precision_at_n(l, list_n=[30]).get(30),"Exact binary MP@35":mean_precision_at_n(l, list_n=[35]).get(35),"Exact binary MP@40":mean_precision_at_n(l, list_n=[40]).get(40),"Exact binary MP@45":mean_precision_at_n(l, list_n=[45]).get(45),"Exact binary MP@50":mean_precision_at_n(l, list_n=[50]).get(50),"Approximate binary MP@5":mean_precision_at_n(b, list_n=[5]).get(5),"Approximate binary MP@10":mean_precision_at_n(b, list_n=[10]).get(10),"Approximate binary MP@15":mean_precision_at_n(b, list_n=[15]).get(15),"Approximate binary MP@20":mean_precision_at_n(b, list_n=[20]).get(20),"Approximate binary MP@25":mean_precision_at_n(b, list_n=[25]).get(25),"Approximate binary MP@30":mean_precision_at_n(b, list_n=[30]).get(30),"Approximate binary MP@35":mean_precision_at_n(b, list_n=[35]).get(35),"Approximate binary MP@40":mean_precision_at_n(b, list_n=[40]).get(40),"Approximate binary MP@45":mean_precision_at_n(b, list_n=[45]).get(45),"Approximate binary MP@50":mean_precision_at_n(b, list_n=[50]).get(50)}
+    df_results_eval = df_results_eval.append(dict, ignore_index = True)
+    i=i+1
+ 
+    
+ 
+#///////////////////////////**********************///////////////////////
+
+#Read ranking.csv
+
+#///////////////////////////**********************///////////////////////
+    
+import pandas as pd
+df_results_eval.to_csv("original_method_metrics.csv")
+
+
+
+df = pd.read_csv ('original_method_rankig.csv')
+
+exact_original = df['Exact'].tolist()
+
+import ast
+liste_exact_original= []
+for i in range(len(exact_original)):
+    liste_exact_original.append(ast.literal_eval(exact_original[i]))
+    
+approximate_original = df['Approximate'].tolist()
+
+import ast
+liste_approximate_original= []
+for i in range(len(approximate_original)):
+    liste_approximate_original.append(ast.literal_eval(approximate_original[i]))
+
+#text = "Exact binary MRR@50:"+ str(mean_reciprocal_rank(exact))+" / Exact binary MRR@10:"+ str(mean_reciprocal_rank(l))+" / Approximate binary MRR@50:"+ str(mean_reciprocal_rank(approximate))+" / Approximate binary MRR@10:"+ str(mean_reciprocal_rank(b))+" / Exact binary MAP@50:"+ str(mean_average_precision(exact))+" / Exact binary MAP@10:"+ str(mean_average_precision(l)) +" / Approximate binary MAP@50:"+ str(mean_average_precision(approximate))+" / Approximate binary MAP@10:"+ str(mean_average_precision(b))+" / Exact binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:"+ str(mean_precision_at_n(exact, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]))+" / Approximate binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:"+ str(mean_precision_at_n(approximate, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]))
+
+
