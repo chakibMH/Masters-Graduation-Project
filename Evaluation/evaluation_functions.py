@@ -1,30 +1,57 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Created on Sun Apr  3 17:52:42 2022
+
+@author: serine
+"""
+
 import pandas as pd
 import ast
 import scipy
-from sentence_transformers import SentenceTransformer
 import numpy as np
+import faiss
 
 
+def load_relevant_index(type="separate_sbert"):
+    index = None
+    if type == "separate_sbert":
+        index = faiss.read_index("Mapped_indeces/separate_embeddings_faiss.index")
+    elif type == "merged_sbert":
+        index = faiss.read_index("Mapped_indeces/merged_embeddings_faiss.index")
+    elif type == "retro_merged_sbert":
+        index = faiss.read_index("Mapped_indeces/retro_merged_embeddings_faiss.index")
+    elif type == "retro_separate_sbert":
+        index = faiss.read_index("Mapped_indeces/retro_separate_embeddings_faiss.index")
+    elif type == "tfidf_svd":
+        index = faiss.read_index("Mapped_indeces/tfidf_embeddings_faiss.index")
+    elif type == "pooled_bert":
+        index = faiss.read_index("Mapped_indeces/mean_bert_faiss.index")
+    elif type == "pooled_glove":
+        index = faiss.read_index("Mapped_indeces/glove_faiss.index")
+    return index
 
+def load_data_and_authors(data_path="papers.csv", 
+                          authors_path="authors.csv"):
+    data = pd.read_csv(data_path)
+    authors = pd.read_csv(authors_path)
+    return data, authors
 
 def retrieve_author_tags(authors, author_id):
     """
     
-
     Parameters
     ----------
     authors : Dataframe
         authors' dataset.
     author_id : int
         id of author.
-
     Returns
     -------
     TYPE
         DESCRIPTION.
-
     """
+    author_id= int(author_id)
     try:
         return ast.literal_eval(authors[authors.id == author_id].tags.values[0])
     except:
@@ -52,7 +79,7 @@ def check_if_author_relevant(authors, author_id, query):
 
 
 
-def check_if_author_relevant_approximate(author_id, query, embedder, similarity_threshold=0.7, tfidf=False):
+def check_if_author_relevant_approximate(authors,author_id, query, embedder, similarity_threshold=0.7, tfidf=False):
     query = query.lower()
     tags = [t['t'].lower() for t in retrieve_author_tags(authors,author_id)]
     if tfidf:
@@ -122,7 +149,7 @@ def get_author_ranking_exact_v2(query1,relvents_auths_all_queries, authors, k=50
 
     res = relvents_auths_all_queries[query1].copy()
     # sort values
-    res.sort_values(inplace=True)
+    #res.sort_values(inplace=True)
     # dict like cluster analysis' one
     dic_q = res.to_dict()
     result_top_k = produce_authors_ranking_new(dic_q)[:k]
@@ -171,17 +198,15 @@ def get_author_ranking_approximate_v2(query1,  relvents_auths_all_queries, autho
     
     res = relvents_auths_all_queries[query1].copy()
     # sort values
-    res.sort_values(inplace=True)
+    #res.sort_values(inplace=True)
     # dict like cluster analysis' one
     dic_q = res.to_dict()
-    print("here")
     result_top_k = produce_authors_ranking_new(dic_q)[:k]
     
     top_n = result_top_k
 
-    
-    relevancies = [check_if_author_relevant_approximate(aid[0], query1, embedder, similarity_threshold) for aid in top_n]
-    print("here")
+    relevancies = [check_if_author_relevant_approximate(authors,aid[0], query1, embedder,  similarity_threshold=0.7, tfidf=False) for aid in top_n]
+
     ranking = {}
 
     for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
@@ -273,5 +298,3 @@ def mean_precision_at_n(results, list_n=[5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
         d_n[n] = mpan
     
     return d_n
-
-
