@@ -47,4 +47,14 @@ def save_plot(df_original,df_method):
         plt.ylabel('Def method')
         plt.title(metric)
         name = metric.replace(" ", "_")
-        plt.savefig("Plots/Original_DefMethod/"+name+".jpg")
+        plt.savefig("Original_DefMethod/"+name+".jpg")
+        
+
+import pandas as pd
+df_original = pd.read_csv ('original_method_metrics.csv')
+
+
+df_method = pd.read_csv ('def_mean_method_metrics.csv')
+
+
+save_plot(df_original,df_method)
