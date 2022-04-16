@@ -1,0 +1,21 @@
+Exact binary MRR@50:0.725 
+
+Exact binary MRR@10:0.809 
+
+Approximate binary MRR@50:0.85 
+
+Approximate binary MRR@10:0.903 
+
+Exact binary MAP@50:0.288 
+
+Exact binary MAP@10:0.427 
+
+Approximate binary MAP@50:0.444 
+
+Approximate binary MAP@10:0.601 
+
+Exact binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+{5: 0.518, 10: 0.509, 15: 0.5, 20: 0.491, 25: 0.483, 30: 0.476, 35: 0.47, 40: 0.463, 45: 0.457, 50: 0.451} 
+
+Approximate binary MP@[5, 10, 15, 20, 25, 30, 35, 40, 45, 50]:
+{5: 0.698, 10: 0.682, 15: 0.67, 20: 0.658, 25: 0.65, 30: 0.642, 35: 0.635, 40: 0.628, 45: 0.621, 50: 0.615}
