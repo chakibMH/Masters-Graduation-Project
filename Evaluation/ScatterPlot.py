@@ -44,17 +44,20 @@ def save_plot(df_original,df_method):
         plt.scatter(x, y)
          
         plt.xlabel('Original method')
-        plt.ylabel('Def method')
+        plt.ylabel('Our method')
         plt.title(metric)
         name = metric.replace(" ", "_")
-        plt.savefig("Original_DefMethod/"+name+".jpg")
+        plt.savefig("Original_OurMethod/"+name+".jpg")
         
 
 import pandas as pd
 df_original = pd.read_csv ('original_method_metrics.csv')
 
 
-df_method = pd.read_csv ('def_mean_method_metrics.csv')
+df_method = pd.read_csv ('Our_method_metrics.csv')
+df_method1 = pd.read_csv ('def_mean_method_metrics.csv')
+df_method2 = pd.read_csv ('def_hyb_method_metrics.csv')
+
 
 
 save_plot(df_original,df_method)
