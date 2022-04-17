@@ -163,7 +163,7 @@ def get_data(name):
 
 
 #********************2*************/
-def construct_csv(list_authors,df_all_authors):
+def construct_csv(list_authors):
     
     i=1
     for a in list_authors:
@@ -174,11 +174,11 @@ def construct_csv(list_authors,df_all_authors):
             #print(df)
             list_papers = []
             if df.empty == False :
-                s=(df_all_authors.loc[df_all_authors.name==a]).id
-                s=s.tolist()
+                # s=(df_all_authors.loc[df_all_authors.name==a]).id
+                # s=s.tolist()
                 for x in df.itertuples():
                     
-                    list_final=[x.title,x.abstract,s[0]]
+                    list_final=[x.title,x.abstract,a]
                     with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
@@ -342,18 +342,21 @@ def strip_accents(s):
 
 #/***********************************************************************/
 
-fields=['title', 'abstract','id_author']
+fields=['title', 'abstract','author_name']
 with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(fields)
 
 #/************************************************************************/
 
-#                           Add your list of authors
+#             Select your list of authors by modifying the indexes
 
 #/***********************************************************************/
 
-list_authors=['Michael O. Duff']
+with open('list_all_authors.pkl', 'rb') as f:
+    list_all_authors = pickle.load(f)
+
+list_authors=list_all_authors[0:5]
 
 #/************************************************************************/
 
@@ -361,11 +364,12 @@ list_authors=['Michael O. Duff']
 
 #/***********************************************************************/
 
-df_all_authors = pd.read_csv ('authors.csv')
 start = time.time()
-list_papers=construct_csv(list_authors,df_all_authors)
+list_papers=construct_csv(list_authors)
 end = time.time()
 print("time: ",end - start)
+
+ 
 
 
 
