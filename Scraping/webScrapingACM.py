@@ -166,6 +166,7 @@ def get_data(name):
 def construct_csv(list_authors):
     
     i=1
+    k=0
     for a in list_authors:
         print("author : ",i)
         i=i+1
@@ -182,6 +183,8 @@ def construct_csv(list_authors):
                     with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
+            else:
+                k=k+1
                     
                     # list_papers.append([x.title,x.abstract])
                 
@@ -195,6 +198,8 @@ def construct_csv(list_authors):
             #     writer.writerow(list_final)
         except:
           print("An exception occurred")
+    
+    print("Number of authors not found is : ",k)
         
     return list_papers
         
@@ -342,10 +347,10 @@ def strip_accents(s):
 
 #/***********************************************************************/
 
-fields=['title', 'abstract','author_name']
-with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
-    writer = csv.writer(f)
-    writer.writerow(fields)
+# fields=['title', 'abstract','author_name']
+# with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
+#     writer = csv.writer(f)
+#     writer.writerow(fields)
 
 #/************************************************************************/
 
@@ -356,7 +361,9 @@ with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
 
-list_authors=list_all_authors[0:5]
+list_authors=list_all_authors[700:800]
+
+
 
 #/************************************************************************/
 
