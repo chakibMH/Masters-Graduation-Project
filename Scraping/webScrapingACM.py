@@ -163,7 +163,7 @@ def get_data(name):
 
 
 #********************2*************/
-def construct_csv(list_authors):
+def construct_csv(list_authors,txt_indices):
     
     i=1
     k=0
@@ -180,7 +180,7 @@ def construct_csv(list_authors):
                 for x in df.itertuples():
                     
                     list_final=[x.title,x.abstract,a]
-                    with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
+                    with open(r'papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
             else:
@@ -348,7 +348,8 @@ def strip_accents(s):
 #/***********************************************************************/
 
 # fields=['title', 'abstract','author_name']
-# with open(r'papers_ACM.csv', 'a', newline='', encoding="utf-8") as f:
+#txt_indices="100_199"
+# with open(r'papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
 #     writer = csv.writer(f)
 #     writer.writerow(fields)
 
@@ -361,7 +362,7 @@ def strip_accents(s):
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
 
-list_authors=list_all_authors[700:800]
+list_authors=list_all_authors[1941:2400]
 
 
 
@@ -372,7 +373,8 @@ list_authors=list_all_authors[700:800]
 #/***********************************************************************/
 
 start = time.time()
-list_papers=construct_csv(list_authors)
+txt_indices="100_199"
+list_papers=construct_csv(list_authors,txt_indices)
 end = time.time()
 print("time: ",end - start)
 
