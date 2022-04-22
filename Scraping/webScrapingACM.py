@@ -15,6 +15,8 @@ import unicodedata
 from scraping_utility import match_name
 import time
 import pickle
+import random
+import time
 
 
 def get_data(name):
@@ -25,7 +27,57 @@ def get_data(name):
 
         id = a[1]
             
-        link="https://dl.acm.org"+id
+        link_="https://dl.acm.org"+id
+        
+        #name = "Janez Brank"
+
+        req1 = requests.Session()
+
+        #name_url = name.replace(" ", "+")
+
+        link = req1.get(link_)
+
+        src1 = link.content
+
+        #print(src)
+
+
+        soup1 = BeautifulSoup(src1, "lxml")
+
+        infos  = soup1.find_all("div",{"class","bibliometrics__count"})
+        infos_liste= []
+
+        for i in range(len(infos)):
+            infos_liste.append(infos[i].text)
+
+        infos_liste=infos_liste[:5]   
+
+        #*********************************/
+
+
+
+        infos = soup1.find_all("div",{"class","tag-cloud"})
+
+        links=str(infos)
+
+
+        # s = links
+        # u=re.findall(r',"label":"(.*?)\","count":', s)
+
+        s = links
+        u1=re.findall(r'<div class="tag-cloud(.*?)\</div>,', s)
+        subjects=[]
+        if u1 != []:
+            
+            subjects=re.findall(r',"label":"(.*?)\","count":', u1[0])
+
+        u2=re.findall(r'</div>, <div class(.*?)\></div>', s)
+        keywords=[]
+        if u2 != []:
+            keywords=re.findall(r',"label":"(.*?)\","count":', u2[0])
+            
+        #///////////////////////////////////**************************/////////////////
+
         #print("id  : ",id)
         page_num = 0
         while True :
@@ -57,8 +109,10 @@ def get_data(name):
             
             for i in range(len(papers_title)):
                 papers_titles.append(papers_title[i].text)
-                
+            
                 links_papers.append("https://dl.acm.org"+papers_title[i].find("a").attrs["href"])
+                 
+                
                 
                 #dfObj = pd.DataFrame(columns=['paper_title', 'url', 'Action'])
             
@@ -66,9 +120,11 @@ def get_data(name):
             #print(len(links_papers))
             
             #get abstracts
-            df = pd.DataFrame(columns=['title', 'abstract'])
+            df = pd.DataFrame(columns=['id_paper','title', 'abstract', 'paper_citation','revue','index_terms'])
             for i in range(len(links_papers)):
-                result = req.get(links_papers[i])
+                bbb=links_papers[i]
+                result = req.get(bbb)
+                id_paper=bbb.split("/doi/",1)[1]
         
                 src = result.content
         
@@ -77,20 +133,64 @@ def get_data(name):
                 soup = BeautifulSoup(src, "lxml")
         
                 abstract = soup.find_all("div", {"class":"abstractSection abstractInFull"})
+                
                 title = soup.find_all("h1",{"class":"citation__title"})
+                
+                infos_cit  = soup.find_all("span",{"class","citation"})
+                
+                
+                if infos_cit != []:
+                    num=infos_cit[0].text
+                    left=""
+                    right="citation"
+    
+                    cit_num = str( num[num.index(left)+len(left):num.index(right)])
+                else:
+
+                    infos_cit  = soup.find_all("div",{"class","bibliometrics__count"})
+                    
+                    if infos_cit != []:
+                        num=infos_cit[0].text
+                        cit_num=str(num)
+                    else:
+                        cit_num="0"
+                    
+                infos_cit  = soup.find_all("div",{"class","citation article__section article__index-terms"})
+                index_terms=[]
+
+                s=str(infos_cit)
+
+                index_terms=re.findall(r'expand=all">(.*?)\</a></p>', s)
+                
+                revue  = soup.find_all("span",{"class","epub-section__title"})
+                revue_list=[]
+
+                for i in range(len(revue)):
+                    revue_list.append(revue[i].text)
+                    
+                revue  = soup.find_all("span",{"class","comma-separator"})
+
+                for i in range(len(revue)):
+                    revue_list.append(revue[i].text)
+                    
+                revue  = soup.find_all("span",{"class","dot-separator"})
+
+                for i in range(len(revue)):
+                    revue_list.append(revue[i].text)
+                
                 if len(title) != 0:
                     for i in range(len(abstract)):
                         if i==0:
                             abs_ = abstract[i].text
                             abs_ = abs_.replace("\n", "")
                             
-                            df2 = {'title': title[i].text, 'abstract': abs_}
+                            df2 = {'id_paper':id_paper,'title': title[i].text, 'abstract': abs_, 'paper_citation': cit_num,'revue':revue_list,'index_terms':index_terms }
                             df = df.append(df2, ignore_index = True)
             #abstracts.pop()
             
             page_num +=1
             #print("page switched")
-        return df
+        return df,infos_liste,subjects,keywords
         
 
     authors_list = []
@@ -135,101 +235,46 @@ def get_data(name):
         else :
             print("there is no such an author !")
             dfObj = pd.DataFrame(columns=['title', 'abstract'])
-            return dfObj
+            return dfObj,[],[],[]
         
-# def construct_csv(list_authors):
-#     df_final = pd.DataFrame(columns=['author', 'papers'])
-#     i=1
-#     for a in list_authors:
-#         print("author : ",i)
-#         i=i+1
-#         df = get_data(a)
-#         #print(df)
-#         list_papers = []
-#         if df.empty == False :
-            
-#             for x in df.itertuples():
-#                 list_papers.append([x.title,x.abstract])
-            
-#             if len(list_papers)==0:
-#                 list_papers.append("No data available")
-            
-#         df_ = {'author': a, 'papers': list_papers}
-#         df_final = df_final.append(df_, ignore_index = True)
-        
-#     #print(df_final)
-#     df_final.to_csv("authors_data_ACM.csv", encoding='utf-8',index=False)
-#     return df_final
 
 
-#********************2*************/
+#*********************************/
 def construct_csv(list_authors,txt_indices):
     
     i=1
     k=0
+    j=0
     for a in list_authors:
+        
+        # Sleep
+        t=random.uniform(0.5, 1)
+        time.sleep(t)
+        
         print("author : ",i)
         i=i+1
-        try:
-            df = get_data(a)
-            #print(df)
-            list_papers = []
-            if df.empty == False :
-                # s=(df_all_authors.loc[df_all_authors.name==a]).id
-                # s=s.tolist()
-                for x in df.itertuples():
-                    
-                    list_final=[x.title,x.abstract,a]
-                    with open(r'papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-                        writer = csv.writer(f)
-                        writer.writerow(list_final)
-            else:
-                k=k+1
-                    
-                    # list_papers.append([x.title,x.abstract])
+        # try:
+        df,infos_liste,subjects,keywords = get_data(a)
+        #print(df)
+        if df.empty == False :
+            k=k+1
+            
+            for x in df.itertuples():
                 
-                # if len(list_papers)==0:
-                #     list_papers.append("No data available")
-                
-            # list_papers=str(list_papers)
-            # list_final = [a, list_papers]
-            # with open(r'papers_ACM_test.csv', 'a', newline='', encoding="utf-8") as f:
-            #     writer = csv.writer(f)
-            #     writer.writerow(list_final)
-        except:
-          print("An exception occurred")
+                list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
+                with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(list_final)
+        else:
+            j=j+1
+                        
+        # except:
+        #   print("An exception occurred")
     
-    print("Number of authors not found is : ",k)
+    print("Number of authors found is : ",k," / ",i-1)
         
-    return list_papers
         
-# def construct_csv(list_authors):
-#     df_final = pd.DataFrame(columns=['author', 'papers'])
-#     i=1
-#     for a in list_authors:
-#         print("author : ",i)
-#         i=i+1
-#         df = get_data(a)
-#         #print(df)
-#         list_papers = []
-#         if df.empty == False :
-            
-#             for x in df.itertuples():
-#                 abstract = x.abstract
-#                 abstract = abstract.replace(","," ")
-#                 list_papers.append([x.title,abstract])
-            
-#             if len(list_papers)==0:
-#                 list_papers.append("No data available")
-            
-#         df_ = {'author': a, 'papers': list_papers}
-#         list_final = [df_['author'], df_['papers']]
-        
-#         with open(r'new_test.csv', 'a', newline='', encoding="utf-8") as f:
-#             writer = csv.writer(f)
-#             writer.writerow(list_final)
-#         return df_
-    
+
 
 def get_real_npubs(authors, papers):
     
@@ -347,11 +392,11 @@ def strip_accents(s):
 
 #/***********************************************************************/
 
-# fields=['title', 'abstract','author_name']
-#txt_indices="100_199"
-# with open(r'papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-#     writer = csv.writer(f)
-#     writer.writerow(fields)
+fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
+txt_indices="04"
+with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(fields)
 
 #/************************************************************************/
 
@@ -362,7 +407,8 @@ def strip_accents(s):
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
 
-list_authors=list_all_authors[1941:2400]
+list_authors=list_all_authors[200:300]
+
 
 
 
@@ -373,34 +419,72 @@ list_authors=list_all_authors[1941:2400]
 #/***********************************************************************/
 
 start = time.time()
-txt_indices="100_199"
-list_papers=construct_csv(list_authors,txt_indices)
+txt_indices="04"
+construct_csv(list_authors,txt_indices)
 end = time.time()
-print("time: ",end - start)
+print("time: ",(end - start)/60," min")
 
  
 
 
+# txt_indices1="2400_2499"
+# list_authors1=list_all_authors[2400:2500]
+# txt_indices2="2500_2599"
+# list_authors2=list_all_authors[2500:2600]
+# txt_indices3="2600_2699"
+# list_authors3=list_all_authors[2600:2700]
 
-# import threading
 
-# list_authors=["Steven J. Benson"]
-# list_authors2=["Ahmed Touati"]
+# import multiprocessing
+
 
 # start = time.time()
+# # creating processes
+# p1 = multiprocessing.Process(target=construct_csv, args=(list_authors1,txt_indices1,))
+# p2 = multiprocessing.Process(target=construct_csv, args=(list_authors2,txt_indices2,))
+# p3 = multiprocessing.Process(target=construct_csv, args=(list_authors3,txt_indices3,))
+# # starting process 1
+# p1.start()
+# # starting process 2
+# p2.start()
+# # starting process 3
+# p3.start()
+  
+# # wait until process 1 is finished
+# p1.join()
+# # wait until process 2 is finished
+# p2.join()
+# # wait until process 3 is finished
+# p3.join()
+  
+# # both processes finished
+# print("Done!")
+# end = time.time()
+# print("time: ",end - start)
+
+
+
+# import threading
+# start = time.time()
 # # creating thread
-# t1 = threading.Thread(target=construct_csv, args=(list_authors,))
-# t2 = threading.Thread(target=construct_csv, args=(list_authors2,))
+
+# t1 = threading.Thread(target=construct_csv, args=(list_authors1,txt_indices1,))
+# t2 = threading.Thread(target=construct_csv, args=(list_authors2,txt_indices2,))
+# # t3 = threading.Thread(target=construct_csv, args=(list_authors3,txt_indices3,))
   
 # # starting thread 1
 # t1.start()
 # # starting thread 2
 # t2.start()
+# # starting thread 3
+# # t3.start()
   
 # # wait until thread 1 is completely executed
 # t1.join()
 # # wait until thread 2 is completely executed
 # t2.join()
+# # wait until thread 3 is completely executed
+# # t3.join()
   
 # # both threads completely executed
 # print("Done!")
