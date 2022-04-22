@@ -141,10 +141,13 @@ def get_data(name):
                 
                 if infos_cit != []:
                     num=infos_cit[0].text
-                    left=""
-                    right="citation"
-    
-                    cit_num = str( num[num.index(left)+len(left):num.index(right)])
+                    try:
+                        
+                        left=""
+                        right="citation"
+                        cit_num = str( num[num.index(left)+len(left):num.index(right)])
+                    except:
+                        cit_num=num
                 else:
 
                     infos_cit  = soup.find_all("div",{"class","bibliometrics__count"})
@@ -245,6 +248,7 @@ def construct_csv(list_authors,txt_indices):
     i=1
     k=0
     j=0
+    list_exeptions=[]
     for a in list_authors:
         
         # Sleep
@@ -269,10 +273,12 @@ def construct_csv(list_authors,txt_indices):
                 j=j+1
                         
         except:
+          list_exeptions.append([i-2,a])
           print("An exception occurred")
     
     print("Number of authors found is : ",k," / ",i-1)
-        
+    
+    return list_exeptions    
         
 
 
@@ -393,7 +399,7 @@ def strip_accents(s):
 #/***********************************************************************/
 
 fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
-txt_indices="04"
+txt_indices="01"
 with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(fields)
@@ -407,8 +413,10 @@ with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
 
-list_authors=list_all_authors[900:1200]
+list_authors=list_all_authors[503:600]
 
+
+# list_authors=['Gerhard Lakemeyer']
 
 
 
@@ -419,8 +427,8 @@ list_authors=list_all_authors[900:1200]
 #/***********************************************************************/
 
 start = time.time()
-txt_indices="04"
-construct_csv(list_authors,txt_indices)
+txt_indices="01"
+list_exeptions = construct_csv(list_authors,txt_indices)
 end = time.time()
 print("time: ",(end - start)/60," min")
 
