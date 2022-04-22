@@ -389,7 +389,12 @@ def strip_accents(s):
 
 
 
-
+def get_index(txt_indices,list_all_authors):
+    df = pd.read_csv('Data_Base\papers_ACM_'+txt_indices+'.csv')
+    l=df.author_name
+    l=l.tolist()
+    b=len(l)
+    return list_all_authors.index(l[b-1])
 
 
 #/************************************************************************/
@@ -412,11 +417,8 @@ with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding
 
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
-
-list_authors=list_all_authors[503:600]
-
-
-# list_authors=['Gerhard Lakemeyer']
+    
+list_authors=list_all_authors[50:300]
 
 
 
@@ -427,13 +429,28 @@ list_authors=list_all_authors[503:600]
 #/***********************************************************************/
 
 start = time.time()
-txt_indices="01"
+txt_indices="0001"
 list_exeptions = construct_csv(list_authors,txt_indices)
 end = time.time()
 print("time: ",(end - start)/60," min")
 
  
 
+
+
+
+# df = pd.read_csv('Data_Base\papers_ACM_01.csv')
+
+# l=df.author_name
+# l=l.tolist()
+
+# l= list(dict.fromkeys(l))
+
+
+# m=list_all_authors[50:300]+list_all_authors[1200:1300]
+# n=m-l
+# n=list(set(m) - set(l))
+# list_authors=n
 
 # txt_indices1="2400_2499"
 # list_authors1=list_all_authors[2400:2500]
