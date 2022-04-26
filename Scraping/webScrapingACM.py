@@ -232,26 +232,24 @@ def get_data(name):
     
     find_author(authors_list,name)
     a=find_author(authors_list_,name)
-    
-    v=True
-    f=False
+
     
     if a != False :
         
-        return collect_abstracts(a),v
+        return collect_abstracts(a)
     else: 
         a  = find_author(authors_list_,strip_accents(name))
         if a != False :
-            return collect_abstracts(a),v
+            return collect_abstracts(a)
         else :
             if authors_list_ == []:
                 print("@ IP blocked !")
                 dfObj = pd.DataFrame(columns=['title', 'abstract'])
-                return dfObj,[],[],[],f
+                return dfObj,["@ IP blocked !"],[],[]
             else:
                 print("There is no such an author !")
                 dfObj = pd.DataFrame(columns=['title', 'abstract'])
-                return dfObj,[],[],[],v
+                return dfObj,[],[],[]
         
 
 
@@ -271,23 +269,27 @@ def construct_csv(list_authors,txt_indices):
         print("author : ",i)
         i=i+1
         try:
-            df,infos_liste,subjects,keywords,tv = get_data(a)
+            df,infos_liste,subjects,keywords = get_data(a)
             #print(df)
-            if tv==True:
-                if df.empty == False :
-                    k=k+1
+            
+            if infos_liste !=[]:
+                if infos_liste[0]=="@ IP blocked !" :
+                    s=i-2
+                    list_exeptions=list_exeptions+list_authors[s:]
+                    break
+                
+            if df.empty == False :
+                k=k+1
+                
+                for x in df.itertuples():
                     
-                    for x in df.itertuples():
-                        
-                        list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                        with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-                            writer = csv.writer(f)
-                            writer.writerow(list_final)
-                else:
-                    j=j+1
+                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
+                    with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                        writer = csv.writer(f)
+                        writer.writerow(list_final)
             else:
-                list_exeptions = list_exeptions + list_authors [(i-2):]
-                break
+                j=j+1
+            
                             
         except:
           list_exeptions.append(a)
@@ -440,6 +442,8 @@ list_authors=list_all_authors[2750:2800]
 
 # list_authors=list_authors[19:]
 # list_authors.append("Arnold Irschara")
+
+# list_authors=["Bob Coyne"]
 
 #/************************************************************************/
 
