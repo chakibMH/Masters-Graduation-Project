@@ -224,11 +224,11 @@ def get_data(name):
     txt = soup.find_all("div", {"class","issue-item__content-right"})
     txt = str(txt)
     # pos = txt.find(name)
-    txt2=soup.find_all("div", {"class","colored-block__title clearfix"})
-    txt2 = str(txt2)
+    txt2=soup.find_all("div", {"class","col-sm-6 table__cell-view vertical-center"})
     test=[]
-    test.append(txt2)
-
+    for i in range(len(txt2)):
+        test.append(txt2[i].text)
+    
 
     # name_2 = strip_accents(name)
     # pos_2 = txt.find(name_2)
@@ -247,7 +247,7 @@ def get_data(name):
         if a != False :
             return collect_abstracts(a)
         else :
-            if test == []:
+            if test == ['\n\n\ue924\n\n', '\n\nYour IP Address has been blocked\nPlease contact \n    \n[email\xa0protected]\n\n\n\n']:
                 print("@ IP blocked !")
                 dfObj = pd.DataFrame(columns=['title', 'abstract'])
                 return dfObj,["@ IP blocked !"],[],[]
@@ -273,32 +273,32 @@ def construct_csv(list_authors,txt_indices):
         
         print("author : ",i)
         i=i+1
-        try:
-            df,infos_liste,subjects,keywords = get_data(a)
-            #print(df)
+        # try:
+        df,infos_liste,subjects,keywords = get_data(a)
+        #print(df)
+        
+        if infos_liste !=[]:
+            if infos_liste[0]=="@ IP blocked !" :
+                s=i-2
+                list_exeptions=list_exeptions+list_authors[s:]
+                break
             
-            if infos_liste !=[]:
-                if infos_liste[0]=="@ IP blocked !" :
-                    s=i-2
-                    list_exeptions=list_exeptions+list_authors[s:]
-                    break
+        if df.empty == False :
+            k=k+1
+            
+            for x in df.itertuples():
                 
-            if df.empty == False :
-                k=k+1
-                
-                for x in df.itertuples():
-                    
-                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                    with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-                        writer = csv.writer(f)
-                        writer.writerow(list_final)
-            else:
-                j=j+1
+                list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
+                with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(list_final)
+        else:
+            j=j+1
             
                             
-        except:
-          list_exeptions.append(a)
-          print("An exception occurred")
+        # except:
+        #   list_exeptions.append(a)
+        #   print("An exception occurred")
     
     print("Number of authors found is : ",k," / ",i-1)
     
@@ -442,14 +442,14 @@ with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
     
-list_authors=list_all_authors[4400:4600]
+list_authors=list_all_authors[4900:5000]
 
 
-# list_authors=list_authors[15:]
-# # list_authors.append("Arnold Irschara")
+# list_authors=list_authors[90:]
+# # # list_authors.append("Arnold Irschara")
 
 
-# list_authors=["Photini Kiepiela","Gilles Degottex","Felipe Bravo-Marquez"]
+# list_authors=["Mark D. Smucker"]
 
 #/************************************************************************/
 
@@ -458,7 +458,7 @@ list_authors=list_all_authors[4400:4600]
 #/***********************************************************************/
 
 start = time.time()
-txt_indices="01"
+txt_indices="04"
 list_exeptions = construct_csv(list_authors,txt_indices)
 end = time.time()
 print("time: ",(end - start)/60," min")
