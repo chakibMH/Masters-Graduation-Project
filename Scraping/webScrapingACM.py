@@ -224,7 +224,12 @@ def get_data(name):
     txt = soup.find_all("div", {"class","issue-item__content-right"})
     txt = str(txt)
     # pos = txt.find(name)
-    
+    txt2=soup.find_all("div", {"class","colored-block__title clearfix"})
+    txt2 = str(txt2)
+    test=[]
+    test.append(txt2)
+
+
     # name_2 = strip_accents(name)
     # pos_2 = txt.find(name_2)
     authors_list_ = []
@@ -242,7 +247,7 @@ def get_data(name):
         if a != False :
             return collect_abstracts(a)
         else :
-            if authors_list_ == []:
+            if test == []:
                 print("@ IP blocked !")
                 dfObj = pd.DataFrame(columns=['title', 'abstract'])
                 return dfObj,["@ IP blocked !"],[],[]
@@ -437,13 +442,14 @@ with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
     
-list_authors=list_all_authors[2750:2800]
+list_authors=list_all_authors[4400:4600]
 
 
-# list_authors=list_authors[19:]
-# list_authors.append("Arnold Irschara")
+# list_authors=list_authors[15:]
+# # list_authors.append("Arnold Irschara")
 
-# list_authors=["Bob Coyne"]
+
+# list_authors=["Photini Kiepiela","Gilles Degottex","Felipe Bravo-Marquez"]
 
 #/************************************************************************/
 
@@ -457,7 +463,8 @@ list_exeptions = construct_csv(list_authors,txt_indices)
 end = time.time()
 print("time: ",(end - start)/60," min")
 
-
+# list_authors=list_exeptions
+# list_authors.pop(0)
 
 # k=get_index("03",list_all_authors)
 
