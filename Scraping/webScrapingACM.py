@@ -260,7 +260,26 @@ def get_data(name):
 
 
 #*********************************/
-def construct_csv(list_authors,txt_indices):
+def construct_csv(list_authors,num_process, from_recovery = False):
+    """
+    
+
+    Parameters
+    ----------
+    list_authors : TYPE
+        DESCRIPTION.
+    num_process : TYPE
+        DESCRIPTION.
+    from_recovery : Boolean, optional
+    if True then it is for recovery.
+        if it is from recovery then we do not push it again. The default is False.
+
+    Returns
+    -------
+    list_exeptions : TYPE
+        DESCRIPTION.
+
+    """
     
     i=1
     k=0
@@ -269,8 +288,8 @@ def construct_csv(list_authors,txt_indices):
     for a in list_authors:
         
         # Sleep
-        # t=random.uniform(0.5, 1)
-        # time.sleep(t)
+        t=random.uniform(0.5, 1)
+        time.sleep(t)
         
         print("author : ",i)
         i=i+1
@@ -290,7 +309,7 @@ def construct_csv(list_authors,txt_indices):
                 for x in df.itertuples():
                     
                     list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                    with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                    with open(r'Data_Base\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
             else:
@@ -299,6 +318,9 @@ def construct_csv(list_authors,txt_indices):
                             
         except Exception as ex :
           list_exeptions.append(a)
+          # if it is the 2nd time that an error occured with that name we do not push it
+          if from_recovery == False:
+              push(num_process, [a])
           print("An exception occurred")
           print(traceback.format_exc())
     
@@ -415,55 +437,221 @@ def strip_accents(s):
 
 
 
-def get_index(txt_indices,list_all_authors):
-    df = pd.read_csv('Data_Base\papers_ACM_'+txt_indices+'.csv')
+def get_index(num_process,list_all_authors):
+    df = pd.read_csv('Data_Base\papers_ACM_'+num_process+'.csv')
     l=df.author_name
     l=l.tolist()
     b=len(l)
     return list_all_authors.index(l[b-1])
 
-
-#/************************************************************************/
-
-#   run this part of the code only the first time you create the csv file 
-
-#/***********************************************************************/
-
-fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
-txt_indices="01"
-with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-    writer = csv.writer(f)
-    writer.writerow(fields)
-
-#/************************************************************************/
-
-#             Select your list of authors by modifying the indexes
-
-#/***********************************************************************/
-
-with open('list_all_authors.pkl', 'rb') as f:
-    list_all_authors = pickle.load(f)
+def execute(ind_start, ind_end, num_process, 
+            file_list_author='list_all_authors.pkl',):
+    """
     
-list_authors=list_all_authors[5300:5400]
+
+    Parameters
+    ----------
+    ind_start : TYPE
+        DESCRIPTION.
+    ind_end : TYPE
+        DESCRIPTION.
+    num_process : TYPE
+        DESCRIPTION.
+    file_list_author : TYPE, optional
+        DESCRIPTION. The default is 'list_all_authors.pkl'.
+
+    Returns
+    -------
+    list_exeptions : TYPE
+        DESCRIPTION.
+
+    """
+    #/************************************************************************/
+
+    #             Select your list of authors by modifying the indexes
+    
+    #/***********************************************************************/
+    
+    
+    #check if recovery from exception
+    
+
+    with open(file_list_author, 'rb') as f:
+        list_all_authors = pickle.load(f)
+    
+    list_authors=list_all_authors[ind_start:ind_end]
+    
+        
+    #/************************************************************************/
+    
+    #                                   Run 
+    
+    #/***********************************************************************/
+    
+    start = time.time()
+    list_exeptions = construct_csv(list_authors,num_process)
+    end = time.time()
+    print("time: ",(end - start)/60," min")
+    
+    return list_exeptions
 
 
-list_authors=list_authors[15:]
-# # # list_authors.append("Arnold Irschara")
+def recovery_from_exception(num_process, file_list_exception = "Data_Base\exception"):
+    
+    
+    file_name = file_list_exception+num_process+".txt"
+    
+    name = pop(file_name)
+    
+    l = construct_csv([name], num_process, from_recovery=True)
+    
+    return l
+    
+# def pop_from_csv(file_DF):
+#     """
+    
+
+#     Parameters
+#     ----------
+#     exp_DF : DataFrame
+#         Exception file_DF (csv)..
+
+#     Returns
+#     -------
+#     None.
+
+#     """
+    
+#     #get fisrt element
+#     first_name = file_DF.iloc[0,0]
+    
+#     #delete it
+#     file_DF.drop(0,inplace=True)
+    
+#     #reset index
+#     file_DF.reset_index(drop=True,inplace=True)
+    
+#     #save the new file again
+    
+#     return first_name,file_DF
+
+def pop(file_name):
+    """
+    
+
+    Parameters
+    ----------
+    file_name : str
+        exception file.
+
+    Returns
+    -------
+    first_name : str
+        name of first author.
+    
+    -1 si vide
+
+    """
+    
+    with open(file_name) as fin:
+        data = [line.rstrip() for line in fin]
+        
+    
+    #si la liste n'est vide
+    if data != []:
+        first_name = data[0]
+        
+        # save again
+        
+        with open(file_name, 'w') as fout:
+            fout.writelines(data[1:])
+            
+        return first_name
+    else:
+        print("pas d'exception")
+        return -1
 
 
-# list_authors=["Mark D. Smucker"]
+
+    
+def push(num_process, list_names, file_list_exception = "Data_Base\Exception_"):
+    """
+    
+
+    Parameters
+    ----------
+    num_process : str
+        process (console) num.
+    list_names : list
+        list of names to put in exception file.
+    file_list_exception : str, optional
+         The default is "Data_Base\exception".
+
+    Returns
+    -------
+    Boolean
+    
+    1 is sucess.
+    
+    -1 if an error occured.
+
+    """
+    
+    try:
+        
+        # read the file
+        file_name = file_list_exception+num_process+".txt"
+            
+        with open(file_name) as fin:
+            data = [line.rstrip() for line in fin]
+            
+        # add new names
+        data += list_names
+        
+        data =[e+"\n" for e in data]
+        
+        print(data)
+        
+        # save again
+        
+        with open(file_name, 'w',newline='\n', encoding="utf-8") as fout:
+            for n in data:
+                fout.write(n)
+            
+        return 1
+    
+    except :
+        
+        print("Error while pushing : ")
+        
+        return -1
+    
+    
 
 #/************************************************************************/
 
-#                                   Run 
+#   run this part of the code only the first time you create the csv file_DF 
 
 #/***********************************************************************/
 
-start = time.time()
-txt_indices="02"
-list_exeptions = construct_csv(list_authors,txt_indices)
-end = time.time()
-print("time: ",(end - start)/60," min")
+# fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
+# num_process="01"
+
+# with open(r'Data_Base\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
+#     writer = csv.writer(f)
+#     writer.writerow(fields)
+    
+    
+# # with open(r'Data_Base\exception'+num_process+".csv", 'a', newline='',encoding="utf-8") as f:
+# #         writer = csv.writer(f)
+# #       #  writer.writerow(['author_name'])
+
+# with open('Data_Base\Exception_'+num_process+'.txt','a', newline='', encoding="utf-8") as f:
+#     pass
+
+
+
+
 
 # list_authors=list_exeptions
 # list_authors.pop(0)
@@ -485,11 +673,11 @@ print("time: ",(end - start)/60," min")
 # list_authors=n
 
 
-# txt_indices1="2400_2499"
+# num_process1="2400_2499"
 # list_authors1=list_all_authors[2400:2500]
-# txt_indices2="2500_2599"
+# num_process2="2500_2599"
 # list_authors2=list_all_authors[2500:2600]
-# txt_indices3="2600_2699"
+# num_process3="2600_2699"
 # list_authors3=list_all_authors[2600:2700]
 
 
@@ -498,9 +686,9 @@ print("time: ",(end - start)/60," min")
 
 # start = time.time()
 # # creating processes
-# p1 = multiprocessing.Process(target=construct_csv, args=(list_authors1,txt_indices1,))
-# p2 = multiprocessing.Process(target=construct_csv, args=(list_authors2,txt_indices2,))
-# p3 = multiprocessing.Process(target=construct_csv, args=(list_authors3,txt_indices3,))
+# p1 = multiprocessing.Process(target=construct_csv, args=(list_authors1,num_process1,))
+# p2 = multiprocessing.Process(target=construct_csv, args=(list_authors2,num_process2,))
+# p3 = multiprocessing.Process(target=construct_csv, args=(list_authors3,num_process3,))
 # # starting process 1
 # p1.start()
 # # starting process 2
@@ -526,9 +714,9 @@ print("time: ",(end - start)/60," min")
 # start = time.time()
 # # creating thread
 
-# t1 = threading.Thread(target=construct_csv, args=(list_authors1,txt_indices1,))
-# t2 = threading.Thread(target=construct_csv, args=(list_authors2,txt_indices2,))
-# # t3 = threading.Thread(target=construct_csv, args=(list_authors3,txt_indices3,))
+# t1 = threading.Thread(target=construct_csv, args=(list_authors1,num_process1,))
+# t2 = threading.Thread(target=construct_csv, args=(list_authors2,num_process2,))
+# # t3 = threading.Thread(target=construct_csv, args=(list_authors3,num_process3,))
   
 # # starting thread 1
 # t1.start()
