@@ -273,32 +273,32 @@ def construct_csv(list_authors,txt_indices):
         
         print("author : ",i)
         i=i+1
-        # try:
-        df,infos_liste,subjects,keywords = get_data(a)
-        #print(df)
-        
-        if infos_liste !=[]:
-            if infos_liste[0]=="@ IP blocked !" :
-                s=i-2
-                list_exeptions=list_exeptions+list_authors[s:]
-                break
+        try:
+            df,infos_liste,subjects,keywords = get_data(a)
+            #print(df)
             
-        if df.empty == False :
-            k=k+1
-            
-            for x in df.itertuples():
+            if infos_liste !=[]:
+                if infos_liste[0]=="@ IP blocked !" :
+                    s=i-2
+                    list_exeptions=list_exeptions+list_authors[s:]
+                    break
                 
-                list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-                    writer = csv.writer(f)
-                    writer.writerow(list_final)
-        else:
-            j=j+1
+            if df.empty == False :
+                k=k+1
+                
+                for x in df.itertuples():
+                    
+                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
+                    with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                        writer = csv.writer(f)
+                        writer.writerow(list_final)
+            else:
+                j=j+1
             
                             
-        # except:
-        #   list_exeptions.append(a)
-        #   print("An exception occurred")
+        except:
+          list_exeptions.append(a)
+          print("An exception occurred")
     
     print("Number of authors found is : ",k," / ",i-1)
     
@@ -442,10 +442,10 @@ with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding
 with open('list_all_authors.pkl', 'rb') as f:
     list_all_authors = pickle.load(f)
     
-list_authors=list_all_authors[4900:5000]
+list_authors=list_all_authors[5300:5400]
 
 
-# list_authors=list_authors[90:]
+# list_authors=list_authors[3:]
 # # # list_authors.append("Arnold Irschara")
 
 
@@ -466,7 +466,7 @@ print("time: ",(end - start)/60," min")
 # list_authors=list_exeptions
 # list_authors.pop(0)
 
-# k=get_index("03",list_all_authors)
+# k=get_index("04",list_all_authors)
 
 
 # df = pd.read_csv('Data_Base\papers_ACM_04.csv')
