@@ -17,6 +17,7 @@ import time
 import pickle
 import random
 import time
+import traceback
 
 
 def get_data(name):
@@ -296,9 +297,10 @@ def construct_csv(list_authors,txt_indices):
                 j=j+1
             
                             
-        except:
+        except Exception as ex :
           list_exeptions.append(a)
           print("An exception occurred")
+          print(traceback.format_exc())
     
     print("Number of authors found is : ",k," / ",i-1)
     
@@ -445,7 +447,7 @@ with open('list_all_authors.pkl', 'rb') as f:
 list_authors=list_all_authors[5300:5400]
 
 
-# list_authors=list_authors[3:]
+list_authors=list_authors[15:]
 # # # list_authors.append("Arnold Irschara")
 
 
@@ -458,7 +460,7 @@ list_authors=list_all_authors[5300:5400]
 #/***********************************************************************/
 
 start = time.time()
-txt_indices="04"
+txt_indices="02"
 list_exeptions = construct_csv(list_authors,txt_indices)
 end = time.time()
 print("time: ",(end - start)/60," min")
