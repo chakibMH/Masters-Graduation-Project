@@ -301,6 +301,10 @@ def construct_csv(list_authors,num_process, from_recovery = False):
                 if infos_liste[0]=="@ IP blocked !" :
                     s=i-2
                     list_exeptions=list_exeptions+list_authors[s:]
+                    sz=list_authors[s:]
+                    # if it is the 2nd time that an error occured with that name we do not push it
+                    for w in sz:
+                        push(num_process, [w])
                     break
                 
             if df.empty == False :
@@ -445,7 +449,7 @@ def get_index(num_process,list_all_authors):
     return list_all_authors.index(l[b-1])
 
 def execute(ind_start, ind_end, num_process, 
-            file_list_author='list_all_authors.pkl',):
+            file_list_author='list_all_authors.pkl'):
     """
     
 
@@ -496,7 +500,7 @@ def execute(ind_start, ind_end, num_process,
     return list_exeptions
 
 
-def recovery_from_exception(num_process, file_list_exception = "Data_Base\exception"):
+def recovery_from_exception(num_process, file_list_exception = "Data_Base\Exception_"):
     
     
     file_name = file_list_exception+num_process+".txt"
