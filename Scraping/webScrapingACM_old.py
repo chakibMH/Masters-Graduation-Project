@@ -429,43 +429,49 @@ def get_index(txt_indices,list_all_authors):
 
 #/***********************************************************************/
 
-fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
-txt_indices="02"
-with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
-    writer = csv.writer(f)
-    writer.writerow(fields)
-
-#/************************************************************************/
-
-#             Select your list of authors by modifying the indexes
-
-#/***********************************************************************/
-
-with open('list_all_authors.pkl', 'rb') as f:
-    list_all_authors = pickle.load(f)
-    
-list_authors=list_all_authors[6300:6600]
+# fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
+# txt_indices="02"
+# with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+#     writer = csv.writer(f)
+#     writer.writerow(fields)
 
 
-list_authors=list_authors[:48]
+
+
+
+
+#list_authors=list_authors[37:]
 # # # list_authors.append("Arnold Irschara")
 
 
 # list_authors=["Mark D. Smucker"]
 
-#/************************************************************************/
 
-#                                   Run 
+def execute(ind_start, ind_end, num_process):
+    
+    #/************************************************************************/
 
-#/***********************************************************************/
+    #             Select your list of authors by modifying the indexes
 
-start = time.time()
-txt_indices="03"
-list_exeptions = construct_csv(list_authors,txt_indices)
-end = time.time()
-print("time: ",(end - start)/60," min")
+    #/***********************************************************************/
+    
+    with open('list_all_authors.pkl', 'rb') as f:
+        list_all_authors = pickle.load(f)
+        
+    list_authors=list_all_authors[ind_start:ind_end]
+    
+    #/************************************************************************/
 
+    #                                   Run 
 
+    #/***********************************************************************/
+
+    start = time.time()
+    list_exeptions = construct_csv(list_authors,num_process)
+    end = time.time()
+    print("time: ",(end - start)/60," min")
+    
+    return list_exeptions
 
 
 # list_authors=list_exeptions
