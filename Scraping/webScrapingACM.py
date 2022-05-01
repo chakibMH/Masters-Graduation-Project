@@ -485,7 +485,6 @@ def execute(ind_start, ind_end, num_process,
     
     list_authors=list_all_authors[ind_start:ind_end]
     
-        
     #/************************************************************************/
     
     #                                   Run 
@@ -567,7 +566,7 @@ def pop(file_name):
         
         # save again
         
-        with open(file_name, 'w') as fout:
+        with open(file_name, 'w', encoding="utf-8") as fout:
             fout.writelines(data[1:])
             
         return first_name
@@ -606,7 +605,7 @@ def push(num_process, list_names, file_list_exception = "Data_Base\Exception_"):
         # read the file
         file_name = file_list_exception+num_process+".txt"
             
-        with open(file_name) as fin:
+        with open(file_name, encoding="utf-8") as fin:
             data = [line.rstrip() for line in fin]
             
         # add new names
