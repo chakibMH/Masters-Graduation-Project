@@ -474,8 +474,22 @@ def execute(ind_start, ind_end, num_process):
     return list_exeptions
 
 
+def re_execute(list_exeptions,num_process):
+    
+    start = time.time()
+    list_exeptions = construct_csv(list_exeptions,num_process)
+    end = time.time()
+    print("time: ",(end - start)/60," min")
+    
+    return list_exeptions
+
 # list_authors=list_exeptions
 # list_authors.pop(0)
+
+# start = time.time()
+# list_exeptions = construct_csv(list_authors,'03')
+# end = time.time()
+# print("time: ",(end - start)/60," min")
 
 # k=get_index("04",list_all_authors)
 
