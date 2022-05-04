@@ -88,6 +88,13 @@ class sentence_indexFlatL2():
         df = pd.DataFrame(columns=["id_ph", "paper_id", "dist_phrase_with_query"], data=data)
         
         return df
+    
+
+def len_paper(sen_index, paper_id):
+    
+    l = [e for e in sen_index._meta if sen_index._meta[e]['paper_id'] == paper_id]
+    
+    return len(l)
         
             
 def save_index(index, filename):
