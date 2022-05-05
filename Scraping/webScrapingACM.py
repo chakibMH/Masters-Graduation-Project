@@ -629,7 +629,48 @@ def push(num_process, list_names, file_list_exception = "Data_Base\Exception_"):
         
         return -1
     
+
+def setup(nb_process=4, num_first_process=1):
+    """
+    This function will create new files to store data in.
     
+    Execute this function only when you run the program for the first time, or you want to
+    create new process.
+    
+
+    Parameters
+    ----------
+    nb_process : int, optional
+        Number of process we want to create. The default is 4.
+    num_first_process : int, optional
+        Num of the first process. The default is 1.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
+
+    
+    for i in range(nb_process):
+
+        # num of the process to str
+        num_process="0"+str(num_first_process+i)
+        
+        # file to store the results of scraping
+        with open(r'Data_Base\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(fields)
+            
+        # file to store the results of exceptions (IP blocked, crashes)
+        with open('Data_Base\Exception_'+num_process+'.txt','a', newline='', encoding="utf-8") as f:
+            pass
+
+
+
+
 
 #/************************************************************************/
 
