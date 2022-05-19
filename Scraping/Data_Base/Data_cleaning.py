@@ -5,7 +5,8 @@ import os
 from num2words import num2words
 from math import log
 import sys
-# from wiktionaryparser import WiktionaryParser
+import time
+from wiktionaryparser import WiktionaryParser
 
 #from nltk.corpus import words
 
@@ -167,12 +168,17 @@ def remove_numbers(txt):
 
 # Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
 words = open("words-by-frequency.txt").read().split()
+# wordslist = open("wordlist.txt").read().split()
 
-#list of 300k + english words
-check_dict = open("english_words_list.txt").read().split()
+# # check_dict = set(words+wordslist)
 
-# add custom words to the dictionary
-#check_dict += ['eigen']
+
+
+# # #list of 300k + english words
+# # # check_dict = open("english_words_list.txt").read().split()
+
+# # # add custom words to the dictionary
+# # #check_dict += ['eigen']
 
 
 wordcost = dict((k, log((i+1)*log(len(words)))) for i,k in enumerate(words))
@@ -208,6 +214,10 @@ def infer_spaces(s):
 
 
 
+change = {}
+parser = WiktionaryParser()
+change_from_wiki = []
+check_dict_400k = open("check_dict_400k.txt").read().split()
 
 
 def correct_words(s):
@@ -218,23 +228,69 @@ def correct_words(s):
     
     res_list = []
     
+    global change 
+    global change_from_wiki
+    
     for w in sen2words:
         
         
-        
-        
-        if w in check_dict:
-            
-            # this word is correct ( belongs to the english dictionary) 
-            
+        if w in check_dict_400k  :
+    
             res_list.append(w)
+        
+
             
         else:
+            
+            try:
+                l_res = parser.fetch(w)
+            except:
+                try:
+                    l_res = parser.fetch(w)
+                except:
+                    l_res = []
+            
+            
+            
+            if l_res != []:
+                
+                res_list.append(w)
+                
+                change_from_wiki.append(w)
+                
+                
+                
+            else:
+            
             # correcting the word
-            print("before:",w )
-            w_after = infer_spaces(w)
-            print("after:",w_after)
-            res_list.append(w_after)
+            
+        
+                w_after = infer_spaces(w)
+                
+                change[w] = w_after
+        
+                res_list.append(w_after)
+
+        
+        # this word is correct ( belongs to the english dictionary) 
+        
+ 
+        
+        # if w in check_dict  :
+        
+        #     res_list.append(w)
+        
+
+            
+        # else:
+            
+        #     # correcting the word
+            
+        #     w_after = infer_spaces(w)
+            
+        #     change[w] = w_after
+
+        #     res_list.append(w_after)
         
     return " ".join(res_list)
     
@@ -299,13 +355,18 @@ def clean_abstract(abstract):
             
             # replace the - with a space
             
-            s = s.replace('-', ' ')
+         #    s = s.replace('-', ' ')
+         # #   s = s.replace('°', ' degree ')
                 
-            # remove ponctuation
+         #    # remove ponctuation ### 
+         #    ### change it to space
             
-            punc = string.punctuation + '–'
+         #    punc = string.punctuation + '—'+'–'+'−'+'“'+'∼'+'®'+'’'+'”'
             
-            s = s.translate(str.maketrans('', '', punc))
+         #    s = s.translate(str.maketrans('', '', punc))
+         
+             
+            s = remove_punc(s)
             
             s = remove_extra_spaces(s)
             
@@ -323,10 +384,28 @@ def clean_abstract(abstract):
             
             
             
-            
+def remove_punc(s):
     
+    punc = string.punctuation + '—'+'–'+'−'+'“'+'∼'+'®'+'’'+'”'
+    
+    
+    s_res = ''
+    
+    
+    for c in s:
+        if c == '°':
+            s_res += ' degree '
+        elif c in punc:
+            s_res  += ' '        
+        else:
+            s_res += c
+            
+            
+    return s_res
     
 def clean_DB(df):
+    
+    start = time.time()
     
     # redirict prints to a file
 
@@ -353,6 +432,14 @@ def clean_DB(df):
     # in case rediricting prints
     
     # sys.stdout.close()
+    
+    end = time.time()
+    
+    print("time : ",end-start)
+    
+    global cpt
+    
+    cpt = 0
     
     return df
     
@@ -391,7 +478,14 @@ def merge_data_sets(folder):
     final_df.reset_index(inplace=True)
     
     return final_df
-        
+
+
+
+def get_word_len10(a):
+    
+    l_words = a.split(" ")
+    
+    return [w for w in l_words if 'z' in w.lower()]
     
 
 # def check_for_mostly_numeric_string(token):
