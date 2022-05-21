@@ -6,12 +6,56 @@ from num2words import num2words
 from math import log
 import sys
 import time
+from BST import insert_BST,recursive_Tree_Search
 from wiktionaryparser import WiktionaryParser
+import traceback
+
+# parser to search the wrd on wiktionary
+parser = WiktionaryParser()
+
 
 #from nltk.corpus import words
 
+# Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
+words = open("words-by-frequency.txt").read().split()
+# wordslist = open("wordlist.txt").read().split()
+
+# # check_dict = set(words+wordslist)
 
 
+
+# # #list of 300k + english words
+# # # check_dict = open("english_words_list.txt").read().split()
+
+# # # add custom words to the dictionary
+# # #check_dict += ['eigen']
+
+
+wordcost = dict((k, log((i+1)*log(len(words)))) for i,k in enumerate(words))
+maxword = max(len(x) for x in words)
+
+#################################
+cpt = 0
+
+
+change = {}
+change_from_wiki = []
+
+exceptions_list = []
+
+
+########################################
+# list of 400k+ english words
+check_dict_400k = open("check_dict_400k.txt").read().split()
+# transform chek dict from list to binary tree
+tree_root = None
+i = 1
+l= len(check_dict_400k)
+for elt in check_dict_400k:
+    print(" [ {} / {} ]".format(i,l))
+    i+=1
+    tree_root = insert_BST(tree_root, elt.lower())
+####################################################
 
 def get_description(df):
     
@@ -166,23 +210,6 @@ def remove_numbers(txt):
 
 
 
-# Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
-words = open("words-by-frequency.txt").read().split()
-# wordslist = open("wordlist.txt").read().split()
-
-# # check_dict = set(words+wordslist)
-
-
-
-# # #list of 300k + english words
-# # # check_dict = open("english_words_list.txt").read().split()
-
-# # # add custom words to the dictionary
-# # #check_dict += ['eigen']
-
-
-wordcost = dict((k, log((i+1)*log(len(words)))) for i,k in enumerate(words))
-maxword = max(len(x) for x in words)
 
 def infer_spaces(s):
     """Uses dynamic programming to infer the location of spaces in a string
@@ -214,10 +241,7 @@ def infer_spaces(s):
 
 
 
-change = {}
-parser = WiktionaryParser()
-change_from_wiki = []
-check_dict_400k = open("check_dict_400k.txt").read().split()
+
 
 
 def correct_words(s):
@@ -230,71 +254,81 @@ def correct_words(s):
     
     global change 
     global change_from_wiki
+    global exceptions_list
+    global cpt
     
     for w in sen2words:
         
+        # search in list
+        # if w in check_dict_400k  :
+        if w != '':
         
-        if w in check_dict_400k  :
+            # search with BST
+            if recursive_Tree_Search(tree_root,w) != None:
+        
+                res_list.append(w)
+            
     
-            res_list.append(w)
-        
-
-            
-        else:
-            
-            try:
-                l_res = parser.fetch(w)
-            except:
+                
+            else:
+                
                 try:
                     l_res = parser.fetch(w)
                 except:
-                    l_res = []
-            
-            
-            
-            if l_res != []:
-                
-                res_list.append(w)
-                
-                change_from_wiki.append(w)
-                
+                    try:
+                        l_res = parser.fetch(w)
+                    except Exception as ex:
+                        
+                        exceptions_list.append((cpt,w))
+                        print("An exception occurred")
+                        print(traceback.format_exc())
+                        l_res = []
                 
                 
-            else:
-            
-            # correcting the word
-            
-        
-                w_after = infer_spaces(w)
                 
-                change[w] = w_after
-        
-                res_list.append(w_after)
-
-        
-        # this word is correct ( belongs to the english dictionary) 
-        
- 
-        
-        # if w in check_dict  :
-        
-        #     res_list.append(w)
-        
-
+                if l_res != []:
+                    
+                    res_list.append(w)
+                    
+                    change_from_wiki.append(w)
+                    
+                    
+                    
+                else:
+                
+                # correcting the word
+                
             
-        # else:
+                    w_after = infer_spaces(w)
+                    
+                    change[w] = w_after
             
-        #     # correcting the word
+                    res_list.append(w_after)
+    
             
-        #     w_after = infer_spaces(w)
+            # this word is correct ( belongs to the english dictionary) 
             
-        #     change[w] = w_after
+     
+            
+            # if w in check_dict  :
+            
+            #     res_list.append(w)
+            
+    
+                
+            # else:
+                
+            #     # correcting the word
+                
+            #     w_after = infer_spaces(w)
+                
+            #     change[w] = w_after
 
         #     res_list.append(w_after)
         
     return " ".join(res_list)
     
-cpt = 0
+
     
 def clean_abstract(abstract):
     
@@ -486,6 +520,11 @@ def get_word_len10(a):
     l_words = a.split(" ")
     
     return [w for w in l_words if 'z' in w.lower()]
+
+
+# def merge_df(filename, dfs_list):
+    
+    
     
 
 # def check_for_mostly_numeric_string(token):

@@ -92,7 +92,7 @@ class sentence_indexFlatL2():
 
 def len_paper(sen_index, paper_id):
     
-    l = [e for e in sen_index._meta if sen_index._meta[e]['paper_id'] == paper_id]
+    l = [e for e in sen_index._meta if e != 'dim' and sen_index._meta[e]['paper_id'] == paper_id]
     
     return len(l)
         
