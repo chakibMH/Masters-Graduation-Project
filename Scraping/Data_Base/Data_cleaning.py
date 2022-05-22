@@ -7,8 +7,9 @@ from math import log
 import sys
 import time
 from BST import insert_BST,recursive_Tree_Search
-from wiktionaryparser import WiktionaryParser
 import traceback
+from wiktionaryparser import WiktionaryParser
+
 
 # parser to search the wrd on wiktionary
 parser = WiktionaryParser()
@@ -522,6 +523,47 @@ def get_word_len10(a):
     return [w for w in l_words if 'z' in w.lower()]
 
 
+
+def get_aut_db(db):
+    """
+    Generate a dataset with authors' informations
+
+    Parameters
+    ----------
+    db : pandas.DataFrame
+        
+
+    Returns
+    -------
+    authors_df : pandas.DataFrame
+        
+
+    """
+    
+    names = db.author_name.values
+    names = set(names)
+    names = list(names)
+    
+    db.dropna(inplace=True)
+    
+    all_val = []
+    col = ['author_name', 'author_average_citation_per_article',
+                                        'author_citation_count', 'author_publication_counts',
+                                        'author_publication_years', 'papers_available_for_download',
+                                        'author_subject_areas', 'author_keywords']
+    
+    
+    for n in names:
+    
+        print(n)
+        a = db.loc[db.author_name == n,col].iloc[0]
+
+        all_val.append(a.values)
+        
+    
+    authors_df = pd.DataFrame(data=all_val, columns=col)
+    
+    return authors_df
 # def merge_df(filename, dfs_list):
     
     

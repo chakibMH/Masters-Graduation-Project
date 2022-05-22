@@ -4,6 +4,10 @@ Created on Fri Apr  1 22:32:04 2022
 
 """
 import pandas as pd
+from sentence_transformers import SentenceTransformer, util
+
+embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
+
 queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Monte Carlo method',
            'Convex optimization', 'Dimensionality reduction', 'Facial recognition system', 
            'k-nearest neighbors algorithm', 'Hierarchical clustering', 'Automatic summarization',
@@ -37,7 +41,8 @@ i=1
 l = len(queries)
 for q in queries:
     print('current query: ',q,' [{}/{}'.format(i,l)) 
-    score_authors_dict = get_relevant_experts(q, index, papers, authors, embedder)
+    score_authors_dict = get_relevant_experts(q, sen_index, papers, 
+                                              authors, embedder,norm=True)
     d_all_query[q] = score_authors_dict
     i+=1
 df = pd.DataFrame(d_all_query)
@@ -55,7 +60,7 @@ df.to_csv("relvents_auths_all_queries.csv")
 queries = df.columns.values
 
 for q in queries:
-    res = df[q]
+    res = df[q].copy()
     # sort values
     res.sort_values(inplace=True)
     # dict like cluster analysis' one

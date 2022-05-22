@@ -34,17 +34,19 @@ def recursive_Tree_Search(x, key):
     
 ### exemple
 
-li = ['abstract', 'document', 'search', 'alter']
+# li = ['abstract', 'document', 'search', 'alter']
 
-# always init the root with None
-
-r = None
-
-for elt in li:
+# # always init the root with None
+# check_dict_400k = open("check_dict_400k.txt").read().split()
+# r = None
+# i = 1
+# l= len(check_dict_400k)
+# for elt in check_dict_400k:
+#     print(" [ {} / {} ]".format(i,l))
+#     i+=1
+#     r = insert_BST(r, elt.lower())
     
-    r = insert_BST(r, elt)
-    
 
-recursive_Tree_Search(r,'alter')
+# res = recursive_Tree_Search(r,'alter')
     
     

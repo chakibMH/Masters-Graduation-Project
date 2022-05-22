@@ -6,8 +6,9 @@ Created on Fri Mar 11 14:59:01 2022
 """
 import ast
 import numpy as np
-# from Embedding_functions import  embedde_single_query, get_mean_embedding
+from Embedding_functions import  embedde_single_query, get_mean_embedding
 import math
+from custom_faiss_indexer import len_paper
 # from distance_functions import dist2sim
 
 def dist2sim(d):
@@ -177,8 +178,47 @@ def authors_expertise_to_paper(paper_id, papers, authors, embedder):
         
     return dict_expertise
 
+def norm_fct(sen_index, papers, paper_id, sim_Q_D):
+    """
     
-def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy = 'min', k=1000):
+
+    Parameters
+    ----------
+    sen_index : TYPE
+        DESCRIPTION.
+    papers : TYPE
+        DESCRIPTION.
+    paper_id : TYPE
+        DESCRIPTION.
+    sim_Q_D : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    sim_Q_D : TYPE
+        DESCRIPTION.
+
+    """
+    
+    # l = len_paper(sen_index, paper_id)
+    
+    l = len_paper_from_DB(papers, paper_id)
+    
+    sim_Q_D /= l
+    
+    return sim_Q_D
+
+def len_paper_from_DB(papers, paper_id):
+    
+    paper_row = papers.loc[papers.id == paper_id,['cleaned_abstract_sentences']]
+    
+    list_abst = ast.literal_eval(paper_row.iloc[0,0])
+    
+    return len(list_abst)
+
+    
+def get_relevant_experts(query, sen_index, papers, authors, embedder, 
+                         strategy = 'min', norm = False, k=1000):
     """
     
 
@@ -199,7 +239,13 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
         Available strategies:
             min strategy: score of paper is defined by the minimum score of all its phrases.
             mean strategy: score of paper is defined by the mean score of all its phrases.
+            sum strategy: score of paper is defined by the sum score of all its phrases.
         The default is 'min'.
+    norm: boolean, optional
+        choose either we apply a normalization to the score
+        The default is False.
+        Available normalization:
+            l: length of the document
     k : int, optional
         number of nearest neighbors (phrases) to the query to be returned. The default is 1000. 
 
@@ -223,6 +269,8 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
         
     elif strategy == 'mean':
         df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
+    elif strategy == 'sum':
+        df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].sum()
     else:
         print("erreur pas d'autres strategies")
     
@@ -259,7 +307,15 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
             
             # sim_D_A = dist2sim(dist_D_A)
             
-            print(sim_Q_D)
+            print("[Processing: ",query," ]","before normalization sim_Q_D = ",sim_Q_D)
+            
+            ## normalization
+            
+            
+            if norm == True:
+                sim_Q_D = norm_fct(sen_index, papers, p_id, sim_Q_D)
+            
+            print(" "*10,"after normalization sim_Q_D = ",sim_Q_D)
             # print(sim_D_A)
             
             # check if first time
@@ -285,19 +341,19 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder, strategy =
     
 # save the dict
 
-import pickle
+# import pickle
 
-with open("cluster_analysis_result","wb") as f:
-    p = pickle.Pickler(f)
-    p.dump(score_authors_dict)
+# with open("cluster_analysis_result","wb") as f:
+#     p = pickle.Pickler(f)
+#     p.dump(score_authors_dict)
     
     
     
-# to load
+# # to load
 
-with open("cluster_analysis_result", "rb") as f:
-          u = pickle.Unpickler(f)
-          result = u.load()
+# with open("cluster_analysis_result", "rb") as f:
+#           u = pickle.Unpickler(f)
+#           result = u.load()
     
     
     
