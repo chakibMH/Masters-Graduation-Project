@@ -1,0 +1,134 @@
+@import url("https://fonts.googleapis.com/css?family=Arbutus+Slab|Open+Sans&display=swap");
+body {
+  
+  /*margin: 72px;*/
+  font-family: Arbutus Slab, serif;
+  background: linear-gradient(0deg,   #f4791f 0%, #659999 80%);
+  background-size: cover;
+}
+
+h2 {
+  font-family: Arbutus Slab, serif;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.25;
+  font-size: 17px;
+  padding: 5px;
+}
+
+p {
+  position: absolute;
+  bottom: 0;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-gap: 48px;
+  margin: 0 auto;
+}
+
+.card {
+  cursor: pointer;
+  position: relative;
+  height: 0;
+  padding-bottom: 120%;
+  --offset-multiplier: 4px;
+  transition: transform 0.6s ease;
+  --translate: 0;
+  transform: translate(var(--translate), var(--translate));
+  text-align: justify;
+}
+.card:hover {
+  --offset-multiplier: 6px;
+}
+.card:hover {
+  --translate: calc(-1px * (var(--cards) - 1));
+  transition: transform 0.3s ease;
+}
+
+.card .child .info 
+{
+  font-size: 13px;
+  margin-top: 5px;
+  color: #f4791f;
+
+}
+
+.child {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background: #fff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1), 0px -4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  transition: inherit;
+  --translate: calc(var(--offset) * var(--offset-multiplier));
+  transform: translate(var(--translate), var(--translate));
+  z-index: 5;
+}
+.child:nth-child(1) {
+  --offset: 0;
+  z-index: 4;
+}
+.child:nth-child(2) {
+  --offset: 1;
+  z-index: 3;
+}
+.child:nth-child(3) {
+  --offset: 2;
+  z-index: 2;
+}
+.child:nth-child(4) {
+  --offset: 3;
+  z-index: 1;
+}
+.child:nth-child(5) {
+  --offset: 4;
+  z-index: 0;
+}
+
+header,
+footer {
+  
+  background-color: white;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 0px 0px 10px 10px;
+}
+
+header {
+  overflow: hidden;
+  padding: 5px;
+  margin-bottom: 20px;
+  border-radius: 0px 0px 20px 20px;
+
+}
+
+footer {
+  overflow: hidden;
+  margin-top: 30px;
+  border-radius: 20px 20px 0px 0px;
+
+}
+
+
+.header-class .img1 {
+  float: left;
+}
+
+.header-class .img2 {
+  float: right;
+  margin-top: 15px;
+  margin-right: 5px;
+}
+
+.copyright{
+  margin-top: 30px;
+  margin-left: 50px;
+  color: #858585;
+  float: left;
+}

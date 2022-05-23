@@ -1,0 +1,295 @@
+@import url("https://fonts.googleapis.com/css?family=Arbutus+Slab|Open+Sans&display=swap");
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arbutus Slab, serif;
+}
+
+.container
+{
+	width: 100%;
+	height: 50px;
+	padding: 2%;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+
+}
+
+.search-bar
+{
+	width: 70%;
+	max-width: 700px;
+	height: 50px;
+	background: rgba(255,255,255,0.9);
+	display: flex;
+	align-items: center;
+	border-radius: 60px;
+	padding: 10px 10px;
+	backdrop-filter: blur(4px) saturate(180%);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+
+}
+
+.search-bar input
+{
+	background: transparent;
+	flex: 1;
+	border: 0;
+	outline: none;
+	padding: 24px 20px;
+	font-size: 15px; 
+
+}
+
+/*::placeholder
+{
+	color: 
+}*/
+
+.search-bar button img
+{
+	width: 20px;
+}
+
+.search-bar button
+{
+	border: 0;
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	background: #f4791f;
+	cursor: pointer; 
+}
+
+body
+{
+
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+	/*background-image: linear-gradient(rgba(255,255,255,0.5),rgba(255,255,255,0.5)), url("image/background.jpg");
+	*/
+	background: linear-gradient(0deg,   #f4791f 0%, #659999 80%);
+	background-position: center;
+	background-size: cover;
+	position: relative;
+	background-size: cover;
+}
+
+
+
+
+.container2
+{
+	width: 100%;
+	max-width: 950px;
+	padding: 10%;
+	padding: 80px 0; 
+	margin-left: 15%;
+	overflow: hidden;
+
+}
+
+.container2 .main-card 
+{
+	width: 200%;
+	display: flex;
+	justify-content: space-evenly;
+	transition: all 1s ease;
+}
+
+#two:checked ~ .main-card
+{
+	margin-left:  -100%;
+}
+
+.main-card .cards
+{
+	width: calc(100% / 2 - 10px);
+	display: flex;
+	justify-content: space-between;
+	margin: 0 20px;
+	align-items: center;
+	flex-wrap: wrap;
+
+}
+
+.main-card .cards .card
+{
+	background: #fff;
+	width: calc(100% / 3 - 10px);
+	padding: 30;
+	border-radius: 24px;
+	transition: all 0.4s ease;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+}
+
+.main-card .cards .card:hover
+{
+	transform: translateY(-15px);
+}
+
+.cards .card .content
+{
+	height: 200px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
+.card .content .name
+{
+	font-size: 15px;
+	font-weight: 500;
+	margin-bottom: 10px;
+	font-weight: bold;
+}
+
+.card .content .info 
+{
+	font-size: 13px;
+	margin-top: 5px;
+	color: #f4791f ;
+
+}
+
+.button
+{
+	display: flex;
+	margin: 20px;
+	justify-content: center;
+
+}
+
+.button label
+{
+	height: 15px;
+	width: 15px;
+	background: #fff;
+	margin: 0 4px;
+	border-radius: 20px;
+	transition: all 0.5s ease;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+}
+
+.button label.active
+{
+	width: 35px;
+}
+
+#one:checked ~ .button label.one{
+  width: 35px;
+}
+
+#two:checked ~ .button label.two{
+  width: 35px;
+}
+
+#two:checked ~ .button label.one{
+  width: 15px;
+}
+
+#one:checked ~ .button label.two{
+  width: 15px;
+}
+
+input[type="radio"]
+{
+	display: none;
+}
+
+@media (max-width: 768px) {
+  .main-card .cards .card{
+    margin: 20px 0 10px 0;
+    width: calc(100% / 2 - 10px);
+  }
+}
+
+@media (max-width: 600px) {
+  .main-card .cards .card{
+    width: 100%;
+  }
+}
+
+
+.details {
+  background: #f4791f ;
+  border: none;
+  color: white;
+  padding: 7px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 13px;
+  margin: 4px 2px;
+  margin-top: 20px;
+  cursor: pointer;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  border-radius: 24px;
+}
+
+
+
+.details:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+.srch:hover{
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+}
+
+
+.container_rech
+{
+	padding: 2%;
+	display: flex;
+	justify-content: center;
+
+}
+
+header,
+footer {
+
+  background-color: white;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 0px 0px 10px 10px;
+}
+
+header {
+  overflow: hidden;
+  padding: 5px;
+  margin-bottom: 20px;
+  border-radius: 0px 0px 20px 20px;
+
+}
+
+footer {
+  overflow: hidden;
+  margin-top: 30px;
+  border-radius: 20px 20px 0px 0px;
+
+}
+
+
+.header-class .img1 {
+  float: left;
+}
+
+.header-class .img2 {
+  float: right;
+  margin-top: 15px;
+  margin-right: 5px;
+}
+
+.copyright{
+  margin-top: 30px;
+  margin-left: 50px;
+  color: #858585;
+  float: left;
+}
+

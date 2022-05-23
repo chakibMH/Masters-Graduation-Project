@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+#more {display: none;}
+</style>
+  <link rel="stylesheet" href="style_page_info.css" />
+  <link rel="shortcut icon" href="image/Expert_Seeker_logo.png" />
+  <title>Home page</title>
+
+
+</head>
+<body>
+
+  <header>
+    <div class="header-class">
+      <img class="img1" src="image/logo_200.png" alt="logo" />
+    </div>
+    <div class="header-class">
+      <img class="img2" src="image/CERIST_logo.png" alt="logo" />
+    </div>
+  </header>
+  <button onclick="topFunction()" id="myBtn" title="Go to top"><img src="image/up-arrow.png"  /></button>
+  <script>
+//Get the button
+var mybutton = document.getElementById("myBtn");
+
+// When the user scrolls down 20px from the top of the document, show the button
+window.onscroll = function() {scrollFunction()};
+
+function scrollFunction() {
+  if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+    mybutton.style.display = "block";
+  } else {
+    mybutton.style.display = "none";
+  }
+}
+
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+}
+</script>
+<section class="profile">
+  
+  <div >
+      <h1 class="heading">Florent Benaych-Georges</h1>
+      
+      <div class="stats">
+        <div class="col-4">
+          
+          <p style=" color: #f4791f; font-weight: bold; font-size: 18px;" >Nombre de citations</br></p>
+          <h4>420</h4>
+        </div>
+        <div class="col-4">
+          
+          <p style=" color: #f4791f; font-weight: bold; font-size: 18px">Nombre de publications</br></p>
+          <h4>32</h4>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="col-4">
+          <p style=" color: #f4791f; font-weight: bold; font-size: 18px"></br>Mots clés</br></p>
+
+            <p style=" min-width: 300px; align-content: center;">Brownian motion, Convergence, Large deviations theory, Unitary group, Preprint, Spectral clustering, Laplace transform, Tin, Random variable, Regularization, Estimation,<span id="dots">...</span><span id="more">Signal processing, Hermitian matrix, Quaternion, Haar measure, Computer simulation, Operator algebra, Central limit theorem, Free probability, Noise, Kernel, Prediction, Probability theory, Absolute continuity, Square matrix, Cluster analysis, Unit sphere, Covariance matrix, Non-perturbative, Kernel method, Asymptotic analysis, Internationalization and localization, Rate function, Phase transition, Singular value, Principal component analysis, Extreme value theory, Collective behavior, Empirical distribution function, Heat kernel, Convolution, Integral transform, Cumulant, Poisson process, Random matrix, Poisson point process, Eigenvalues and eigenvectors, Convergence of random variables, Probability measure, Mixture model, Satisfiability</span></p>
+            <button onclick="myFunction()" id="myBtn1" class="details1" >Lire plus</button>
+
+            <script>
+            function myFunction() {
+              var dots = document.getElementById("dots");
+              var moreText = document.getElementById("more");
+              var btnText = document.getElementById("myBtn1");
+
+              if (dots.style.display === "none") {
+                dots.style.display = "inline";
+                btnText.innerHTML = "Lire plus"; 
+                moreText.style.display = "none";
+              } else {
+                dots.style.display = "none";
+                btnText.innerHTML = "Lire moins"; 
+                moreText.style.display = "inline";
+              }
+            }
+            </script>
+
+        </div>
+      </div>
+    </div>
+</section>
+
+<span></br></br></br></br></span>
+<!-- abstracts part-->
+
+<div class="wrapper">
+  <div class="cols">
+      <div class="col" ontouchstart="this.classList.toggle('hover');">
+        <div class="container1">
+          <div class="front">
+            <div class="inner">
+              <div class="year">2003</div>
+              <h2 class="title">First year Wilkinson Microwave Anisotropy Probe (WMAP) observations: Preliminary maps and basic results</h2>
+              </br>
+              <div class="authors">C. L. Bennett, M. Halpern, G. Hinshaw, N. Jarosik, A. Kogut, M. Limon, M. Limon, S. S. Meyer, Lyman A. Page, David N. Spergel, G. S. Tucker, G. S. Tucker, G. S. Tucker, Edward J. Wollack, E. L. Wright, C. Barnes, Michael R. Greason, R. S. Hill, Eiichiro Komatsu, M. R. Nolta, N. Odegard, H. V. Peiris, Licia Verde, J. L. Weiland.</div>
+
+              </br>
+              <div><img src="image/right-quotes-symbol.png" alt="citations" ><span style="color: #f4791f; font-weight: bold; ">   150</span></div>
+            </div>
+            </div>
+          
+          <div class="back">
+            <div class="inner">
+              <p class="abstract">We present full-sky microwave maps in five frequency bands (23-94 GHz) from the Wilkinson Microwave Anisotropy Probe (WMAP) first-year sky survey. Calibration errors are less than 0.5%, and the low systematic error level is well specified. The cosmic microwave background (CMB) is separated from the foregrounds using multifrequency data. The sky maps are consistent with the 7Â° FWHM Cosmic Background Explorer (COBE) maps. We report more precise, but consistent, dipole and quadrupole values. The CMB anisotropy obeys Gaussian statistics with -58 < fNL < 134 (95% confidence level [CL]). The 2 â‰¤ l â‰¤ 900 anisotropy power spectrum is cosmic-variance-limited for l < 354, with a signal-to-noise ratio greater than 1 per mode to l = 658. The temperature-polarization cross-power spectrum reveals both acoustic features and a large-angle correlation from reionization. The optical depth of reionization is Ï„ = 0.17 Â± 0.04, which implies a reionization epoch of tr = 180 Myr (95% CL) after the big bang at a redshift of zr = 20 (95% CL) for a range of ionization scenarios. This early reionization is incompatible with the presence of a significant warm dark matter density.Â Â Â Â Â A best-fit cosmological model to the CMB and other measures of large-scale structure works remarkably well with only a few parameters. The age of the best-fit universe is t0 = 13.7 Â± 0.2 Gyr. Decoupling was tdec = 379 kyr after the big bang at a redshift of zdec = 1089 Â± 1. The thickness of the decoupling surface was Î”zdec = 195 Â± 2. The matter density of the universe is Î©mh2 = 0.135, the baryon density is Î©bh2 = 0.0224 Â± 0.0009, and the total mass-energy of the universe is Î©tot = 1.02 Â± 0.02. It appears that there may be progressively less fluctuation power on smaller scales, from WMAP to fine-scale CMB measurements to galaxies and finally to the LyÎ± forest. This may be accounted for with a running spectral index of scalar fluctuations, fitted as ns = 0.93 Â± 0.03 at wavenumber k0 = 0.05 Mpc-1 (leff â‰ˆ 700), with a slope of dns/d ln k = -0.031 in the best-fit model. (For WMAP data alone, ns = 0.99 Â± 0.04.) This flat universe model is composed of 4.4% baryons, 22% dark matter, and 73% dark energy. The dark energy equation of state is limited to w < -0.78 (95% CL). Inflation theory is supported with ns â‰ˆ 1, Î©tot â‰ˆ 1, Gaussian random phases of the CMB anisotropy, and superhorizon fluctuations implied by the temperature-polarization anticorrelations at decoupling. An admixture of isocurvature modes does not improve the fit. The tensor-to-scalar ratio is r(k0 = 0.002 Mpc-1) < 0.90 (95% CL). The lack of CMB fluctuation power on the largest angular scales reported by COBE and confirmed by WMAP is intriguing. WMAP continues to operate, so results will improve.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+ </div>
+<!-- part end's -->
+<footer>
+    <div class="header-class">
+      <img class="img2" src="image/logo_150.png" alt="logo" style="  margin-right: 50px;" />
+      <div class="copyright">
+        Expert Seeker by USTHB and CERIST. Copyright © 2022 ES, Inc.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
