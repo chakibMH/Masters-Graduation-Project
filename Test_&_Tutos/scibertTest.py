@@ -8,7 +8,7 @@ from transformers import *
 
 from Embeddings_test import get_sim_score
 
-tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
+# tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 #model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
 
 #tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_cased')
@@ -38,9 +38,11 @@ pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension
                                pooling_mode_mean_tokens=False,\
                                pooling_mode_mean_sqrt_len_tokens=True)
     
-dense_model = models.Dense(in_features=pooling_model.get_sentence_embedding_dimension(), out_features=768, activation_function=nn.Tanh())
+# dense_model = models.Dense(in_features=pooling_model.get_sentence_embedding_dimension(), out_features=768, activation_function=nn.Tanh())
 
 sciBert_model = SentenceTransformer(modules=[word_embedding_model,pooling_model])
+
+embeddings = sciBert_model.encode(sentences, batch_size=128, convert_to_numpy=True, show_progress_bar=True)
 
 first_batch_sentences = ['The cat sits outside',
              'A man is playing guitar',
