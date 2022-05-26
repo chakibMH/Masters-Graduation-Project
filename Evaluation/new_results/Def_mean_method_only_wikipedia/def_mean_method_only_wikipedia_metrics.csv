@@ -1,0 +1,101 @@
+,Query,Exact binary MRR@10,Approximate binary MRR@10,Exact binary MAP@10,Approximate binary MAP@10,Exact binary MP@5,Exact binary MP@10,Approximate binary MP@5,Approximate binary MP@10
+0,cluster analysis,1.0,1.0,0.866,0.866,1.0,0.9,1.0,0.9
+1,Image segmentation,1.0,1.0,0.9,0.9,1.0,0.9,1.0,0.9
+2,Parallel algorithm,0.5,0.5,0.496,0.576,0.8,0.7,0.8,0.8
+3,Monte Carlo method,1.0,1.0,0.815,0.815,0.8,0.9,0.8,0.9
+4,Convex optimization,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+5,Dimensionality reduction,1.0,1.0,0.637,0.637,1.0,0.7,1.0,0.7
+6,Facial recognition system,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+7,k-nearest neighbors algorithm,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+8,Hierarchical clustering,1.0,1.0,0.408,0.485,0.6,0.6,0.6,0.7
+9,Automatic summarization,1.0,1.0,0.437,0.437,0.8,0.6,0.8,0.6
+10,Dynamic programming,1.0,1.0,0.436,0.567,0.8,0.5,1.0,0.6
+11,Genetic algorithm,0.333,0.333,0.309,0.4,0.6,0.6,0.6,0.7
+12,Human-computer interaction,0.0,1.0,0.0,0.704,0.0,0.0,0.8,0.8
+13,Categorial grammar,1.0,1.0,0.473,0.473,0.6,0.6,0.6,0.6
+14,Semantic Web,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+15,fuzzy logic,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+16,image restoration,1.0,1.0,0.523,0.619,0.8,0.6,0.8,0.7
+17,generative model,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+18,search algorithm,1.0,1.0,0.304,0.758,0.6,0.4,1.0,0.8
+19,sample size determination,1.0,1.0,0.363,0.363,0.4,0.5,0.4,0.5
+20,anomaly detection,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+21,sentiment analysis,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+22,semantic similarity,1.0,1.0,0.692,0.692,0.8,0.8,0.8,0.8
+23,world wide web,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+24,gibbs sampling,1.0,1.0,0.79,0.79,0.8,0.9,0.8,0.9
+25,user interface,1.0,1.0,0.421,0.704,0.6,0.6,0.8,0.8
+26,belief propagation,1.0,1.0,0.8,0.9,1.0,0.8,1.0,0.9
+27,interpolation,0.25,0.25,0.095,0.095,0.4,0.3,0.4,0.3
+28,wavelet transform,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+29,transfer of learning,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+30,topic model,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+31,clustering high-dimensional data,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+32,game theory,0.5,0.5,0.707,0.707,0.8,0.9,0.8,0.9
+33,biometrics,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+34,constraint satisfaction,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+35,combinatorial optimization,0.25,0.25,0.197,0.197,0.4,0.5,0.4,0.5
+36,speech processing,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+37,multi-agent system,1.0,1.0,0.733,0.733,1.0,0.8,1.0,0.8
+38,mean field theory,1.0,1.0,0.12,0.12,0.2,0.2,0.2,0.2
+39,social network,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+40,lattice model,0.125,1.0,0.012,0.238,0.0,0.1,0.4,0.3
+41,automatic image annotation,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+42,computational geometry,1.0,1.0,0.7,1.0,0.8,0.8,1.0,1.0
+43,Evolutionary algorithm,1.0,1.0,0.9,1.0,1.0,0.9,1.0,1.0
+44,web search query,0.0,1.0,0.0,1.0,0.0,0.0,1.0,1.0
+45,eye tracking,1.0,1.0,0.866,0.866,1.0,0.9,1.0,0.9
+46,query optimization,1.0,1.0,0.42,1.0,0.6,0.5,1.0,1.0
+47,logic programming,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+48,Hyperspectral imaging,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+49,Bayesian statistics,1.0,1.0,0.645,1.0,1.0,0.7,1.0,1.0
+50,kernel density estimation,0.5,1.0,0.518,0.879,0.8,0.7,1.0,0.9
+51,learning to rank,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+52,relational database,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+53,activity recognition,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+54,wearable computer,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+55,big data,1.0,1.0,0.89,0.89,1.0,0.9,1.0,0.9
+56,ensemble learning,0.25,0.25,0.197,0.197,0.4,0.5,0.4,0.5
+57,wordnet,0.5,0.5,0.05,0.258,0.2,0.1,0.6,0.4
+58,medical imaging,1.0,1.0,0.79,1.0,0.8,0.9,1.0,1.0
+59,deconvolution,1.0,1.0,0.3,0.511,0.6,0.4,0.8,0.6
+60,Latent Dirichlet allocation,1.0,1.0,0.9,1.0,1.0,0.9,1.0,1.0
+61,Euclidian distance,0.0,1.0,0.0,0.465,0.0,0.0,0.8,0.6
+62,web service,1.0,1.0,0.725,1.0,0.8,0.8,1.0,1.0
+63,multi-task learning,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+64,Linear separability,0.0,1.0,0.0,0.768,0.0,0.0,1.0,0.8
+65,OWL-S,0.333,0.333,0.033,0.033,0.2,0.1,0.2,0.1
+66,Wireless sensor network,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+67,Semantic role labeling,1.0,1.0,0.852,0.852,1.0,0.9,1.0,0.9
+68,Continuous-time Markov chain,0.1,1.0,0.01,1.0,0.0,0.1,1.0,1.0
+69,Open Knowledge Base Connectivity,0.0,1.0,0.0,0.659,0.0,0.0,0.8,0.8
+70,Propagation of uncertainty,0.167,1.0,0.017,0.392,0.0,0.1,0.6,0.5
+71,Fast Fourier transform,1.0,1.0,0.529,0.653,0.8,0.6,1.0,0.7
+72,Security token,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+73,Novelty detection,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+74,semantic grid,0.125,0.5,0.012,0.46,0.0,0.1,0.6,0.7
+75,Knowledge extraction,1.0,1.0,0.261,0.852,0.2,0.5,1.0,0.9
+76,Computational biology,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+77,Web 2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+78,Network theory,1.0,1.0,0.125,0.866,0.2,0.2,1.0,0.9
+79,Video denoising,1.0,1.0,0.405,0.405,0.8,0.5,0.8,0.5
+80,Quantum information science,0.5,1.0,0.33,1.0,0.6,0.5,1.0,1.0
+81,Color quantization,0.5,1.0,0.07,0.866,0.2,0.2,1.0,0.9
+82,social web,1.0,1.0,0.25,1.0,0.6,0.4,1.0,1.0
+83,entity linking,1.0,1.0,0.155,0.155,0.2,0.3,0.2,0.3
+84,information privacy,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+85,random forest,1.0,1.0,0.757,0.757,0.8,0.9,0.8,0.9
+86,cloud computing,1.0,1.0,0.604,0.604,0.8,0.7,0.8,0.7
+87,Knapsack problem,0.111,0.111,0.031,0.031,0.0,0.2,0.0,0.2
+88,Linear algebra,0.5,1.0,0.41,1.0,0.8,0.6,1.0,1.0
+89,batch processing,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+90,rule induction,0.0,0.167,0.0,0.017,0.0,0.0,0.0,0.1
+91,Uncertainty quantification,0.0,1.0,0.0,0.815,0.0,0.0,0.8,0.9
+92,Computer architecture,0.25,1.0,0.045,1.0,0.2,0.2,1.0,1.0
+93,Best-first search,1.0,1.0,0.1,0.1,0.2,0.1,0.2,0.1
+94,Gaussian random field,1.0,1.0,0.319,0.381,0.6,0.4,0.6,0.5
+95,Support vector machine,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+96,ontology language,0.5,1.0,0.2,1.0,0.6,0.4,1.0,1.0
+97,machine translation,1.0,1.0,0.815,1.0,0.8,0.9,1.0,1.0
+98,middleware,0.333,0.333,0.21,0.21,0.6,0.4,0.6,0.4
+99,Newton's method,1.0,1.0,0.8,0.8,1.0,0.8,1.0,0.8
