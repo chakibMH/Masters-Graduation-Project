@@ -1,0 +1,8 @@
+Exact binary MRR@10:0.739 
+Approximate binary MRR@10:0.829
+Exact binary MAP@10:0.179 
+Approximate binary MAP@10:0.349
+Exact binary MP@5 :0.292
+Approximate binary MP@5 :0.482
+Exact binary MP@10 :0.256
+Approximate binary MP@10 :0.444
