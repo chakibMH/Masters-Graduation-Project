@@ -218,7 +218,7 @@ def len_paper_from_DB(papers, paper_id):
 
     
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
-                         strategy = 'min', norm = False, k=1000):
+                         strategy = 'min', norm = False, k=1000, use_definition = None):
     """
     
 
@@ -258,11 +258,36 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     """
     
     # embedding thr query
-    query_emb = embedde_single_query(query, embedder)
     
-    print("searching...")
-    df = sen_index.search(query_emb, k)
-    print("relevant phrases extracted...")
+    if use_definition is None:
+        query_emb = embedde_single_query(query, embedder)
+        
+        print("searching...")
+        df = sen_index.search(query_emb, k)
+        print("relevant phrases extracted...")
+        
+    elif use_definition == 'mean':
+   #      query_emb = embedde_single_query(query, embedder, False)
+   # #     q_def = wiki
+   # #     q_def_emb = embedde_single_query(q_def, embedder, False)
+   #      q_mean = (q_def_emb+ query_emb)/2
+   #      norm_query = np.float32(normalize([emb_q])[0])
+   
+        new_query = use_def_mean()
+        
+        print("searching...")
+        df = sen_index.search(new_query, k)
+        print("relevant phrases extracted...")
+    elif use_definition == 'hybrid':#hybrid
+    
+        fct_hybrid
+    
+        print("searching...")
+        df = sen_index.search(norm_query, k)
+        print("relevant phrases extracted...")
+    else:
+        print("erreur")
+        
     
     if strategy == 'min':
         df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].min()

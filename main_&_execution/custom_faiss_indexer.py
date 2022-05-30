@@ -97,6 +97,20 @@ def len_paper(sen_index, paper_id):
     return len(l)
         
             
+def get_number_p_ids(sen_index):
+    
+    keys=sen_index._meta.keys()
+    keys=list(keys)
+    
+    uniq_ids = set()
+    
+    for k in keys[1:]:
+        uniq_ids.add(sen_index._meta[k]['paper_id'])
+        
+    return uniq_ids
+        
+    
+    
 def save_index(index, filename):
     """
  save the index in filename
@@ -181,15 +195,17 @@ def dataset_Indexer(papers, embedder, filename):
     
     # get all papers' id
     
-    all_ids = papers.id.values
+    all_ids = papers.id_paper.values
     
+    # dict to ave embeddings
+    d_emb ={}
     
     # get first id, to get the dim
     first_id = all_ids[0]
     
     
     # embedde first doc 
-    df_sents = papers.loc[papers.id == first_id, ['cleaned_abstract_sentences']]
+    df_sents = papers.loc[papers.id_paper == first_id, ['cleaned_abstract_sentences']]
     
     sent_batch = embedde_phrases_from_DataFrame(df_sents, embedder)
     
@@ -204,6 +220,8 @@ def dataset_Indexer(papers, embedder, filename):
     
     index.add_single_doc(sent_batch, first_id)
     
+    d_emb[first_id] = sent_batch
+    
     
     # add all other papers' sentences
     i = 2
@@ -214,9 +232,11 @@ def dataset_Indexer(papers, embedder, filename):
         i += 1
         
         # get the data frame
-        df_sents = papers.loc[papers.id == paper_id, ['cleaned_abstract_sentences']]
+        df_sents = papers.loc[papers.id_paper == paper_id, ['cleaned_abstract_sentences']]
         
         sent_batch = embedde_phrases_from_DataFrame(df_sents, embedder)
+        
+        d_emb[paper_id] = sent_batch
         
         index.add_single_doc(sent_batch, paper_id)
         
@@ -230,12 +250,42 @@ def dataset_Indexer(papers, embedder, filename):
         
     
     
+def dataset_Indexer_index_exists(papers, embedder, filename):
     
+    print(" start indexing ...")
     
+        # get all papers' id
     
-    
-            
+    all_ids = papers.id_paper.values
 
+
+    index = load_index(filename)
+    
+    d_emb ={}
+    
+    i = 1
+    total = all_ids.shape[0]
+    for paper_id in all_ids[1:]:
+        print("## progression document id : ",paper_id," ==>  [ ", i, " / ", total, " ]")
+        
+        i += 1
+            
+        # get the data frame
+        df_sents = papers.loc[papers.id_paper == paper_id, ['cleaned_abstract_sentences']]
+        
+        sent_batch = embedde_phrases_from_DataFrame(df_sents, embedder)
+        
+        d_emb[paper_id] = sent_batch
+        
+        index.add_single_doc(sent_batch, paper_id)
+        
+        
+    # save index
+    
+    save_index(index, filename)
+    
+    #return index
+    return index, d_emb
 
 
 

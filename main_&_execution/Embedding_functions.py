@@ -90,7 +90,7 @@ def embedde_phrases_from_DataFrame(df_sents, embedder):
     
 
 
-def embedde_single_query(query, embedder):
+def embedde_single_query(query, embedder, norm=True):
     """
     
 
@@ -111,9 +111,10 @@ def embedde_single_query(query, embedder):
     
     emb_q = embedder.encode([query])[0]
     
+    if norm:
     
-    # l2 is default norm
-    norm_query = np.float32(normalize([emb_q])[0])
+        # l2 is default norm
+        norm_query = np.float32(normalize(emb_q)[0])
     
     return np.array([norm_query])
 
@@ -163,5 +164,9 @@ def get_mean_embedding(paper_id, papers, embedder):
     
     
     
+    
+def use_def_mean(q_concept, embedder):
+    
+    use_def_mean
     
     
