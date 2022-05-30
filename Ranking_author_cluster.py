@@ -6,7 +6,7 @@ Created on Fri Mar 11 14:59:01 2022
 """
 import ast
 import numpy as np
-from Embedding_functions import  embedde_single_query, get_mean_embedding
+from Embedding_functions import  embedde_single_query, get_mean_embedding, use_def_mean
 import math
 from custom_faiss_indexer import len_paper
 # from distance_functions import dist2sim
@@ -218,7 +218,8 @@ def len_paper_from_DB(papers, paper_id):
 
     
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
-                         strategy = 'min', norm = False, k=1000, use_definition = None):
+                         strategy = 'min', norm = False, k=1000, 
+                         use_definition = None, data_source = "wikidata_then_wikipedia"):
     """
     
 
@@ -267,13 +268,8 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
         print("relevant phrases extracted...")
         
     elif use_definition == 'mean':
-   #      query_emb = embedde_single_query(query, embedder, False)
-   # #     q_def = wiki
-   # #     q_def_emb = embedde_single_query(q_def, embedder, False)
-   #      q_mean = (q_def_emb+ query_emb)/2
-   #      norm_query = np.float32(normalize([emb_q])[0])
    
-        new_query = use_def_mean()
+        new_query = use_def_mean(query, embedder, data_source)
         
         print("searching...")
         df = sen_index.search(new_query, k)

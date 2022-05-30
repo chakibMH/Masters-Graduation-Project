@@ -165,8 +165,44 @@ def get_mean_embedding(paper_id, papers, embedder):
     
     
     
-def use_def_mean(q_concept, embedder):
+def use_def_mean(q_concept, embedder, data_source = "wikidata_then_wikipedia"):
     
-    use_def_mean
+    
+     concept_emb = embedde_single_query(q_concept, embedder, False)
+     
+     if data_source == "wikidata_then_wikipedia":
+         q_def = wikidata_then_wikipedia(q_concept)
+     elif data_source == "wikipedia":
+         q_def = wikipedia(q_concept)
+     elif data_source == "wikidata":
+         q_def = wikidata(q_concept)
+         
+         
+     q_def_emb = embedde_single_query(q_def, embedder, False)
+     q_mean = (q_def_emb+ query_emb)/2
+     norm_query = np.float32(normalize([emb_q])[0])
+     
+     return norm_query
+
+
+def use_def_hybrid(q_concept, embedder, sen_index, data_source = "wikidata_then_wikipedia"):
+    
+    
+    if data_source == "wikidata_then_wikipedia":
+        q_def = wikidata_then_wikipedia(q_concept)
+    elif data_source == "wikipedia":
+        q_def = wikipedia(q_concept)
+    elif data_source == "wikidata":
+        q_def = wikidata(q_concept)
+    
+    concept_emb = embedde_single_query(q_concept, embedder, False)
+    
+    q_def_emb = embedde_single_query(q_def, embedder, False)
+    
+    df_concept = sen_index.search(concept_emb, 1000)
+    
+    df_def = sen_index.search(q_def_emb, 1000)
+    
+
     
     
