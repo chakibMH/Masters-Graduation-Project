@@ -21,16 +21,13 @@ import time
 import traceback
 
 
-def get_data(name,ex_id_papers):
+def get_data(id_a,ex_id_papers):
     
-    def collect_abstracts(a,ex_id_papers):
+    def collect_abstracts(id_a,ex_id_papers):
         #get id author
         
-
-        id = a[1]
             
-        link_="https://dl.acm.org"+id
-        
+        link_="https://dl.acm.org"+id_a
         #name = "Janez Brank"
 
         req1 = requests.Session()
@@ -83,7 +80,7 @@ def get_data(name,ex_id_papers):
         #print("id  : ",id)
         page_num = 0
         while True :
-            link_all_papers="https://dl.acm.org"+id+"/publications?Role=author&pageSize=50&startPage="+str(page_num)
+            link_all_papers="https://dl.acm.org"+id_a+"/publications?Role=author&pageSize=50&startPage="+str(page_num)
             
             #get all papers
             
@@ -218,9 +215,8 @@ def get_data(name,ex_id_papers):
     
     req = requests.Session()
     
-    name_url = name.replace(" ", "+")
     
-    result = req.get("https://dl.acm.org/action/doSearch?AllField="+name_url)
+    result = req.get("https://dl.acm.org/action/doSearch?AllField=jon")
     
     src = result.content
     
@@ -228,41 +224,21 @@ def get_data(name,ex_id_papers):
     
     
     soup = BeautifulSoup(src, "lxml")
-    
-    txt = soup.find_all("div", {"class","issue-item__content-right"})
-    txt = str(txt)
-    # pos = txt.find(name)
+ 
     txt2=soup.find_all("div", {"class","col-sm-6 table__cell-view vertical-center"})
     test=[]
     for i in range(len(txt2)):
         test.append(txt2[i].text)
     
 
-    # name_2 = strip_accents(name)
-    # pos_2 = txt.find(name_2)
-    authors_list_ = []
-    authors_list_ = get_list_authors(txt)
     
-    find_author(authors_list,name)
-    a=find_author(authors_list_,name)
 
-    
-    if a != False :
-        
-        return collect_abstracts(a,ex_id_papers)
-    else: 
-        a  = find_author(authors_list_,strip_accents(name))
-        if a != False :
-            return collect_abstracts(a,ex_id_papers)
-        else :
-            if test == ['\n\n\ue924\n\n', '\n\nYour IP Address has been blocked\nPlease contact \n    \n[email\xa0protected]\n\n\n\n']:
-                print("@ IP blocked !")
-                dfObj = pd.DataFrame(columns=['title', 'abstract'])
-                return dfObj,["@ IP blocked !"],[],[]
-            else:
-                print("There is no such an author !")
-                dfObj = pd.DataFrame(columns=['title', 'abstract'])
-                return dfObj,[],[],[]
+    if test == ['\n\n\ue924\n\n', '\n\nYour IP Address has been blocked\nPlease contact \n    \n[email\xa0protected]\n\n\n\n']:
+        print("@ IP blocked !")
+        dfObj = pd.DataFrame(columns=['title', 'abstract'])
+        return dfObj,["@ IP blocked !"],[],[]
+    else:
+        return collect_abstracts(id_a,ex_id_papers)
         
 
 
@@ -282,7 +258,7 @@ def construct_csv(list_authors,txt_indices,ex_id_papers):
         print("author : ",i)
         i=i+1
         try:
-            df,infos_liste,subjects,keywords = get_data(a,ex_id_papers)
+            df,infos_liste,subjects,keywords = get_data(a[1],ex_id_papers)
             #print(df)
             
             if infos_liste !=[]:
@@ -296,8 +272,8 @@ def construct_csv(list_authors,txt_indices,ex_id_papers):
                 
                 for x in df.itertuples():
                     
-                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a,infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                    with open(r'Data_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a[0],infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
+                    with open(r'Dada_Base_New\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
             else:
@@ -423,7 +399,7 @@ def strip_accents(s):
 
 
 def get_index(txt_indices,list_all_authors):
-    df = pd.read_csv('Data_Base\papers_ACM_'+txt_indices+'.csv')
+    df = pd.read_csv('Dada_Base_New\papers_ACM_'+txt_indices+'.csv')
     l=df.author_name
     l=l.tolist()
     b=len(l)
@@ -440,7 +416,7 @@ def execute(ind_start, ind_end, num_process):
 
     #/***********************************************************************/
     
-    with open('list_2161_new_author.pkl', 'rb') as f:
+    with open('list_1844_new_author.pkl', 'rb') as f:
         list_all_authors = pickle.load(f)
         
     with open('ex_id_papers.pkl', 'rb') as f:
@@ -485,9 +461,18 @@ def re_execute(list_exeptions,num_process):
 def first_time(num_process):
     fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
     txt_indices="02"
-    with open(r'Data_Base\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
+    with open(r'Dada_Base_New\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
+# first_time("01")
+list_exeptions=execute(0, 100, "01")
 
-# list_exeptions=execute(0, 1, "01")
+list_exeptions=execute(100, 200, "02")
+
+list_exeptions=execute(200, 300, "03")
+
+list_exeptions=execute(300, 400, "04")
+
+
+list_exeptions=re_execute(list_exeptions,"01")
