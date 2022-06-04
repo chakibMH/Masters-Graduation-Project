@@ -114,7 +114,10 @@ def embedde_single_query(query, embedder, norm=True):
     if norm:
     
         # l2 is default norm
-        norm_query = np.float32(normalize(emb_q)[0])
+        norm_query = np.float32(normalize(np.array([emb_q]))[0])
+        
+    
+    #result shape : (1, dim)
     
     return np.array([norm_query])
 
