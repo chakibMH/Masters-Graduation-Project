@@ -6,7 +6,7 @@ Created on Fri Mar 11 14:59:01 2022
 """
 import ast
 import numpy as np
-from Embedding_functions import  embedde_single_query, get_mean_embedding, use_def_mean
+from Embedding_functions import  embedde_single_query, get_mean_embedding
 import math
 from custom_faiss_indexer import len_paper
 # from distance_functions import dist2sim
@@ -218,9 +218,7 @@ def len_paper_from_DB(papers, paper_id):
 
     
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
-                         strategy = 'min', norm = False, transform_to_score_before=True
-                         ,k=1000, 
-                         use_definition = None, data_source = "wikidata_then_wikipedia"):
+                         strategy = 'min', norm = False, k=1000, ):
     """
     
 
@@ -260,56 +258,19 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     """
     
     # embedding thr query
+    query_emb = embedde_single_query(query, embedder)
     
-    if use_definition is None:
-        query_emb = embedde_single_query(query, embedder)
-        
-        print("searching...")
-        df = sen_index.search(query_emb, k)
-        print("relevant phrases extracted...")
-        
-    elif use_definition == 'mean':
-   
-        new_query = use_def_mean(query, embedder, data_source)
-        
-        print("searching...")
-        df = sen_index.search(new_query, k)
-        print("relevant phrases extracted...")
-    elif use_definition == 'hybrid':#hybrid
-    
-        # fct_hybrid
-    
-        print("searching...")
-        # df = sen_index.search(norm_query, k)
-        print("relevant phrases extracted...")
-    else:
-        print("erreur")
-        
+    print("searching...")
+    df = sen_index.search(query_emb, k)
+    print("relevant phrases extracted...")
     
     if strategy == 'min':
         df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].min()
-        # transform dist to sim
-        df_res = df_res.map(lambda x: dist2sim(x))
+        
     elif strategy == 'mean':
-        
-        if transform_to_score_before :
-            # transform dist to sim
-            df['score'] = df.dist_phrase_with_query.map(lambda x: dist2sim(x))
-            df_res = df.groupby(['paper_id'])['score'].mean()
-        else: # transform after
-            df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
-            #calculate score
-            df_res = df_res.map(lambda x: dist2sim(x))
-        
+        df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
     elif strategy == 'sum':
-        if transform_to_score_before :
-            # transform dist to sim
-            df['score'] = df.dist_phrase_with_query.map(lambda x: dist2sim(x))
-            df_res = df.groupby(['paper_id'])['score'].sum()
-        else: # transform after
-            df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].sum()
-            # calculate score
-            df_res = df_res.map(lambda x: dist2sim(x))
+        df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].sum()
     else:
         print("erreur pas d'autres strategies")
     
@@ -333,14 +294,13 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
         
         auth_of_p_id = get_authors_of_paper(p_id, papers)
         
-        # now is uniform 
-        #dist_Q_D = df_res.loc[p_id]
-        
-        sim_Q_D = df_res.loc[p_id]
-        
         for a in auth_of_p_id:
             
-
+            # now is uniform 
+            dist_Q_D = df_res.loc[p_id]
+            
+            # transform dist to sim
+            sim_Q_D = dist2sim(dist_Q_D)
             
             # waiting for scraping ... to introduce dist with auth's cluster
             # dist_D_A = dict_expertise[a]
