@@ -226,6 +226,13 @@ def mean_precision_at_n(results, n=5):
 # authors = data_and_authors[1]
 
 
+#load papers and authors
+data = pd.read_csv("papers.csv")
+authors = pd.read_csv("authors.csv")
+
+#load embedder
+embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
+
 queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Monte Carlo method',
            'Convex optimization', 'Dimensionality reduction', 'Facial recognition system', 
            'k-nearest neighbors algorithm', 'Hierarchical clustering', 'Automatic summarization',
@@ -275,57 +282,3 @@ def execute(file_name):
 
 
 
-def save_files(file_path):
-
-    #*******************************************************  
-    #                   dataframe ranking  
-    #*******************************************************  
-    
-    df_results = pd.DataFrame(columns=["Query","Exact","Approximate"])
-    i=0
-    for q in queries:
-        dict = {"Query":q,"Exact":exact[i],"Approximate":approximate[i]}
-        df_results = df_results.append(dict, ignore_index = True)
-        i=i+1
-    
-    import pandas as pd
-    df_results.to_csv(file_path+"_ranking.csv")  
-    
-    
-    #*******************************************************  
-    #               original_method_results.txt  
-    #******************************************************* 
-    
-    
-    text = "Exact binary MRR@10:"+ str(mean_reciprocal_rank(exact))+" \nApproximate binary MRR@10:"+ str(mean_reciprocal_rank(approximate))+"\nExact binary MAP@10:"+ str(mean_average_precision(exact)) +" \nApproximate binary MAP@10:"+ str(mean_average_precision(approximate))+"\nExact binary MP@5 :"+ str(mean_precision_at_n(exact, n=5))+"\nApproximate binary MP@5 :"+ str(mean_precision_at_n(approximate, n=5))+"\nExact binary MP@10 :"+ str(mean_precision_at_n(exact, n=10))+"\nApproximate binary MP@10 :"+ str(mean_precision_at_n(approximate, n=10))
-    
-    with open(file_path+'_results.txt', 'w') as f:
-        f.write(text) 
-    
-    #*******************************************************  
-    #               original_method_metrics.txt  
-    #*******************************************************
-    
-    df_results_eval = pd.DataFrame(columns=["Query",
-                                            "Exact binary MRR@10",
-                                            "Approximate binary MRR@10",
-                                            "Exact binary MAP@10",
-                                            "Approximate binary MAP@10",
-                                            "Exact binary MP@5",
-                                            "Exact binary MP@10",
-                                            "Approximate binary MP@5",
-                                            "Approximate binary MP@10"])
-    
-    i=0
-    for q in queries:
-        l=[]
-        l.append(exact[i])
-        b=[]
-        b.append(approximate[i])
-        
-        dict_ = {"Query":q,"Exact binary MRR@10":  ( 0 if math.isnan( mean_reciprocal_rank(l)) else mean_reciprocal_rank(l)),"Approximate binary MRR@10":( 0 if math.isnan(mean_reciprocal_rank(b)) else mean_reciprocal_rank(b)),"Exact binary MAP@10":( 0 if math.isnan(mean_average_precision(l)) else mean_average_precision(l)) ,"Approximate binary MAP@10":mean_average_precision(b),"Exact binary MP@5":mean_precision_at_n(l, n=5),"Exact binary MP@10":mean_precision_at_n(l, n=10),"Approximate binary MP@5":mean_precision_at_n(b, n=5),"Approximate binary MP@10":mean_precision_at_n(b, n=10)}
-        df_results_eval = df_results_eval.append(dict_, ignore_index = True)
-        i=i+1
-        
-    import pandas as pd
-    df_results_eval.to_csv(file_path+"_metrics.csv")  
