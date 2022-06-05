@@ -6,6 +6,8 @@ Created on Fri Apr  1 22:32:04 2022
 import pandas as pd
 from sentence_transformers import SentenceTransformer, util
 
+import ast
+
 embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Monte Carlo method',
@@ -33,6 +35,14 @@ queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Mont
            'Support vector machine', 'ontology language', 'machine translation', 'middleware', 'Newton\'s method']
 
 
+# load index sen_index
+sen_index = load_index("roberta_emb_sentences_indexFlatL2")
+#load papers.csv(papers)
+#load authors.csv(authors)
+
+
+papers = pd.read_csv("papers.csv")
+authors = pd.read_csv("authors.csv")
 
 results_all_queries = pd.DataFrame()
 
@@ -42,7 +52,11 @@ l = len(queries)
 for q in queries:
     print('current query: ',q,' [{}/{}'.format(i,l)) 
     score_authors_dict = get_relevant_experts(q, sen_index, papers, 
-                                              authors, embedder,norm=True)
+                                              authors, embedder, strategy = 'sum',norm=True,
+                                              transform_to_score_before=True)
+
+    
+    
     d_all_query[q] = score_authors_dict
     i+=1
 df = pd.DataFrame(d_all_query)
@@ -55,9 +69,39 @@ for i in l:
         to_drop.append(i)
 
 df.drop(to_drop, inplace=True)
-df.to_csv("relvents_auths_all_queries.csv")
+df.to_csv("relvents_auths_all_queries_sum_Norm_tranToScoTrue.csv")
 
 queries = df.columns.values
+
+
+relvents_auths = pd.read_csv("relvents_auths_all_queries_sum_Norm_tranToScoTrue.csv")
+
+relvents_auths = relvents_auths.rename(columns={relvents_auths.columns[0]: 'id'})
+
+list_ids_relevant=relvents_auths["id"].tolist()
+
+
+def retrieve_author_tags_new(authors, author_id):
+  
+    author_id= int(author_id)
+    try:
+        return ast.literal_eval(authors[authors.id == author_id].tags.values[0])
+    except:
+        return {}
+
+
+for n in list_ids_relevant:
+    tags = [t['t'].lower() for t in retrieve_author_tags_new(authors,n)]
+    #print("* tags  : ",tags,"// id : ",n)
+    
+    if tags:
+        b=1
+    else:
+        relvents_auths.drop(relvents_auths.index[relvents_auths['id'] == n], inplace=True)
+
+relvents_auths.to_csv('relvents_auths_all_queries_sum_Norm_tranToScoTrue_new.csv', index=False)
+
+
 
 for q in queries:
     res = df[q].copy()

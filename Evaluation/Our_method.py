@@ -100,15 +100,17 @@ def produce_authors_ranking_new(result):
     sortd = [(k, v) for k, v in sorted(result.items(), key=lambda item: item[1], reverse=True)]
     return sortd
 
-def get_author_ranking_exact_v2(query, relvents_auths_all_queries, k=10, tfidf=False, strategy="binary",
+def get_author_ranking_exact_v2_from_csv(query, relvents_auths_all_queries, k=10, tfidf=False, strategy="binary",
                                 normalized=False, norm_alpha=100, extra_term=10):
    
     res = relvents_auths_all_queries[query].copy()
-
+    
+    res = res.dropna()
+    
     dic_q = res.to_dict()
+    
     top_n = produce_authors_ranking_new(dic_q)[:k]
     
-   
 
     relevancies = [check_if_author_relevant( aid[0], query) for aid in top_n]
     
@@ -124,13 +126,17 @@ def get_author_ranking_exact_v2(query, relvents_auths_all_queries, k=10, tfidf=F
 
 
 
-def get_author_ranking_approximate_v2(query, relvents_auths_all_queries, k=10, similarity_threshold=0.7, tfidf=False, strategy="binary",
+def get_author_ranking_approximate_v2_from_csv(query, relvents_auths_all_queries, k=10, similarity_threshold=0.7, tfidf=False, strategy="binary",
                                       normalized=False, norm_alpha=100, extra_term=10):
     print("query : ",queries.index(query))
     
+ 
     res = relvents_auths_all_queries[query].copy()
     
+    res = res.dropna()
+    
     dic_q = res.to_dict()
+    
     top_n = produce_authors_ranking_new(dic_q)[:k]
     
 
@@ -219,7 +225,7 @@ data_and_authors = load_data_and_authors()
 data = data_and_authors[0]
 authors = data_and_authors[1]
 
-relvents_auths_all_queries = pd.read_csv("relvents_auths_all_queries_sum_False_new.csv",index_col=0)
+relvents_auths_all_queries = pd.read_csv("relvents_auths_all_queries_sum_Norm_tranToScoTrue_new.csv",index_col=0)
 
 
           
@@ -247,12 +253,14 @@ queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Mont
            'Uncertainty quantification', 'Computer architecture', 'Best-first search', 'Gaussian random field',
            'Support vector machine', 'ontology language', 'machine translation', 'middleware', 'Newton\'s method']
 
+
+
 start = time.time()
 
-exact = [get_author_ranking_exact_v2(query, relvents_auths_all_queries , k=10, tfidf=False, strategy="binary", normalized=False) for query in queries]
+exact = [get_author_ranking_exact_v2_from_csv(query, relvents_auths_all_queries , k=10, tfidf=False, strategy="binary", normalized=False) for query in queries]
                              
 
-approximate = [get_author_ranking_approximate_v2(query, relvents_auths_all_queries , k=10, similarity_threshold=0.7, tfidf=False, strategy="binary", normalized=False) for query in queries]
+approximate = [get_author_ranking_approximate_v2_from_csv(query, relvents_auths_all_queries , k=10, similarity_threshold=0.7, tfidf=False, strategy="binary", normalized=False) for query in queries]
 
 end = time.time()
 print("time: ",(end - start)/60," min")
@@ -269,7 +277,7 @@ for q in queries:
     i=i+1
 
 import pandas as pd
-df_results.to_csv("new_results/Our_method/sum_False/sum_False.csv")  
+df_results.to_csv("final_results/Our_method/sum_notNorm_tranToScoFalse/sum_notNorm_tranToScoFalse_ranking.csv")  
 
 
 #*******************************************************  
@@ -279,7 +287,7 @@ df_results.to_csv("new_results/Our_method/sum_False/sum_False.csv")
 
 text = "Exact binary MRR@10:"+ str(mean_reciprocal_rank(exact))+" \nApproximate binary MRR@10:"+ str(mean_reciprocal_rank(approximate))+"\nExact binary MAP@10:"+ str(mean_average_precision(exact)) +" \nApproximate binary MAP@10:"+ str(mean_average_precision(approximate))+"\nExact binary MP@5 :"+ str(mean_precision_at_n(exact, n=5))+"\nApproximate binary MP@5 :"+ str(mean_precision_at_n(approximate, n=5))+"\nExact binary MP@10 :"+ str(mean_precision_at_n(exact, n=10))+"\nApproximate binary MP@10 :"+ str(mean_precision_at_n(approximate, n=10))
 
-with open('new_results/Our_method/sum_False/sum_False_results.txt', 'w') as f:
+with open('final_results/Our_method/sum_notNorm_tranToScoFalse/sum_notNorm_tranToScoFalse_results.txt', 'w') as f:
     f.write(text) 
 
 #*******************************************************  
@@ -308,4 +316,4 @@ for q in queries:
     i=i+1
     
 import pandas as pd
-df_results_eval.to_csv("new_results/Our_method/sum_False/sum_False_metrics.csv")  
+df_results_eval.to_csv("final_results/Our_method/sum_notNorm_tranToScoFalse/sum_notNorm_tranToScoFalse_metrics.csv")  
