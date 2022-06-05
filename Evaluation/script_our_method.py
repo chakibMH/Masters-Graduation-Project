@@ -83,8 +83,8 @@ def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_scor
 
 # here I wrote the name of the right file for you (don't change it !!), same as the rest of the parameters
 
-file_name = "relvents_auths_all_queries_mean_notNorm_tranToScoTrue"
-get_relevant_authors(file_name,strategy='mean',norm=False, transform_to_score_before=True)
+file_name = "relvents_auths_all_queries_sum_notNorm_tranToScoTrue"
+get_relevant_authors((file_name,strategy = 'sum',norm=False, transform_to_score_before=True)
 
 
 # now, execute the file Our_method (you will find it in \PFE_CODE\Evaluation )
@@ -150,8 +150,7 @@ def save_files(file_path):
 
 
 
-file_path = "final_results/Our_method/mean_notNorm_tranToScoTrue/mean_notNorm_tranToScoTrue"
-
+file_path = "final_results/Our_method/sum_notNorm_tranToScoTrue/sum_notNorm_tranToScoTrue"
 save_files(file_path)
 
 
