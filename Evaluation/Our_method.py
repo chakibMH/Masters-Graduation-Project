@@ -218,17 +218,14 @@ def mean_precision_at_n(results, n=5):
 
 #*//*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*/*
 
-embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
+# embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 
-data_and_authors = load_data_and_authors()
-data = data_and_authors[0]
-authors = data_and_authors[1]
-
-relvents_auths_all_queries = pd.read_csv("relvents_auths_all_queries_sum_Norm_tranToScoTrue_new.csv",index_col=0)
+# data_and_authors = load_data_and_authors()
+# data = data_and_authors[0]
+# authors = data_and_authors[1]
 
 
-          
 queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Monte Carlo method',
            'Convex optimization', 'Dimensionality reduction', 'Facial recognition system', 
            'k-nearest neighbors algorithm', 'Hierarchical clustering', 'Automatic summarization',
@@ -254,21 +251,31 @@ queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Mont
            'Support vector machine', 'ontology language', 'machine translation', 'middleware', 'Newton\'s method']
 
 
+def execute(file_name):
 
-start = time.time()
+    relvents_auths_all_queries = pd.read_csv(file_name+"_new.csv",index_col=0)
+    
+    
+              
+    
+    
+    
+    start = time.time()
+    
+    exact = [get_author_ranking_exact_v2_from_csv(query, relvents_auths_all_queries , k=10, tfidf=False, strategy="binary", normalized=False) for query in queries]
+                                 
+    
+    approximate = [get_author_ranking_approximate_v2_from_csv(query, relvents_auths_all_queries , k=10, similarity_threshold=0.7, tfidf=False, strategy="binary", normalized=False) for query in queries]
+    
+    end = time.time()
+    print("time: ",(end - start)/60," min")
+    
+    return exact, approximate
 
-exact = [get_author_ranking_exact_v2_from_csv(query, relvents_auths_all_queries , k=10, tfidf=False, strategy="binary", normalized=False) for query in queries]
-                             
-
-approximate = [get_author_ranking_approximate_v2_from_csv(query, relvents_auths_all_queries , k=10, similarity_threshold=0.7, tfidf=False, strategy="binary", normalized=False) for query in queries]
-
-end = time.time()
-print("time: ",(end - start)/60," min")
 
 
-file_name = "final_results/Our_method/sum_Norm_tranToScoTrue/sum_Norm_tranToScoTrue"
 
-def save_files(file_name):
+def save_files(file_path):
 
     #*******************************************************  
     #                   dataframe ranking  
@@ -282,7 +289,7 @@ def save_files(file_name):
         i=i+1
     
     import pandas as pd
-    df_results.to_csv(file_name+"_ranking.csv")  
+    df_results.to_csv(file_path+"_ranking.csv")  
     
     
     #*******************************************************  
@@ -292,7 +299,7 @@ def save_files(file_name):
     
     text = "Exact binary MRR@10:"+ str(mean_reciprocal_rank(exact))+" \nApproximate binary MRR@10:"+ str(mean_reciprocal_rank(approximate))+"\nExact binary MAP@10:"+ str(mean_average_precision(exact)) +" \nApproximate binary MAP@10:"+ str(mean_average_precision(approximate))+"\nExact binary MP@5 :"+ str(mean_precision_at_n(exact, n=5))+"\nApproximate binary MP@5 :"+ str(mean_precision_at_n(approximate, n=5))+"\nExact binary MP@10 :"+ str(mean_precision_at_n(exact, n=10))+"\nApproximate binary MP@10 :"+ str(mean_precision_at_n(approximate, n=10))
     
-    with open(file_name+'_results.txt', 'w') as f:
+    with open(file_path+'_results.txt', 'w') as f:
         f.write(text) 
     
     #*******************************************************  
@@ -321,4 +328,4 @@ def save_files(file_name):
         i=i+1
         
     import pandas as pd
-    df_results_eval.to_csv(file_name+"_metrics.csv")  
+    df_results_eval.to_csv(file_path+"_metrics.csv")  

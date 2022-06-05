@@ -8,7 +8,6 @@ from sentence_transformers import SentenceTransformer, util
 
 import ast
 
-embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Monte Carlo method',
            'Convex optimization', 'Dimensionality reduction', 'Facial recognition system', 
@@ -36,13 +35,11 @@ queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Mont
 
 
 # load index sen_index
-sen_index = load_index("roberta_emb_sentences_indexFlatL2")
+
 #load papers.csv(papers)
 #load authors.csv(authors)
 
 
-papers = pd.read_csv("papers.csv")
-authors = pd.read_csv("authors.csv")
 
 # relvents_auths_all_queries_sum_Norm_tranToScoTrue
 
