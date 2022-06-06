@@ -18,7 +18,7 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 
 
-def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_score_before=True):
+def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_score_before=True, deff_type="mean"):
 
     results_all_queries = pd.DataFrame()
     
@@ -27,10 +27,12 @@ def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_scor
     l = len(queries)
     for q in queries:
         print('current query: ',q,' [{}/{}'.format(i,l)) 
-        score_authors_dict = get_relevant_experts(q, sen_index, data, 
-                                                  authors, embedder, strategy,norm,
-                                                  transform_to_score_before)
-    
+        # score_authors_dict = get_relevant_experts(q, sen_index, data, 
+        #                                           authors, embedder, strategy,norm,
+        #                                           transform_to_score_before, 2000)
+        
+        score_authors_dict = get_relevant_experts_WITH_DEFF(q, sen_index, data, authors, embedder, 
+                                           deff_type,strategy, norm )
         
         
         d_all_query[q] = score_authors_dict
@@ -83,8 +85,9 @@ def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_scor
 
 # here I wrote the name of the right file for you (don't change it !!), same as the rest of the parameters
 
-file_name = "relvents_auths_all_queries_sum_notNorm_tranToScoTrue"
-get_relevant_authors((file_name,strategy = 'sum',norm=False, transform_to_score_before=True)
+file_name = "relvents_auths_all_queries_mean_Norm_mean"
+
+get_relevant_authors(file_name,strategy = 'mean',norm=True,deff_type="mean")
 
 
 # now, execute the file Our_method (you will find it in \PFE_CODE\Evaluation )
@@ -92,7 +95,7 @@ get_relevant_authors((file_name,strategy = 'sum',norm=False, transform_to_score_
 exact, approximate = execute(file_name)
 
 # to execute, you must creat a folders as : /final_results/Our_method/sum_notNorm_tranToScoTrue/
-
+import pandas as pd
 def save_files(file_path):
 
     #*******************************************************  
@@ -106,7 +109,7 @@ def save_files(file_path):
         df_results = df_results.append(dict, ignore_index = True)
         i=i+1
     
-    import pandas as pd
+
     df_results.to_csv(file_path+"_ranking.csv")  
     
     
@@ -145,12 +148,12 @@ def save_files(file_path):
         df_results_eval = df_results_eval.append(dict_, ignore_index = True)
         i=i+1
         
-    import pandas as pd
+
     df_results_eval.to_csv(file_path+"_metrics.csv")  
 
 
+file_path = "final_results/Our_method/mean_Norm_mean/mean_Norm_mean"
 
-file_path = "final_results/Our_method/sum_notNorm_tranToScoTrue/sum_notNorm_tranToScoTrue"
 save_files(file_path)
 
 
