@@ -462,10 +462,10 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
     
         concept_emb = embedde_single_query(l_query[0], embedder, False)
         
-        #clean_d = clean_def(l_query[1])
+        clean_d = clean_def(l_query[1])
         
-        #q_def_emb = embedde_single_query(clean_d, embedder, False)
-        q_def_emb = embedde_single_query(l_query[1], embedder, False)
+        q_def_emb = embedde_single_query(clean_d, embedder, False)
+        # q_def_emb = embedde_single_query(l_query[1], embedder, False)
         
         q_mean = (q_def_emb+ concept_emb)/2
         norm_query = np.float32(normalize(q_mean))
