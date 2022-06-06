@@ -114,9 +114,10 @@ def embedde_single_query(query, embedder, norm=True):
     if norm:
     
         # l2 is default norm
-        norm_query = np.float32(normalize(np.array([emb_q]))[0])
+        res = np.float32(normalize(np.array([emb_q]))[0])
         
-    
+    else:
+        res = emb_q
     #result shape : (1, dim)
     
     return np.array([norm_query])
@@ -168,7 +169,7 @@ def get_mean_embedding(paper_id, papers, embedder):
     
     
     
-def use_def_mean(q_concept, embedder, data_source = "wikidata_then_wikipedia"):
+def use_def_mean(q_concept, embedder, data_source = "wikipedia"):
     
     
      concept_emb = embedde_single_query(q_concept, embedder, False)
