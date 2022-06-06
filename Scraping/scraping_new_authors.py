@@ -273,7 +273,7 @@ def construct_csv(list_authors,txt_indices,ex_id_papers):
                 for x in df.itertuples():
                     
                     list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a[0],infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                    with open(r'Dada_Base\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                    with open(r'Dada_Base_New\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
             else:
@@ -399,7 +399,7 @@ def strip_accents(s):
 
 
 def get_index(txt_indices,list_all_authors):
-    df = pd.read_csv('Dada_Base\papers_ACM_'+txt_indices+'.csv')
+    df = pd.read_csv('Dada_Base_New\papers_ACM_'+txt_indices+'.csv')
     l=df.author_name
     l=l.tolist()
     b=len(l)
@@ -416,7 +416,7 @@ def execute(ind_start, ind_end, num_process):
 
     #/***********************************************************************/
     
-    with open('list_1844_new_author.pkl', 'rb') as f:
+    with open('list_184_new_authors_data.pkl', 'rb') as f:
         list_all_authors = pickle.load(f)
         
     with open('ex_id_papers.pkl', 'rb') as f:
@@ -461,16 +461,16 @@ def re_execute(list_exeptions,num_process):
 def first_time(num_process):
     fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
     txt_indices="02"
-    with open(r'Dada_Base\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
+    with open(r'Dada_Base_New\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
-# first_time("01")
-list_exeptions=execute(0, 100, "01")
+# first_time("new_03")
+list_exeptions=execute(0, 25, "new_01")
 
-list_exeptions=execute(100, 200, "02")
+list_exeptions=execute(25, 75, "new_02")
 
-list_exeptions=execute(200, 300, "03")
+list_exeptions=execute(75, 175, "new_03")
 
 list_exeptions=execute(300, 400, "04")
 
