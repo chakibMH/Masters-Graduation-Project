@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 28 16:26:29 2022
-
-@author: HP
-"""
 import os
 import time
 import math
@@ -128,7 +122,7 @@ def get_author_ranking_exact_v2_from_csv(query,deff, relvents_auths_all_queries,
 
 def get_author_ranking_approximate_v2_from_csv(query,deff, relvents_auths_all_queries, k=10, similarity_threshold=0.7, tfidf=False, strategy="binary",
                                       normalized=False, norm_alpha=100, extra_term=10):
-    print("query : ",queries.index(query))
+    print("query : ",queries2.index(query))
     
  
     res = relvents_auths_all_queries[deff].copy()
