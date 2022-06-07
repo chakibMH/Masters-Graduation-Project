@@ -120,7 +120,7 @@ def embedde_single_query(query, embedder, norm=True):
         res = emb_q
     #result shape : (1, dim)
     
-    return np.array([norm_query])
+    return np.array([res])
 
 
 def get_mean_embedding(paper_id, papers, embedder):
