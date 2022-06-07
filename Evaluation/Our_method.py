@@ -18,7 +18,6 @@ from pprint import pprint
 import scipy
 from collections import Counter
 import ast
-from more_itertools import unique_everseen
 from sentence_transformers import SentenceTransformer
 from collections import defaultdict
 import math
