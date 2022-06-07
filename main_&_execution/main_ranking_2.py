@@ -3,11 +3,7 @@
 Created on Fri Apr  1 22:32:04 2022
 
 """
-import pandas as pd
-from sentence_transformers import SentenceTransformer, util
-from Ranking_author_cluster import get_relevant_experts
 
-import ast
 
 
 # queries = ['cluster analysis', 'Image segmentation', 'Parallel algorithm', 'Monte Carlo method',

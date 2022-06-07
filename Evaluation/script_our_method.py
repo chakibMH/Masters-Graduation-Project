@@ -18,7 +18,7 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 
 
-def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_score_before=True, deff_type="mean"):
+def get_relevant_authors(file_name,strategy = 'sum',norm=True, deff_type="mean",a = 0.7, b=0.3):
 
     results_all_queries = pd.DataFrame()
     
@@ -32,7 +32,7 @@ def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_scor
         #                                           transform_to_score_before, 2000)
         
         score_authors_dict = get_relevant_experts_WITH_DEFF(q, sen_index, data, authors, embedder, 
-                                           deff_type,strategy, norm )
+                                           deff_type,a , b,strategy, norm )
         
         
         d_all_query[q] = score_authors_dict
@@ -87,7 +87,8 @@ def get_relevant_authors(file_name,strategy = 'sum',norm=True, transform_to_scor
 
 file_name = "relvents_auths_all_queries_mean_Norm_mean"
 
-get_relevant_authors(file_name,strategy = 'mean',norm=True,deff_type="mean")
+get_relevant_authors(file_name,strategy = 'mean',norm=True,deff_type="mean",a = 0.7, b=0.3)
+
 
 
 # now, execute the file Our_method (you will find it in \PFE_CODE\Evaluation )
