@@ -58,15 +58,15 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 #################################  start evaluation #################################################################
 ############################################################################################
 
-file_name = "relvents_auths_all_queries_mean_notNorm_mean"
+file_name = "relvents_auths_all_queries_sum_notNorm_tranToScoFalse_mean"
 
-get_relevant_authors(file_name,strategy = 'mean',norm=False,deff_type="mean",a = 0.7, b=0.3)
+get_relevant_authors(file_name,strategy = 'sum',norm=False,deff_type="mean",a = 0.7, b=0.3, transform_to_score_before=False)
 # free some spaces
 del(sen_index)
 exact, approximate = execute(file_name)
 
 
-file_path = "final_results/Our_method/mean_notNorm_mean/mean_notNorm_mean"
+file_path = "final_results/Our_method/sum_notNorm_tranToScoFalse_mean/sum_notNorm_tranToScoFalse_mean"
 
 save_files(file_path)
 

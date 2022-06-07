@@ -257,7 +257,7 @@ def execute(file_name):
 
 # those function were in our_method_script, names were very confusing, and the execution was complicated
 
-def get_relevant_authors(file_name,strategy = 'sum',norm=True, deff_type="mean",a = 0.7, b=0.3):
+def get_relevant_authors(file_name,strategy = 'sum',norm=True, deff_type="mean",a = 0.7, b=0.3, transform_to_score_before=True):
 
     results_all_queries = pd.DataFrame()
     
@@ -271,7 +271,7 @@ def get_relevant_authors(file_name,strategy = 'sum',norm=True, deff_type="mean",
         #                                           transform_to_score_before, 2000)
         
         score_authors_dict = get_relevant_experts_WITH_DEFF(q, sen_index, data, authors, embedder, 
-                                           deff_type,a , b,strategy, norm )
+                                           deff_type,a , b,strategy, norm ,  transform_to_score_before)
         
         
         d_all_query[q] = score_authors_dict
