@@ -1,22 +1,22 @@
-import os
+# import os
 import time
 import math
-import random
-import joblib
+# import random
+# import joblib
 import numpy as np
-import json
+# import json
 import pandas as pd
-from sklearn.preprocessing import normalize
-import faiss
-from pprint import pprint
+# from sklearn.preprocessing import normalize
+# import faiss
+# from pprint import pprint
 import scipy
-from collections import Counter
+# from collections import Counter
 import ast
-from more_itertools import unique_everseen
-from sentence_transformers import SentenceTransformer
-from collections import defaultdict
-import math
-from ast import literal_eval
+# from more_itertools import unique_everseen
+# from sentence_transformers import SentenceTransformer
+# from collections import defaultdict
+# import math
+# from ast import literal_eval
 
 
 
@@ -221,11 +221,7 @@ def mean_precision_at_n(results, n=5):
 
 
 #load papers and authors
-data = pd.read_csv("papers.csv")
-authors = pd.read_csv("authors.csv")
 
-#load embedder
-embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 
 def execute(file_name):

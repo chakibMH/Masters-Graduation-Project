@@ -61,8 +61,8 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 file_name = "relvents_auths_all_queries_mean_notNorm_mean"
 
 get_relevant_authors(file_name,strategy = 'mean',norm=False,deff_type="mean",a = 0.7, b=0.3)
-
-
+# free some spaces
+del(sen_index)
 exact, approximate = execute(file_name)
 
 
