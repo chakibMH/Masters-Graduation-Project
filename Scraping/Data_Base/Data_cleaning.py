@@ -6,36 +6,34 @@ from num2words import num2words
 from math import log
 import sys
 import time
-from BST import insert_BST,recursive_Tree_Search
+import ast
+# from BST import insert_BST,recursive_Tree_Search
 import traceback
-from wiktionaryparser import WiktionaryParser
+# from wiktionaryparser import WiktionaryParser
 
 
 # parser to search the wrd on wiktionary
 parser = WiktionaryParser()
 
 
-#from nltk.corpus import words
+from nltk.corpus import words
+  
+
+
+
 
 # Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
 words = open("words-by-frequency.txt").read().split()
-# wordslist = open("wordlist.txt").read().split()
+wordslist = open("wordlist.txt").read().split()
 
-# # check_dict = set(words+wordslist)
+# # # check_dict = set(words+wordslist)
 
-
-
-# # #list of 300k + english words
-# # # check_dict = open("english_words_list.txt").read().split()
-
-# # # add custom words to the dictionary
-# # #check_dict += ['eigen']
 
 
 wordcost = dict((k, log((i+1)*log(len(words)))) for i,k in enumerate(words))
 maxword = max(len(x) for x in words)
 
-#################################
+# #################################
 cpt = 0
 
 
@@ -44,8 +42,10 @@ change_from_wiki = []
 
 exceptions_list = []
 
+cleaned_abs_serie = pd.Series()
 
-########################################
+
+# ########################################
 # list of 400k+ english words
 check_dict_400k = open("check_dict_400k.txt").read().split()
 # transform chek dict from list to binary tree
@@ -440,6 +440,8 @@ def remove_punc(s):
     
 def clean_DB(df):
     
+    global cleaned_abs_serie
+    
     start = time.time()
     
     # redirict prints to a file
@@ -477,10 +479,69 @@ def clean_DB(df):
     cpt = 0
     
     return df
+
+def clean_single_title(title):
+    
+    title = title.lower()
+    
+    #remove the first 'abstract' word
+    
+    
+
+    # treating numbers
+    
+    #abstract = remove_numbers(abstract)
+    
+    # reomve ,
+    
+    title = title.replace(",","")
+    
+    # replace numbers with words
+    
+    title = re.sub(r"(\d+\.\d+)", lambda x:num2words(x.group(0)), title)
+    
+    title = re.sub(r"(\d+)", lambda x:num2words(x.group(0)), title)
     
     
     
+    # remove email
     
+    title = remove_email(title)
+    
+    # remove url
+    
+    title = remove_url(title)
+    
+    title = remove_punc(title)
+    
+    title = remove_extra_spaces(title)
+    
+    return title
+     
+    
+def clean_titles(db_papers):
+    
+    db_papers['cleaned_title'] = db_papers.title.map(lambda x:clean_single_title(x)).copy()
+    
+    all_ids = db_papers.id_paper.values
+    
+    n=0
+    
+    len_all_ids = len(all_ids)
+    for i in all_ids:
+        print("[ {} / {}]".format(n, len_all_ids))
+        n+=1
+        tc = db_papers.loc[db_papers.id_paper == i, ['cleaned_title']].iloc[0,0]
+
+        
+    
+        sen_list = db_papers.loc[db_papers.id_paper == i, ['cleaned_abstract_sentences']].iloc[0,0]
+        sen_list = ast.literal_eval(sen_list)
+        sen_list.append(tc)
+        
+        db_papers.loc[db_papers.id_paper==i, 'cleaned_abstract_sentences'] = str(sen_list)
+    
+    return db_papers
     
 
 def merge_data_sets(folder):
@@ -511,6 +572,45 @@ def merge_data_sets(folder):
     final_df = pd.concat(list_df, axis=0)
     
     final_df.reset_index(inplace=True)
+    
+    return final_df
+
+
+def merge_clean_data_sets(folder="clean"):
+    """
+    
+
+    Parameters
+    ----------
+    folder : str
+        DESCRIPTION.
+
+    Returns
+    -------
+    final_df : pandas Dataframe
+        DESCRIPTION.
+
+    """
+    
+    list_files = os.listdir(folder)
+    
+    list_df = []
+    for f in list_files:
+        list_df.append(pd.read_csv(folder+"/"+f))
+    
+    
+    #print(sum([df.shape[0] for df in list_df]))
+    
+    final_df = pd.concat(list_df, axis=0)
+    
+    final_df = final_df[['id_paper', 'title', 'abstract',
+       'paper_citation', 'revue', 'index_terms', 'author_name',
+       'author_average_citation_per_article', 'author_citation_count',
+       'author_publication_counts', 'author_publication_years',
+       'papers_available_for_download', 'author_subject_areas',
+       'author_keywords', 'cleaned_abstract_sentences']]
+    
+    #final_df.reset_index(inplace=True)
     
     return final_df
 
@@ -565,7 +665,11 @@ def get_aut_db(db):
     
     return authors_df
 # def merge_df(filename, dfs_list):
+def count_nb_ph(x):
     
+    x = ast.literal_eval(x)
+    
+    return len(x)
     
     
 
@@ -598,6 +702,46 @@ def get_aut_db(db):
 
 
 
-        
+def create_tags(x):
     
+    print(x.author_subject_areas)
+    print(x.author_keywords)
+    
+    sa = ast.literal_eval(x.author_subject_areas)
+    
+    kw = ast.literal_eval(x.author_keywords)
+    
+    tags = []
+
+    if(type(sa) == str):
+        tags.append(sa)
+    elif type(sa) == list:
+        tags += sa
+    else:
+        print("wrong type")
+        
+    if(type(kw) == str):
+        tags.append(kw)
+    elif type(kw) == list:
+        tags += kw
+    else:
+        print("wrong type")
+        
+    if tags == []:
+        tags.append("no tags")
+    
+    return tags
+    
+# auth_db = db_papers[['author_name', 'author_average_citation_per_article',
+#        'author_citation_count', 'author_publication_counts',
+#        'author_publication_years', 'papers_available_for_download',
+#        'author_subject_areas', 'author_keywords']].copy()
+# auth_db.drop_duplicates(['author_name'], inplace=True)
+    
+# auth_db['tags']=auth_db.apply(create_tags, axis=1)
+
+
+
+
+
     
