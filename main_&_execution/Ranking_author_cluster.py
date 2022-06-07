@@ -455,8 +455,9 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
                          use_definition = None, data_source = "wikidata_then_wikipedia"):
       
     # embedding thr query
-    
+    print("query :", query)
     l_query = query.split('@')
+    print(l_query[1])
     
     if deff_type == 'mean':
     
