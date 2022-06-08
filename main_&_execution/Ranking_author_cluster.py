@@ -11,6 +11,7 @@ import math
 from custom_faiss_indexer import len_paper
 from sklearn.preprocessing import normalize
 from def_cleaning import clean_def
+import pandas as pd
 # from distance_functions import dist2sim
 
 def dist2sim(d):
@@ -405,40 +406,49 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
 
 # assert type(normalized_query[0]).__name__ == 'float32'
 
-
+def sim2dist(x):
+    
+    return (1-x)*2
 
 
 def hybrid_phrases_score(df_concept, df_deff, a, b, k):
     
-    df_concept['sccore'] = df_concept.dist_phrase_with_query.map(lambda x: dist2sim(x))
-    df_deff['sccore'] = df_deff.dist_phrase_with_query.map(lambda x: dist2sim(x))
+    df_concept['score'] = df_concept.dist_phrase_with_query.map(lambda x: dist2sim(x))
+    df_deff['score'] = df_deff.dist_phrase_with_query.map(lambda x: dist2sim(x))
     min_concept = df_concept.score.min()
     min_deff = df_deff.score.min()
     
-    df = df_concept.merge(df_deff)
+    df=pd.concat([df_concept, df_deff])
     df.drop_duplicates(['id_ph'], inplace=True)
-    df['new_score'] = df.id_ph.map(lambda x:hyb(x))
     
-    ids_concept = list(set(df_concept.values))
-    ids_deff = list(set(df_deff.values))
+    
+    ids_concept = list(set(df_concept.id_ph))
+    ids_deff = list(set(df_deff.id_ph))
     
     def hyb(x):
         # global df_concept
         # global df_deff
+        # global  ids_concept
+        # global ids_deff
+        
         if x in ids_concept and x in ids_deff:
-            s1=df_concept.loc[df_concept.id_ph == a, ['score']].iloc[0]
-            s2=df_deff.loc[df_deff.id_ph == a, ['score']].iloc[0]
+            
+            s1=df_concept.loc[df_concept.id_ph == x, ['score']].iloc[0][0]
+            s2=df_deff.loc[df_deff.id_ph == x, ['score']].iloc[0][0]
             return a*s1+b*s2
         elif x in ids_concept:
-            s1=df_concept.loc[df_concept.id_ph == a, ['score']].iloc[0]
+            s1=df_concept.loc[df_concept.id_ph == x, ['score']].iloc[0][0]
             return a*s1+b*min_deff
         else:
-            s2=df_deff.loc[df_deff.id_ph == a, ['score']].iloc[0]
+            s2=df_deff.loc[df_deff.id_ph == x, ['score']].iloc[0][0]
             return a*min_concept+b*s2
         
-    df = df.sort_values(by=['new_score'], ascending = False).iloc[:k]
+        
     
-    
+    df['score'] = df.id_ph.map(lambda x:hyb(x))
+    df = df.sort_values(by=['score'], ascending = False).iloc[:k]
+    # transform to dist for simplicity
+    df['dist_phrase_with_query'] = df.score.map(lambda x: sim2dist(x))
     
     return df
     
@@ -451,8 +461,8 @@ def hybrid_phrases_score(df_concept, df_deff, a, b, k):
 def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder, 
                                    deff_type = 'mean', a = 0.7, b=0.3,
                          strategy = 'min', norm = False, transform_to_score_before=True
-                         ,k=1000, 
-                         use_definition = None, data_source = "wikidata_then_wikipedia"):
+                         ,k=1000):
+                          
       
     # embedding thr query
     # print("query :", query)
@@ -477,6 +487,7 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
         
         concept_emb_norm = embedde_single_query(l_query[0], embedder, True)
         
+        # cleaning of 
         clean_d = clean_def(l_query[1])
         
         q_def_emb_norm = embedde_single_query(clean_d, embedder, True)
@@ -486,6 +497,8 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
         df_deff = sen_index.search(q_def_emb_norm, k)
         
         df = hybrid_phrases_score(df_concept, df_deff, a, b, k)
+        
+        
     
     else:
         print("erreur")
