@@ -8,7 +8,7 @@ import ast
 import numpy as np
 from Embedding_functions import  embedde_single_query, get_mean_embedding, use_def_mean
 import math
-from custom_faiss_indexer import len_paper
+from custom_faiss_indexer import len_paper,load_index
 from sklearn.preprocessing import normalize
 from def_cleaning import clean_def
 import pandas as pd
@@ -222,71 +222,35 @@ def len_paper_from_DB(papers, paper_id):
     
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
                          strategy = 'min', norm = False, transform_to_score_before=True
-                         ,k=1000, 
-                         use_definition = None, data_source = "wikidata_then_wikipedia"):
-    """
-    
+                         ,k=10009):
+                         #use_definition = None, data_source = "wikidata_then_wikipedia"):
 
-    Parameters
-    ----------
-    query : str
-        query text.
-    sen_index : custom faiss index
-        index of all phrases.
-    papers : Dataframe
-        data set of all papers.
-    authors : DataFrame
-        data set of all authors.
-    embedder : Sentence Embedder
-        to embedde phrases of a paper.
-    strategy : str, optional
-        Define a strategy to give score for document based on its selected phrases.
-        Available strategies:
-            min strategy: score of paper is defined by the minimum score of all its phrases.
-            mean strategy: score of paper is defined by the mean score of all its phrases.
-            sum strategy: score of paper is defined by the sum score of all its phrases.
-        The default is 'min'.
-    norm: boolean, optional
-        choose either we apply a normalization to the score
-        The default is False.
-        Available normalization:
-            l: length of the document
-    k : int, optional
-        number of nearest neighbors (phrases) to the query to be returned. The default is 1000. 
-
-    Returns
-    -------
-    score_authors_dict : dict
-    Expert Id: score with query, ( sim ( A, Q) )
-        Ranking of expert for this query, after calculation of expoCombSum.
-
-    """
     
     # embedding thr query
     
-    if use_definition is None:
-        query_emb = embedde_single_query(query, embedder)
+    # if use_definition is None:
+    query_emb = embedde_single_query(query, embedder)
+    
+    print("searching...")
+    df = sen_index.search(query_emb, k)
+    print("relevant phrases extracted...")
         
-        print("searching...")
-        df = sen_index.search(query_emb, k)
-        print("relevant phrases extracted...")
-        
-    elif use_definition == 'mean':
+    # elif use_definition == 'mean':
    
-        new_query = use_def_mean(query, embedder, data_source)
+    #     new_query = use_def_mean(query, embedder, data_source)
         
-        print("searching...")
-        df = sen_index.search(new_query, k)
-        print("relevant phrases extracted...")
-    elif use_definition == 'hybrid':#hybrid
+    #     print("searching...")
+    #     df = sen_index.search(new_query, k)
+    #     print("relevant phrases extracted...")
+    # elif use_definition == 'hybrid':#hybrid
     
-        # fct_hybrid
+    #     # fct_hybrid
     
-        print("searching...")
-        # df = sen_index.search(norm_query, k)
-        print("relevant phrases extracted...")
-    else:
-        print("erreur")
+    #     print("searching...")
+    #     # df = sen_index.search(norm_query, k)
+    #     print("relevant phrases extracted...")
+    # else:
+    #     print("erreur")
         
     
     if strategy == 'min':
@@ -371,18 +335,116 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
             else:
                 # score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
                 score_authors_dict[a] = math.exp(sim_Q_D)
-                
+      
+    # I comment this for optisation ( sort only one time outside tis fct)
     # sort the dict
     
-    d = sorted(score_authors_dict.items(), key = lambda x:x[1],reverse=True)
+    #d = sorted(score_authors_dict.items(), key = lambda x:x[1],reverse=True)
     
-    score_authors_dict = {e[0]:e[1] for e in d}
+    
+    #score_authors_dict = {e[0]:e[1] for e in d}
                 
     return   score_authors_dict     
     
+def update_scores(final_score_authors_dict, score_authors_dict):
+    """
+    Chack if the authors exist in the final dict, if so then update his score
+    else create new entry in the dict
+
+    Parameters
+    ----------
+    final_score_authors_dict : dict
+        
+    score_authors_dict : dict
+        
+
+    Returns
+    -------
+    dict.
+
+    """
+    
+    new_author_set = score_authors_dict.keys()
+    final_author_set = final_score_authors_dict.keys()
+    
+    for a in new_author_set:
+        
+        if a in final_author_set:
+            # update the score
+            final_score_authors_dict[a] += score_authors_dict[a]
+        else:
+            # add for the first time
+            final_score_authors_dict[a] = score_authors_dict[a]
+            
+    return final_score_authors_dict
+    
+def get_relevant_experts_multi_index(query, list_index_path, papers, 
+                                     authors, embedder, 
+                         strategy = 'min', norm = False, 
+                         transform_to_score_before=True
+                         ,k=10009):
+    """
+    
+
+    Parameters
+    ----------
+    query : str
+        query text.
+    list_index_path : str
+        names of multi index.
+    papers : Dataframe
+        data set of all papers.
+    authors : DataFrame
+        data set of all authors.
+    embedder : Sentence Embedder
+        to embedde phrases of a paper.
+    strategy : str, optional
+        Define a strategy to give score for document based on its selected phrases.
+        Available strategies:
+            min strategy: score of paper is defined by the minimum score of all its phrases.
+            mean strategy: score of paper is defined by the mean score of all its phrases.
+            sum strategy: score of paper is defined by the sum score of all its phrases.
+        The default is 'min'.
+    norm: boolean, optional
+        choose either we apply a normalization to the score
+        The default is False.
+        Available normalization:
+            l: length of the document
+    k : int, optional
+        number of nearest neighbors (phrases) to the query to be returned. The default is 1000. 
+
+    Returns
+    -------
+    score_authors_dict : dict
+    Expert Id: score with query, ( sim ( A, Q) )
+        Ranking of expert for this query, after calculation of expoCombSum.
+
+    """
+    final_score_authors_dict = {}
+    
+    for f in list_index_path:
+        sen_index = load_index(f)
+        score_authors_dict = get_relevant_experts(query, sen_index, papers, 
+                                    authors, embedder,strategy,norm,transform_to_score_before,k)
+
+        # concat dict 
+        final_score_authors_dict = update_scores(final_score_authors_dict, score_authors_dict)
+      
+
+    # sort the dict
+    
+    d = sorted(final_score_authors_dict.items(), key = lambda x:x[1],reverse=True)
     
     
-# save the dict
+    final_score_authors_dict = {e[0]:e[1] for e in d}
+    
+    return final_score_authors_dict
+        
+    
+    
+    
+    
+#save the dict
 
 # import pickle
 
