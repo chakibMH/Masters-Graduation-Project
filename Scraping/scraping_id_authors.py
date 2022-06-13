@@ -52,9 +52,10 @@ def get_id(name):
 
 
 # output : [[id, name]]
+list_author_id = []
 def get_all_authors_ids(list_authors):
     
-    list_author_id = []
+    global list_author_id 
     i=0
     for a in list_authors:
         # Sleep
