@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import re
 import time
 from webScrapingACM_old import find_author,get_list_authors
-
+import random
 
 
 
@@ -57,6 +57,9 @@ def get_all_authors_ids(list_authors):
     list_author_id = []
     i=0
     for a in list_authors:
+        # Sleep
+        t=random.uniform(0.5, 1)
+        time.sleep(t)
         print(" Author : ",i+1)
         i=i+1
         list_author_id.append(get_id(a))
@@ -171,12 +174,15 @@ with open('get_ids_in_dict.pkl', 'rb') as f:
 
 get_ids_in_dict = list(get_ids_in_dict)
 
-get_ids_in_dict_ = get_ids_in_dict[100:1000]
+# get_ids_in_dict_ = get_ids_in_dict[100:1000]
 get_ids_in_dict_ = get_ids_in_dict[1000:2000]
 get_ids_in_dict_ = get_ids_in_dict[2000:3000]
 get_ids_in_dict_ = get_ids_in_dict[3000:4000]
 
 
+get_ids_in_dict_ = get_ids_in_dict[4000:5000]
+get_ids_in_dict_ = get_ids_in_dict[5000:6000]
+get_ids_in_dict_ = get_ids_in_dict[6000:7000]
 
 start = time.time()
 l_ids = get_all_authors_ids(get_ids_in_dict_)
@@ -186,7 +192,7 @@ print("time: ",(end - start)/60," min")
 
 
 import pickle
-with open('IDs/id_authors_0_100.pkl', 'wb') as f:
+with open('IDs/id_authors_1000_2000.pkl', 'wb') as f:
    pickle.dump(l_ids, f)
 
 
