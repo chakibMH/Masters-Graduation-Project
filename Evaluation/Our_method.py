@@ -1,22 +1,22 @@
-import os
+# import os
 import time
 import math
-import random
-import joblib
+# import random
+# import joblib
 import numpy as np
-import json
+# import json
 import pandas as pd
-from sklearn.preprocessing import normalize
-import faiss
-from pprint import pprint
+# from sklearn.preprocessing import normalize
+# import faiss
+# from pprint import pprint
 import scipy
-from collections import Counter
+# from collections import Counter
 import ast
-from more_itertools import unique_everseen
+# from more_itertools import unique_everseen
 from sentence_transformers import SentenceTransformer
-from collections import defaultdict
-import math
-from ast import literal_eval
+# from collections import defaultdict
+# import math
+# from ast import literal_eval
 
 
 
@@ -94,6 +94,63 @@ def produce_authors_ranking_new(result):
     sortd = [(k, v) for k, v in sorted(result.items(), key=lambda item: item[1], reverse=True)]
     return sortd
 
+
+
+
+def get_author_ranking_exact_v2_from_csv_without_def(query, relvents_auths_all_queries, k=10, tfidf=False, strategy="binary",
+                                normalized=False, norm_alpha=100, extra_term=10):
+   
+    res = relvents_auths_all_queries[query].copy()
+    
+    res = res.dropna()
+    
+    dic_q = res.to_dict()
+    
+    top_n = produce_authors_ranking_new(dic_q)[:k]
+    
+
+    relevancies = [check_if_author_relevant( aid[0], query) for aid in top_n]
+    
+    ranking = {}
+
+    for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
+        if author not in ranking.keys():
+            ranking[author] = {"relevancy": relevancy, "rank": rank}
+        else:
+            continue
+
+    return ranking
+
+
+
+def get_author_ranking_approximate_v2_from_csv_without_def(query, relvents_auths_all_queries, k=10, similarity_threshold=0.7, tfidf=False, strategy="binary",
+                                      normalized=False, norm_alpha=100, extra_term=10):
+    print("query : ",queries2.index(query))
+    
+ 
+    res = relvents_auths_all_queries[query].copy()
+    
+    res = res.dropna()
+    
+    dic_q = res.to_dict()
+    
+    top_n = produce_authors_ranking_new(dic_q)[:k]
+    
+
+    relevancies = [check_if_author_relevant_approximate(aid[0], query,  similarity_threshold=0.7, tfidf=False) for aid in top_n]
+
+    ranking = {}                                       
+
+    for rank, (author, relevancy) in enumerate(zip([a[0] for a in top_n], relevancies)):
+        if author not in ranking.keys():
+            ranking[author] = {"relevancy": relevancy, "rank": rank}
+        else:
+            continue
+
+    return ranking
+
+
+#***********************************************************************************
 def get_author_ranking_exact_v2_from_csv(query,deff, relvents_auths_all_queries, k=10, tfidf=False, strategy="binary",
                                 normalized=False, norm_alpha=100, extra_term=10):
    
@@ -251,7 +308,26 @@ def execute(file_name):
 
 ###############################################################################
 
+def execute_without_def(file_name):
 
+    relvents_auths_all_queries = pd.read_csv(file_name+"_new.csv",index_col=0)
+    
+    
+              
+    
+    
+    
+    start = time.time()
+    
+    exact = [get_author_ranking_exact_v2_from_csv_without_def(query, relvents_auths_all_queries , k=10, tfidf=False, strategy="binary", normalized=False) for query in queries2]
+                                 
+    
+    approximate = [get_author_ranking_approximate_v2_from_csv_without_def(query, relvents_auths_all_queries , k=10, similarity_threshold=0.7, tfidf=False, strategy="binary", normalized=False) for query in queries2]
+    
+    end = time.time()
+    print("time: ",(end - start)/60," min")
+    
+    return exact, approximate
 
 
 
