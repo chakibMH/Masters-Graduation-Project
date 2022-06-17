@@ -27,7 +27,7 @@ with open("original_queries/original_batch_100_concepts_with_deff", "rb") as f:
 
 with open("original_queries/original_batch_100_concepts.pkl", "rb") as f:
     queries2 = pickle.load(f)
-    
+
 #############################################################################################
 
 
@@ -54,21 +54,22 @@ embedder = SentenceTransformer('roberta-base-nli-stsb-mean-tokens')
 
 
 
+
 ############################################################################################
 #################################  start evaluation #################################################################
 ############################################################################################
 
-file_name = "relvents_auths_all_queries_sum_notNorm_tranToScoFalse_mean"
+file_name = "relvents_auths_all_queries_Def_hybrid_sum_notNorm_tranToScoFalse"
 
-get_relevant_authors(file_name,strategy = 'sum',norm=False,deff_type="mean",a = 0.7, b=0.3, transform_to_score_before=False)
+#get_relevant_authors(file_name,strategy = 'sum',norm=False,deff_type="hybrid",a = 0.7, b=0.3, transform_to_score_before=False)
+get_relevant_authors_without_def(file_name,strategy = 'sum',norm=False, transform_to_score_before=False)
 # free some spaces
 del(sen_index)
-exact, approximate = execute(file_name)
+# exact, approximate = execute(file_name)
+exact, approximate = execute_without_def(file_name)
 
 
-file_path = "final_results/Our_method/sum_notNorm_tranToScoFalse_mean/sum_notNorm_tranToScoFalse_mean"
+file_path = "final_results/Our_method/Def_hybrid_sum_notNorm_tranToScoFalse/Def_hybrid_sum_notNorm_tranToScoFalse"
 
 save_files(file_path)
-
-
 
