@@ -59,7 +59,8 @@ def get_papers_of_author(auth_id, auth):
     auth_papers = ast.literal_eval(auth_row.iloc[0,0])
     
     #list of papers id
-    p_ids = [int(d['i']) for d in auth_papers]
+    # p_ids = [int(d['i']) for d in auth_papers]
+    p_ids = [d['i'] for d in auth_papers]
     
     return p_ids
 
@@ -73,7 +74,8 @@ def get_authors_of_paper(paper_id, papers):
     
     
     #list of authors id
-    auths_id = [int(d['id'])  for d in authors]
+    # auths_id = [int(d['id'])  for d in authors]
+    auths_id = [d['id']  for d in authors]
     
     return auths_id
 
@@ -382,7 +384,7 @@ def get_relevant_experts_multi_index(query, list_index_path, papers,
                                      authors, embedder, 
                          strategy = 'min', norm = False, 
                          transform_to_score_before=True
-                         ,k=10009):
+                         ,k=1000):
     """
     
 
@@ -430,7 +432,9 @@ def get_relevant_experts_multi_index(query, list_index_path, papers,
         # concat dict 
         final_score_authors_dict = update_scores(final_score_authors_dict, score_authors_dict)
       
-
+        # delete the index
+        
+        del(sen_index)
     # sort the dict
     
     d = sorted(final_score_authors_dict.items(), key = lambda x:x[1],reverse=True)
