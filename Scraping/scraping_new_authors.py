@@ -136,7 +136,7 @@ def get_data(id_a,ex_id_papers):
                     df = df.append(df2, ignore_index = True)
                 else:
                     # Sleep
-                    t=random.uniform(1, 2)
+                    t=random.uniform(30, 60)
                     time.sleep(t)
                     
                     bbb=links_papers[i]
@@ -474,13 +474,13 @@ def first_time(num_process):
 
 # first_time("new_0")
 
-# list_exeptions=execute(1600, 1700, "new_01")
+# list_exeptions=execute(3000, 3100, "new_01")
 
-# list_exeptions=execute(1700, 1800, "new_02")
+# list_exeptions=execute(3100, 3200, "new_02")
 
-# list_exeptions=execute(1800, 1900, "new_03")
+# list_exeptions=execute(3200, 3300, "new_03")
 
-# list_exeptions=execute(1900, 2000, "new_04")
+# list_exeptions=execute(3300, 3400, "new_04")
 
 
 # list_exeptions=re_execute(list_exeptions,"new_01")
