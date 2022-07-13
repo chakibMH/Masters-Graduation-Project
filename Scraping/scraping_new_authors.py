@@ -74,7 +74,14 @@ def get_data(id_a,ex_id_papers):
         keywords=[]
         if u2 != []:
             keywords=re.findall(r',"label":"(.*?)\","count":', u2[0])
-            
+          
+        sub = soup1.find_all("a", {"class","top-rated-text"})
+
+        if sub == []:
+            top_sub = "Currently Not Available"
+        else :
+            top_sub = sub[0].text  
+          
         #///////////////////////////////////**************************/////////////////
 
         #print("id  : ",id)
@@ -129,7 +136,7 @@ def get_data(id_a,ex_id_papers):
                     df = df.append(df2, ignore_index = True)
                 else:
                     # Sleep
-                    t=random.uniform(0.5, 1)
+                    t=random.uniform(30, 60)
                     time.sleep(t)
                     
                     bbb=links_papers[i]
@@ -203,7 +210,7 @@ def get_data(id_a,ex_id_papers):
                 
                 page_num +=1
             #print("page switched")
-        return df,infos_liste,subjects,keywords
+        return df,infos_liste,subjects,keywords,top_sub
         
 
     authors_list = []
@@ -236,7 +243,7 @@ def get_data(id_a,ex_id_papers):
     if test == ['\n\n\ue924\n\n', '\n\nYour IP Address has been blocked\nPlease contact \n    \n[email\xa0protected]\n\n\n\n']:
         print("@ IP blocked !")
         dfObj = pd.DataFrame(columns=['title', 'abstract'])
-        return dfObj,["@ IP blocked !"],[],[]
+        return dfObj,["@ IP blocked !"],[],[],""
     else:
         return collect_abstracts(id_a,ex_id_papers)
         
@@ -258,7 +265,7 @@ def construct_csv(list_authors,txt_indices,ex_id_papers):
         print("author : ",i)
         i=i+1
         try:
-            df,infos_liste,subjects,keywords = get_data(a[1],ex_id_papers)
+            df,infos_liste,subjects,keywords,top_sub = get_data(a[1],ex_id_papers)
             #print(df)
             
             if infos_liste !=[]:
@@ -272,8 +279,8 @@ def construct_csv(list_authors,txt_indices,ex_id_papers):
                 
                 for x in df.itertuples():
                     
-                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a[0],infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords]
-                    with open(r'Dada_Base_New\papers_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
+                    list_final=[x.id_paper,x.title,x.abstract,x.paper_citation,x.revue,x.index_terms,a[1],a[0],str(a[2]),infos_liste[0],infos_liste[1],infos_liste[2],infos_liste[3],infos_liste[4],subjects,keywords,top_sub]
+                    with open(r'Dada_Base_New\papers_DZ_ACM_'+txt_indices+'.csv', 'a', newline='', encoding="utf-8") as f:
                         writer = csv.writer(f)
                         writer.writerow(list_final)
             else:
@@ -399,7 +406,7 @@ def strip_accents(s):
 
 
 def get_index(txt_indices,list_all_authors):
-    df = pd.read_csv('Dada_Base_New\papers_ACM_'+txt_indices+'.csv')
+    df = pd.read_csv('Dada_Base_New\papers_DZ_ACM_'+txt_indices+'.csv')
     l=df.author_name
     l=l.tolist()
     b=len(l)
@@ -416,13 +423,13 @@ def execute(ind_start, ind_end, num_process):
 
     #/***********************************************************************/
     
-    with open('list_184_new_authors_data.pkl', 'rb') as f:
+    with open('authors_DZ_ACM.pkl', 'rb') as f:
         list_all_authors = pickle.load(f)
         
-    with open('ex_id_papers.pkl', 'rb') as f:
-        ex_id_papers = pickle.load(f)
+    # with open('ex_id_papers.pkl', 'rb') as f:
+    #     ex_id_papers = pickle.load(f)
     
-        
+    ex_id_papers = []    
     list_authors=list_all_authors[ind_start:ind_end]
     
     #/************************************************************************/
@@ -441,9 +448,9 @@ def execute(ind_start, ind_end, num_process):
 
 def re_execute(list_exeptions,num_process):
     
-    with open('ex_id_papers.pkl', 'rb') as f:
-        ex_id_papers = pickle.load(f)
-    
+    # with open('ex_id_papers.pkl', 'rb') as f:
+    #     ex_id_papers = pickle.load(f)
+    ex_id_papers = []  
     start = time.time()
     list_exeptions = construct_csv(list_exeptions,num_process,ex_id_papers)
     end = time.time()
@@ -459,20 +466,30 @@ def re_execute(list_exeptions,num_process):
 #/***********************************************************************/
 
 def first_time(num_process):
-    fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_name','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords']
+    fields=['id_paper','title', 'abstract','paper_citation','revue','index_terms','author_id','author_name','author_institution','author_average_citation_per_article','author_citation_count','author_publication_counts','author_publication_years','papers_available_for_download','author_subject_areas','author_keywords','author_top_subject']
     txt_indices="02"
-    with open(r'Dada_Base_New\papers_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
+    with open(r'Dada_Base_New\papers_DZ_ACM_'+num_process+'.csv', 'a', newline='', encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
-# first_time("new_03")
-list_exeptions=execute(0, 25, "new_01")
+# first_time("new_0")
 
-list_exeptions=execute(25, 75, "new_02")
+# list_exeptions=execute(3000, 3100, "new_01")
 
-list_exeptions=execute(75, 175, "new_03")
+# list_exeptions=execute(3100, 3200, "new_02")
 
-list_exeptions=execute(300, 400, "04")
+# list_exeptions=execute(3200, 3300, "new_03")
+
+# list_exeptions=execute(3300, 3400, "new_04")
 
 
-list_exeptions=re_execute(list_exeptions,"01")
+# list_exeptions=re_execute(list_exeptions,"new_01")
+
+# list_exeptions=re_execute(list_exeptions,"new_02")
+
+# list_exeptions=re_execute(list_exeptions,"new_03")
+
+# list_exeptions=re_execute(list_exeptions,"new_04")
+
+
+##########
