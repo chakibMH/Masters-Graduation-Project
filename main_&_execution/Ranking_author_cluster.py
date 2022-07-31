@@ -67,7 +67,7 @@ def get_papers_of_author(auth_id, auth):
 
 def get_authors_of_paper(paper_id, papers):
     
-    paper_row = papers.loc[papers.id == paper_id,['authors']]
+    paper_row = papers.loc[papers.id_paper == paper_id,['authors']]
     
     #list of authors
     authors = ast.literal_eval(paper_row.iloc[0,0])
@@ -215,7 +215,7 @@ def norm_fct(sen_index, papers, paper_id, sim_Q_D):
 
 def len_paper_from_DB(papers, paper_id):
     
-    paper_row = papers.loc[papers.id == paper_id,['cleaned_abstract_sentences']]
+    paper_row = papers.loc[papers.id_paper == paper_id,['cleaned_abstract_sentences']]
     
     list_abst = ast.literal_eval(paper_row.iloc[0,0])
     
@@ -224,7 +224,7 @@ def len_paper_from_DB(papers, paper_id):
     
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
                          strategy = 'min', norm = False, transform_to_score_before=True
-                         ,k=10009):
+                         ,k=1000):
                          #use_definition = None, data_source = "wikidata_then_wikipedia"):
 
     
@@ -234,6 +234,7 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     query_emb = embedde_single_query(query, embedder)
     
     print("searching...")
+    print("k : ",k)
     df = sen_index.search(query_emb, k)
     print("relevant phrases extracted...")
         
