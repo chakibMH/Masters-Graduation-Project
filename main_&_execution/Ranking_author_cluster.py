@@ -221,17 +221,29 @@ def len_paper_from_DB(papers, paper_id):
     
     return len(list_abst)
 
-    
+papers_of_expertise = {}
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
                          strategy = 'min', norm = False, transform_to_score_before=True
-                         ,k=10009):
+                         ,k=1000, dist_score_cluster = False):
                          #use_definition = None, data_source = "wikidata_then_wikipedia"):
 
     
-    # embedding thr query
+    global papers_of_expertise
+    papers_of_expertise = {}
+    sim_D_A = 1
+    # embedding the query
     
     # if use_definition is None:
-    query_emb = embedde_single_query(query, embedder)
+    # if the query is str, then we transform to vector
+    if type(query) == str:
+        query_emb = embedde_single_query(query, embedder)
+    else:
+        # query embedded outside fucntion. type must be dict-> str : np.array
+        q_name = list(query.keys())[0]
+        
+        query_emb = query[q_name]
+        
+        query = q_name
     
     print("searching...")
     df = sen_index.search(query_emb, k)
@@ -294,7 +306,7 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     for p_id in ids_of_sim_papers:
         
         # waiting for scraping ... to introduce dist with auth's cluster
-        # dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
+        dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
         
         # expo (  s[Q, D] * s[D, A] )
         
@@ -312,9 +324,13 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
 
             
             # waiting for scraping ... to introduce dist with auth's cluster
-            # dist_D_A = dict_expertise[a]
-            
-            # sim_D_A = dist2sim(dist_D_A)
+            if dist_score_cluster == True:
+                
+                dist_D_A = dict_expertise[a]
+                
+                sim_D_A = dist2sim(dist_D_A)
+                
+                
             
             print("[Processing: ",query," ]","before normalization sim_Q_D = ",sim_Q_D)
             
@@ -331,12 +347,17 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
             
             if a in score_authors_dict.keys():
                 
-                # score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
-                score_authors_dict[a] += math.exp(sim_Q_D)
+                
+                # papers used in expertise
+                papers_of_expertise[a] = [a]
+                score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
+                # score_authors_dict[a] += math.exp(sim_Q_D)
                 
             else:
-                # score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
-                score_authors_dict[a] = math.exp(sim_Q_D)
+                # papers used in expertise
+                papers_of_expertise[a].append(a)
+                score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
+                # score_authors_dict[a] = math.exp(sim_Q_D)
       
     # I comment this for optisation ( sort only one time outside tis fct)
     # sort the dict
@@ -380,7 +401,7 @@ def update_scores(final_score_authors_dict, score_authors_dict):
             
     return final_score_authors_dict
     
-def get_relevant_experts_multi_index(query, list_index_path, papers, 
+def get_relevant_experts_multi_index(queries, list_index_path, papers, 
                                      authors, embedder, 
                          strategy = 'min', norm = False, 
                          transform_to_score_before=True
@@ -390,9 +411,9 @@ def get_relevant_experts_multi_index(query, list_index_path, papers,
 
     Parameters
     ----------
-    query : str
+    queries : list of str or np.array
         query text.
-    list_index_path : str
+    list_index_path : list
         names of multi index.
     papers : Dataframe
         data set of all papers.
@@ -422,27 +443,48 @@ def get_relevant_experts_multi_index(query, list_index_path, papers,
         Ranking of expert for this query, after calculation of expoCombSum.
 
     """
-    final_score_authors_dict = {}
+    final_score_each_query = {}
+    
+    # init the final dict
+    for q in queries:
+        final_score_each_query[q] = {}
     
     for f in list_index_path:
+        # read the index only one time, and process all the queries with it
         sen_index = load_index(f)
-        score_authors_dict = get_relevant_experts(query, sen_index, papers, 
-                                    authors, embedder,strategy,norm,transform_to_score_before,k)
-
-        # concat dict 
-        final_score_authors_dict = update_scores(final_score_authors_dict, score_authors_dict)
-      
-        # delete the index
         
-        del(sen_index)
-    # sort the dict
+        for q in queries:
+
+            final_score_authors_dict = final_score_each_query[q]
+                
+            score_authors_dict = get_relevant_experts(q, sen_index, papers, 
+                                        authors, embedder,strategy,norm,transform_to_score_before,k)
     
-    d = sorted(final_score_authors_dict.items(), key = lambda x:x[1],reverse=True)
+            # concat dict 
+            final_score_authors_dict = update_scores(final_score_authors_dict, score_authors_dict)
+          
+            # update the scores for this query
+            final_score_each_query[q] = final_score_authors_dict
+            # delete the index
+            
+            del(sen_index)
+            
     
     
-    final_score_authors_dict = {e[0]:e[1] for e in d}
+    for q in queries:
+        
+        final_score_authors_dict = final_score_each_query[q]
+        
+        # sort the dict of author, for this query
     
-    return final_score_authors_dict
+        d = sorted(final_score_authors_dict.items(), key = lambda x:x[1],reverse=True)
+        
+        
+        final_score_authors_dict = {e[0]:e[1] for e in d}
+        
+        final_score_each_query[q] = final_score_authors_dict
+    
+    return final_score_each_query
         
     
     
