@@ -168,18 +168,18 @@ def authors_expertise_to_paper(paper_id, papers, authors, embedder):
         Each authors has a score of the given paper id
 
     """
-    
+    # first get all authors of the given paper id.
     auths_id = get_authors_of_paper(paper_id, papers)
     
     dict_expertise = {}
     
     for a in auths_id:
         
-        s, nbnv, total = similarity_auth_with_paper(a,paper_id,papers, authors, embedder)
+        d, nbnv, total = similarity_auth_with_paper(a,paper_id,papers, authors, embedder)
         
-        dict_expertise[a] = s
+        dict_expertise[a] = d
         
-        print("auteur id : ",a," has sim with paper id ",paper_id," = ",s, "[",nbnv,"/",total,"]")
+        print("auteur id : ",a," has sim with paper id ",paper_id," = ",d, "[",nbnv,"/",total,"]")
         
     return dict_expertise
 
@@ -221,6 +221,7 @@ def len_paper_from_DB(papers, paper_id):
     
     return len(list_abst)
 
+
 papers_of_expertise = {}
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
                          strategy = 'min', norm = False, transform_to_score_before=True
@@ -229,6 +230,7 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
 
     
     global papers_of_expertise
+    # {id_author:[p1,p2,..etc]}
     papers_of_expertise = {}
     sim_D_A = 1
     # embedding the query
@@ -305,8 +307,10 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     
     for p_id in ids_of_sim_papers:
         
-        # waiting for scraping ... to introduce dist with auth's cluster
+        # NEW !
         dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
+        # {id_auth:Dist_Centroid_D: pour chaque auth de p_id}
+        # END NEW
         
         # expo (  s[Q, D] * s[D, A] )
         
@@ -323,14 +327,14 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
             
 
             
-            # waiting for scraping ... to introduce dist with auth's cluster
+            # NEW !
             if dist_score_cluster == True:
                 
                 dist_D_A = dict_expertise[a]
                 
                 sim_D_A = dist2sim(dist_D_A)
                 
-                
+             # END NEW  
             
             print("[Processing: ",query," ]","before normalization sim_Q_D = ",sim_Q_D)
             
@@ -349,13 +353,15 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
                 
                 
                 # papers used in expertise
-                papers_of_expertise[a] = [a]
+                
+                papers_of_expertise[a].append(p_id)
+
                 score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
                 # score_authors_dict[a] += math.exp(sim_Q_D)
                 
             else:
                 # papers used in expertise
-                papers_of_expertise[a].append(a)
+                papers_of_expertise[a] = [p_id]
                 score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
                 # score_authors_dict[a] = math.exp(sim_Q_D)
       
