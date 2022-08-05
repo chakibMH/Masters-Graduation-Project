@@ -308,7 +308,8 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     for p_id in ids_of_sim_papers:
         
         # NEW !
-        dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
+        if dist_score_cluster == True:
+            dict_expertise = authors_expertise_to_paper(p_id, papers,authors, embedder)
         # {id_auth:Dist_Centroid_D: pour chaque auth de p_id}
         # END NEW
         
