@@ -10,52 +10,52 @@ import ast
 # from BST import insert_BST,recursive_Tree_Search
 import traceback
 # from wiktionaryparser import WiktionaryParser
-
+from scraping_utility import match_name_from_list, match_name
 
 # parser to search the wrd on wiktionary
-parser = WiktionaryParser()
+# parser = WiktionaryParser()
 
 
-from nltk.corpus import words
-  
-
-
-
-
-# Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
-words = open("words-by-frequency.txt").read().split()
-wordslist = open("wordlist.txt").read().split()
-
-# # # check_dict = set(words+wordslist)
+# from nltk.corpus import words
+   
 
 
 
-wordcost = dict((k, log((i+1)*log(len(words)))) for i,k in enumerate(words))
-maxword = max(len(x) for x in words)
 
-# #################################
-cpt = 0
+# # Build a cost dictionary, assuming Zipf's law and cost = -math.log(probability).
+# words = open("words-by-frequency.txt").read().split()
+# wordslist = open("wordlist.txt").read().split()
 
-
-change = {}
-change_from_wiki = []
-
-exceptions_list = []
-
-cleaned_abs_serie = pd.Series()
+# # # # check_dict = set(words+wordslist)
 
 
-# ########################################
-# list of 400k+ english words
-check_dict_400k = open("check_dict_400k.txt").read().split()
-# transform chek dict from list to binary tree
-tree_root = None
-i = 1
-l= len(check_dict_400k)
-for elt in check_dict_400k:
-    print(" [ {} / {} ]".format(i,l))
-    i+=1
-    tree_root = insert_BST(tree_root, elt.lower())
+
+# wordcost = dict((k, log((i+1)*log(len(words)))) for i,k in enumerate(words))
+# maxword = max(len(x) for x in words)
+
+# # #################################
+# cpt = 0
+
+
+# change = {}
+# change_from_wiki = []
+
+# exceptions_list = []
+
+# cleaned_abs_serie = pd.Series()
+
+
+# # ########################################
+# # list of 400k+ english words
+# check_dict_400k = open("check_dict_400k.txt").read().split()
+# # transform chek dict from list to binary tree
+# tree_root = None
+# i = 1
+# l= len(check_dict_400k)
+# for elt in check_dict_400k:
+#     print(" [ {} / {} ]".format(i,l))
+#     i+=1
+#     tree_root = insert_BST(tree_root, elt.lower())
 ####################################################
 
 def get_description(df):
@@ -699,13 +699,34 @@ def count_nb_ph(x):
     
 # remove e-mails (regex)
 
-
+def clean_tag(list_tags):
+    c_tags = []
+    for t in list_tags:
+        
+        t = str(t).lower()
+        # remove email
+        
+        t = remove_email(t)
+        
+        # remove url
+        
+        t = remove_url(t)
+        
+        t = remove_punc(t)
+        
+        t = remove_extra_spaces(t)
+        
+        t = remove_numbers(t)
+    
+        c_tags.append(t)
+        
+    return c_tags
 
 
 def create_tags(x):
     
-    print(x.author_subject_areas)
-    print(x.author_keywords)
+    # print(x.author_subject_areas)
+    # print(x.author_keywords)
     
     sa = ast.literal_eval(x.author_subject_areas)
     
@@ -714,24 +735,31 @@ def create_tags(x):
     tags = []
 
     if(type(sa) == str):
-        tags.append(sa)
+        c_words = clean_tag([sa])
+        tags += c_words
     elif type(sa) == list:
-        tags += sa
+        c_words = clean_tag(sa)
+        tags += c_words
     else:
         print("wrong type")
         
     if(type(kw) == str):
-        tags.append(kw)
+        c_words = clean_tag([kw])
+        tags += c_words
     elif type(kw) == list:
-        tags += kw
+        c_words = clean_tag(kw)
+        tags += c_words
     else:
         print("wrong type")
         
     if tags == []:
         tags.append("no tags")
+        
+    print("tags : ", tags)
     
     return tags
-    
+# acm_all_authors.drop(acm_all_authors.loc[acm_all_authors.author_keywords == 'author_keywords'].index, inplace = True)
+# acm_all_authors['tags'] = acm_all_authors.apply(lambda x:create_tags(x), axis = 1)
 # auth_db = db_papers[['author_name', 'author_average_citation_per_article',
 #        'author_citation_count', 'author_publication_counts',
 #        'author_publication_years', 'papers_available_for_download',
@@ -740,8 +768,386 @@ def create_tags(x):
     
 # auth_db['tags']=auth_db.apply(create_tags, axis=1)
 
+# selected_names = set()
+# def norm_names(x):
+#     """
+#     Check if name match a name in the selected_names list, then return it.
+#     If it doesn't match then it is the first time, return it.
+
+#     Parameters
+#     ----------
+#     x : str
+#         name.
+
+#     Returns
+#     -------
+#     name.
+
+#     """
+#     global selected_names
+    
+auths4doc = {}
+# debug =[]
+#final_names
+
+# def possible_change(n_candidate):
+#     global
+
+
+# def get_authors(x):
+    
+#     global auths4doc
+#     p_id = x.id_paper
+#     if p_id in auths4doc.keys():
+#         n = x.author_name
+#         list_names = auths4doc[p_id]
+#         # add 1 more element to the list
+#         # if is not matching a name already added
+        
+#         if match_name_from_list(list_names, n) == False:
+#             auths4doc[p_id].append(n)
+#         else:
+#             print("name matching name: ",n," list : ",list_names)
+#     else:
+#         #create new entry
+        
+#         auths4doc[p_id] = [x.author_name]
+        
+
+# total_not_clean.apply(lambda x:get_authors(x), axis=1)     
+        
+# from difflib import SequenceMatcher
+    
+# def similar(a, b):
+#     return SequenceMatcher(None, a, b).ratio()
+
+
+###########
+# script
+#########
+# get ids of authors from the base authors dataset
+
+# df_auths4doc = pd.DataFrame(auths4doc.items(), columns=['id_paper', 'authors_name'])
+
+
+# # create a unique id for each author
+
+# v=auths4doc.values()
+# v=list(v)
+# names=[]
+# for l in v:
+#     for n in l:
+#         names.append(n)
+
+# set_names = set(names)
+###################################################################################
+##################################### PART  DOCUMENT   DZ ############################
+###############################################################################
+
+
+# actual_id = 0
+# doc_ids4titles = {}
+# set_titles = set()
+
+
+# def title_to_id(x):
+#     global doc_ids4titles
+
+    
+#     return doc_ids4titles[x]
+
+
+# def define_id(dataset):
+
+#     global actual_id
+#     global doc_ids4titles 
+#     global set_titles
+
+#     print("config ids: start")
+#     dataset_titles = dataset.Title.values.tolist()
+#     print("config ids: finish")
+#     for t in dataset_titles:
+#         if t not in set_titles:
+#             set_titles.add(t)
+#             actual_id += 1
+#             doc_ids4titles[t] = actual_id
+    
+#     dataset['id_paper'] = dataset.Title.map(lambda x:doc_ids4titles[x])
+    
+#     return dataset
+    
+
+# def define_id_multi_dataset(list_filnames):
+    
+#     global actual_id
+#     global doc_ids4titles 
+#     global set_titles
+    
+#     print("init")
+    
+#     actual_id = 0
+#     doc_ids4titles = {}
+#     set_titles = set()
+    
+#     print("init finish")
+
+    
+    
+#     for fn in list_filnames:
+#         print("start dataset : "+fn)
+#         df = pd.read_csv(fn)
+        
+#         df_with_ids = define_id(df)
+        
+#         #save
+        
+#         df_with_ids.to_csv("with_ids/"+fn+".csv", index = False)
+        
+        
+        
+        
+
+    
+    
+    
+# def to_id(x):
+#     global ids4names
+#     #x = ast.literal_eval(x)
+#     # print(type(x))
+#     ids = []
+    
+#     for n in x:
+#         ids.append(ids4names[n])
+    
+#     return ids
+    
+# def to_dict_id(x):
+#     global ids4names
+#     ld = []
+    
+#     for n in x:
+#         d={}
+#         d['name'] = n
+#         d['id'] = ids4names[n]
+#         ld.append(d)
+   
+#     return ld
+    
+        
+    
+    
+# create new columns
+df_auths4doc['authors'] = df_auths4doc.authors_name.map(lambda x:to_dict_id(x))
+
+
+
+
+# script assign id
+
+ids4names=auth.drop_duplicates(['name']).loc[:,['name', 'id']].set_index('name').to_dict()
+
+ids4names = ids4names['id']
+
+total = pd.read_csv("total_not_clean_dup.csv")
+
+
+no_ids = []
+final_name_id = {}
+
+
+
+
+uniq_names=total.author_name.values.tolist()
+
+uniq_names=list(set(uniq_names))
+
+ava_names = list(ids4names.keys())
+
+def assign_id(n):
+    global final_name_id
+    global ava_names
+    global ids4names
+    
+    # if n matches a name already added we skip
+    test_res = match_name_from_list(list(final_name_id.keys()), n)
+    if test_res is None:
+        
+    
+        found = False
+        
+        for kn in ava_names:
+            if (match_name(n, kn) == True) or (match_name(kn, n) == True):
+                found = True
+                break
+            
+        if found:
+            # select the first id
+            final_name_id[n] = ids4names[kn]
+            return {'name': n, 'id': final_name_id[n]}
+        else:
+            return False
+    
+    else:
+        print(n+" matches "+test_res+" in final dict.")
+        return {'name':test_res, 'id': final_name_id[test_res]}
+        
+    
+
+total['author_ref'] = total.author_name.map(lambda x:assign_id(x))
+
+############# create new names
+
+auth_only=total.author_name.drop_duplicates()
+
+new_auth_names = []
+cpt = 0
+dict_res_2 = {}
+def create_new_names(x):
+    
+    global dict_res_2
+    global cpt
+    global new_auth_names
+    
+    print(cpt)
+    cpt += 1
+    
+    res = match_name_from_list(new_auth_names, x)
+    if res is None:
+        # it's a new name or empty list
+        new_auth_names.append(x)
+        dict_res_2[x] = x
+        return x
+    else:
+        # it atches, return it
+        dict_res_2[x] = res
+        # print(res)
+        return res
+    
+auth_only['new_names'] = auth_only.map(lambda x: create_new_names(x))
+        
+
+    
+# create ids4names
+
+ids4names = {}
+current_id = 0
+def assign_unique_id4name(x):
+    
+    global ids4names
+    global current_id
+    
+    ids4names[x] = current_id
+    current_id += 1
+    
+# assign a unique id for each new name
+df_new_names.new_names.map(lambda x: assign_unique_id4name(x))
 
 
 
 
     
+
+# create a list of authors names for each document     
+#########################
+auths4doc = {}
+
+def get_authors(x):
+    
+    global auths4doc
+    p_id = x.id_paper
+    if p_id in auths4doc.keys():
+        n = x.new_names
+        list_names = auths4doc[p_id]
+        # add 1 more element to the list
+        # if is not matching a name already added
+        
+        #if match_name_from_list(list_names, n) == None:
+        if n not in list_names:
+            auths4doc[p_id].append(n)
+        else:
+            print("name matching name: ",n," list : ",list_names)
+    else:
+        #create new entry
+        
+        auths4doc[p_id] = [x.new_names]
+        
+
+total_new_names.apply(lambda x:get_authors(x), axis=1)   
+
+
+# auths4doc to df
+
+df_auth4doc = pd.DataFrame(auths4doc.items(), columns=['id_paper', 'list_authors_name'])
+
+# merge
+
+
+total_new_names = total_new_names.merge(df_auth4doc, on='id_paper')
+##########################   
+ 
+    
+def to_dict_id(x):
+    global ids4names
+    ld = []
+    
+    for n in x:
+        d={}
+        d['name'] = n
+        d['id'] = ids4names[n]
+        ld.append(d)
+   
+    return ld
+
+
+# create new columns
+total_new_names['authors'] = total_new_names.list_authors_name.map(lambda x:to_dict_id(x))
+    
+# transform ids4names to DF
+
+df_ids4names = pd.DataFrame(ids4names.items(), columns=['new_names', 'id'])
+  
+# create [pubs]
+
+d_pubs = {}
+
+def add_pub(x):
+    global d_pubs
+    
+    n = x.new_names
+    p = x.id_paper
+    if n in d_pubs.keys():
+        d_pubs[n].append(p)
+    else:
+        d_pubs[n] = [p]
+    
+total_new_names.apply(lambda x: add_pub(x), axis=1)
+    
+df_d_pubs = pd.DataFrame(d_pubs.items(), columns=['new_names', 'pubs'])
+
+total_new_names = total_new_names.merge(df_d_pubs, on = 'new_names')
+
+acm_all_authors = total_new_names.drop_duplicates('new_names')
+acm_all_authors = acm_all_authors[['author_name', 'author_average_citation_per_article',
+       'author_citation_count', 'author_publication_counts',
+        'papers_available_for_download',
+       'author_subject_areas', 'author_keywords', 'new_names','pubs']]
+
+
+# 1) drop duplicates titles from final
+
+# clean DZ DB
+
+# split row
+
+
+splited_df = pd.DataFrame()
+
+def split_row_names(db):
+    
+    global splited_df
+
+
+# use defines fcts   
+    
+    
+

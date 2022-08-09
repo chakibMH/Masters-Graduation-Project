@@ -222,14 +222,14 @@ def len_paper_from_DB(papers, paper_id):
     return len(list_abst)
 
 
-papers_of_expertise = {}
+
 def get_relevant_experts(query, sen_index, papers, authors, embedder, 
                          strategy = 'min', norm = False, transform_to_score_before=True
                          ,k=1000, dist_score_cluster = False):
                          #use_definition = None, data_source = "wikidata_then_wikipedia"):
 
     
-    global papers_of_expertise
+    papers_of_expertise = {}
     # {id_author:[p1,p2,..etc]}
     papers_of_expertise = {}
     sim_D_A = 1
@@ -374,7 +374,7 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
     
     #score_authors_dict = {e[0]:e[1] for e in d}
                 
-    return   score_authors_dict     
+    return   score_authors_dict, papers_of_expertise 
     
 def update_scores(final_score_authors_dict, score_authors_dict):
     """
@@ -407,6 +407,19 @@ def update_scores(final_score_authors_dict, score_authors_dict):
             final_score_authors_dict[a] = score_authors_dict[a]
             
     return final_score_authors_dict
+
+def update_papers_of_expertise(final_papers_of_expertise, papers_of_expertise):
+    
+    already_in = list(final_papers_of_expertise.keys())
+    
+    for a in papers_of_expertise.keys():
+        
+        if a  in already_in:
+            final_papers_of_expertise[a] += papers_of_expertise[a]
+        else:
+            final_papers_of_expertise[a] = papers_of_expertise[a]
+    
+    return final_papers_of_expertise
     
 def get_relevant_experts_multi_index(queries, list_index_path, papers, 
                                      authors, embedder, 
@@ -451,6 +464,7 @@ def get_relevant_experts_multi_index(queries, list_index_path, papers,
 
     """
     final_score_each_query = {}
+    final_papers_of_expertise = {}
     
     # init the final dict
     for q in queries:
@@ -464,11 +478,12 @@ def get_relevant_experts_multi_index(queries, list_index_path, papers,
 
             final_score_authors_dict = final_score_each_query[q]
                 
-            score_authors_dict = get_relevant_experts(q, sen_index, papers, 
+            score_authors_dict, papers_of_expertise = get_relevant_experts(q, sen_index, papers, 
                                         authors, embedder,strategy,norm,transform_to_score_before,k)
     
             # concat dict 
             final_score_authors_dict = update_scores(final_score_authors_dict, score_authors_dict)
+            final_papers_of_expertise = update_papers_of_expertise(final_papers_of_expertise, papers_of_expertise)
           
             # update the scores for this query
             final_score_each_query[q] = final_score_authors_dict
@@ -491,7 +506,7 @@ def get_relevant_experts_multi_index(queries, list_index_path, papers,
         
         final_score_each_query[q] = final_score_authors_dict
     
-    return final_score_each_query
+    return final_score_each_query, final_papers_of_expertise
         
     
     
@@ -579,6 +594,7 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
                          ,k=1000):
                           
       
+    papers_of_expertise = {}
     # embedding thr query
     # print("query :", query)
     l_query = query.split('@')
@@ -696,10 +712,13 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
             
             if a in score_authors_dict.keys():
                 
+                papers_of_expertise[a].append(p_id)
+                
                 # score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
                 score_authors_dict[a] += math.exp(sim_Q_D)
                 
             else:
+                papers_of_expertise[a] = [p_id]
                 # score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
                 score_authors_dict[a] = math.exp(sim_Q_D)
                 
@@ -709,4 +728,4 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
     
     score_authors_dict = {e[0]:e[1] for e in d}
                 
-    return   score_authors_dict
+    return   score_authors_dict, papers_of_expertise
