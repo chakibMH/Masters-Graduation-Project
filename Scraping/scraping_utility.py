@@ -5,6 +5,8 @@ import re
 
 def match_name(to_check, name):
     
+    # print(to_check)
+    # print(name)
     #garder q un seul espace
     
     name = re.sub(r"[ ]+", " ", name)
@@ -62,4 +64,10 @@ def match_name(to_check, name):
             
         return matching
             
-            
+def match_name_from_list(list_names, candidate):
+
+
+    for n in list_names:
+        if match_name(n, candidate) or match_name(candidate, n):
+            return n
+    return None
