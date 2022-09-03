@@ -67,7 +67,7 @@ def get_papers_of_author(auth_id, auth):
 
 def get_authors_of_paper(paper_id, papers):
     
-    paper_row = papers.loc[papers.id == paper_id,['authors']]
+    paper_row = papers.loc[papers.id_paper == paper_id,['authors']]
     
     #list of authors
     authors = ast.literal_eval(paper_row.iloc[0,0])
@@ -183,7 +183,7 @@ def authors_expertise_to_paper(paper_id, papers, authors, embedder):
         
     return dict_expertise
 
-def norm_fct(sen_index, papers, paper_id, sim_Q_D):
+def norm_fct(papers, paper_id, sim_Q_D):
     """
     
 
@@ -215,7 +215,7 @@ def norm_fct(sen_index, papers, paper_id, sim_Q_D):
 
 def len_paper_from_DB(papers, paper_id):
     
-    paper_row = papers.loc[papers.id == paper_id,['cleaned_abstract_sentences']]
+    paper_row = papers.loc[papers.id_paper == paper_id,['cleaned_abstract_sentences']]
     
     list_abst = ast.literal_eval(paper_row.iloc[0,0])
     
@@ -343,7 +343,7 @@ def get_relevant_experts(query, sen_index, papers, authors, embedder,
             
             
             if norm == True:
-                sim_Q_D = norm_fct(sen_index, papers, p_id, sim_Q_D)
+                sim_Q_D = norm_fct( papers, p_id, sim_Q_D)
             
             print(" "*10,"after normalization sim_Q_D = ",sim_Q_D)
             # print(sim_D_A)
@@ -508,7 +508,248 @@ def get_relevant_experts_multi_index(queries, list_index_path, papers,
     
     return final_score_each_query, final_papers_of_expertise
         
+
+
+def authors_expertise_to_paper_v2(p_id, papers) :
+    """
     
+    return 
+
+    Parameters
+    ----------
+    p_id : str
+        DESCRIPTION.
+    papers : pd.Dataframe
+        DESCRIPTION.
+
+    Returns
+    -------
+    bool
+        DESCRIPTION.
+
+    """
+    
+    return True
+    
+    
+def get_search_result(query, sen_index, embedder, 
+                         strategy = 'min', norm = False, 
+                         transform_to_score_before=True
+                         ,k=1000):
+    
+    
+    
+        
+        # embedding the query
+        
+        # if use_definition is None:
+        # if the query is str, then we transform to vector
+    
+        query_emb = embedde_single_query(query, embedder)
+
+
+        print("searching...")
+        df = sen_index.search(query_emb, k)
+        print("relevant phrases extracted...")
+        
+            
+        if strategy == 'min':
+            df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].min()
+            # transform dist to sim
+            df_res = df_res.map(lambda x: dist2sim(x))
+        elif strategy == 'mean':
+        
+            if transform_to_score_before :
+                # transform dist to sim
+                df['score'] = df.dist_phrase_with_query.map(lambda x: dist2sim(x))
+                df_res = df.groupby(['paper_id'])['score'].mean()
+            else: # transform after
+                df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
+                #calculate score
+                df_res = df_res.map(lambda x: dist2sim(x))
+        
+        elif strategy == 'sum':
+                if transform_to_score_before :
+                    # transform dist to sim
+                    df['score'] = df.dist_phrase_with_query.map(lambda x: dist2sim(x))
+                    df_res = df.groupby(['paper_id'])['score'].sum()
+                else: # transform after
+                    df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].sum()
+                    # calculate score
+                    df_res = df_res.map(lambda x: dist2sim(x))
+        else:
+            print("erreur pas d'autres strategies")
+    
+        print("relevant doc determined...")
+    
+        return df_res
+
+
+
+def get_scores(df_res, papers,authors, dist_score_cluster = False,
+               norm = False, ):
+    
+    print("start deteermining score...")
+    
+    ids_of_sim_papers = list(df_res.index)
+    
+    
+    #cle : id auteur
+    # val : sum
+    score_authors_dict = {}
+    papers_of_expertise={}
+    sim_D_A = 1
+    
+    for p_id in ids_of_sim_papers:
+        
+        # NEW !
+        if dist_score_cluster == True:
+            dict_expertise = authors_expertise_to_paper_v2(p_id, papers,authors)
+        # {id_auth:Dist_Centroid_D: pour chaque auth de p_id}
+        # END NEW
+        
+        # expo (  s[Q, D] * s[D, A] )
+        
+        # get authors of papre p_id
+        
+        auth_of_p_id = get_authors_of_paper(p_id, papers)
+        
+        # now is uniform 
+        #dist_Q_D = df_res.loc[p_id]
+        
+        sim_Q_D = df_res.loc[p_id]
+        
+        for a in auth_of_p_id:
+            
+
+            
+            # NEW !
+            if dist_score_cluster == True:
+                
+                dist_D_A = dict_expertise[a]
+                
+                sim_D_A = dist2sim(dist_D_A)
+                
+             # END NEW  
+                        
+            ## normalization
+            
+            
+            if norm == True:
+                sim_Q_D = norm_fct( papers, p_id, sim_Q_D)
+            
+            #print(" "*10,"after normalization sim_Q_D = ",sim_Q_D)
+            # print(sim_D_A)
+            
+            # check if first time
+            
+            if a in score_authors_dict.keys():
+                
+                
+                # papers used in expertise
+                
+                papers_of_expertise[a].append(p_id)
+
+                score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
+                # score_authors_dict[a] += math.exp(sim_Q_D)
+                
+            else:
+                # papers used in expertise
+                papers_of_expertise[a] = [p_id]
+                score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
+                # score_authors_dict[a] = math.exp(sim_Q_D)
+      
+    # I comment this for optisation ( sort only one time outside tis fct)
+    # sort the dict
+    
+    #d = sorted(score_authors_dict.items(), key = lambda x:x[1],reverse=True)
+    
+    
+    #score_authors_dict = {e[0]:e[1] for e in d}
+                
+    return   score_authors_dict, papers_of_expertise
+    
+
+
+def get_relevant_experts_multi_index_v2(queries, list_index_path, papers, 
+                                     authors, embedder, 
+                         strategy = 'min', norm = False, 
+                         transform_to_score_before=True
+                         ,k=1000, dist_score_cluster = False):
+    
+    
+    
+    
+    rel_docs_each_query = {}
+    final_scores = {}
+    papers_of_expertise = {}
+    
+    # init the final dict
+
+        
+    # get results from first index separatly
+    
+    index_1 = load_index(list_index_path[0])
+    
+    for q in queries:
+        
+        result = get_search_result(q,index_1,embedder,strategy,norm,
+                          transform_to_score_before,k)
+        
+        
+        # init each query with a pandas.Serie of results from first index
+        rel_docs_each_query[q] = result
+    
+    
+    print("ddeleting first index")
+    del(index_1)
+    for f in list_index_path[1:]:
+        
+        # read the index only one time, and process all the queries with it
+        print("new index loaded")
+        sen_index = load_index(f)
+        
+        result = pd.Series()
+        
+        for q in queries:
+            
+                result = get_search_result(q,sen_index,embedder,strategy,norm,
+                  transform_to_score_before,k)
+                
+                rel_docs_each_query[q].append(result)
+                
+                
+         # delete this index for optimization   
+        del(sen_index)
+        
+    
+    # sort the result and select top k
+    print("got results from every index")
+    for q in queries:
+        
+        rel_docs_each_query[q].sort_values(ascending=False, inplace=True)
+    
+        rel_docs_each_query[q] = rel_docs_each_query[q].iloc[:k]
+    
+    
+        final_scores[q], papers_of_expertise[q] = get_scores(rel_docs_each_query[q], papers, authors,dist_score_cluster)
+                   
+        
+        
+    return   final_scores, papers_of_expertise
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
+        
+        
+        
     
     
     
@@ -586,6 +827,8 @@ def hybrid_phrases_score(df_concept, df_deff, a, b, k):
         
 
     # df[]
+    
+    
 
 
 def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder, 
@@ -703,7 +946,7 @@ def get_relevant_experts_WITH_DEFF(query, sen_index, papers, authors, embedder,
             
             
             if norm == True:
-                sim_Q_D = norm_fct(sen_index, papers, p_id, sim_Q_D)
+                sim_Q_D = norm_fct( papers, p_id, sim_Q_D)
             
             print(" "*10,"after normalization sim_Q_D = ",sim_Q_D)
             # print(sim_D_A)
