@@ -530,12 +530,54 @@ def authors_expertise_to_paper_v2(p_id, papers) :
     """
     
     return True
+
+
+def query_with_deff(query, deff_type, embedder, sen_index, k, a=0.7, b=0.3):
+    
+    papers_of_expertise = {}
+    # embedding thr query
+    # print("query :", query)
+    l_query = query.split('@')
+    # print(l_query[1])
+    
+    if deff_type == 'mean':
+    
+        concept_emb = embedde_single_query(l_query[0], embedder, False)
+        
+        clean_d = clean_def(l_query[1])
+        
+        q_def_emb = embedde_single_query(clean_d, embedder, False)
+        # q_def_emb = embedde_single_query(l_query[1], embedder, False)
+        
+        q_mean = (q_def_emb+ concept_emb)/2
+        norm_query = np.float32(normalize(q_mean))
+        
+        df = sen_index.search(norm_query, k)
+        
+    elif deff_type == 'hybrid':
+        
+        concept_emb_norm = embedde_single_query(l_query[0], embedder, True)
+        
+        # cleaning of 
+        clean_d = clean_def(l_query[1])
+        
+        q_def_emb_norm = embedde_single_query(clean_d, embedder, True)
+        
+        df_concept = sen_index.search(concept_emb_norm, k)
+        
+        df_deff = sen_index.search(q_def_emb_norm, k)
+        
+        df = hybrid_phrases_score(df_concept, df_deff, a, b, k)
+    else:
+        print("erreur : auncune autre strategie de deffinition")
+    
+    return df
     
     
 def get_search_result(query, sen_index, embedder, 
                          strategy = 'min', norm = False, 
                          transform_to_score_before=True
-                         ,k=1000):
+                         ,k=1000, deff_type = None):
     
     
     
@@ -549,7 +591,10 @@ def get_search_result(query, sen_index, embedder,
 
 
         print("searching...")
-        df = sen_index.search(query_emb, k)
+        if deff_type == None:
+            df = sen_index.search(query_emb, k)
+        else:
+            df = query_with_deff(query, deff_type,embedder,sen_index,k)
         print("relevant phrases extracted...")
         
             
@@ -591,6 +636,7 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
     
     print("start deteermining score...")
     
+    
     ids_of_sim_papers = list(df_res.index)
     
     
@@ -600,65 +646,74 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
     papers_of_expertise={}
     sim_D_A = 1
     
+    existing_ids = papers.id_paper.values
+    
     for p_id in ids_of_sim_papers:
         
-        # NEW !
-        if dist_score_cluster == True:
-            dict_expertise = authors_expertise_to_paper_v2(p_id, papers,authors)
-        # {id_auth:Dist_Centroid_D: pour chaque auth de p_id}
-        # END NEW
+        if p_id in existing_ids:
         
-        # expo (  s[Q, D] * s[D, A] )
-        
-        # get authors of papre p_id
-        print("paper_id = ",p_id)
-        
-        auth_of_p_id = get_authors_of_paper(p_id, papers)
-        
-        # now is uniform 
-        #dist_Q_D = df_res.loc[p_id]
-        
-        sim_Q_D = df_res.loc[p_id]
-        
-        for a in auth_of_p_id:
-            
-
-            
             # NEW !
             if dist_score_cluster == True:
-                
-                dist_D_A = dict_expertise[a]
-                
-                sim_D_A = dist2sim(dist_D_A)
-                
-             # END NEW  
-                        
-            ## normalization
             
+                
+                dict_expertise = authors_expertise_to_paper_v2(p_id, papers,authors)
+            # {id_auth:Dist_Centroid_D: pour chaque auth de p_id}
+            # END NEW
             
-            if norm == True:
-                sim_Q_D = norm_fct( papers, p_id, sim_Q_D)
+            # expo (  s[Q, D] * s[D, A] )
             
-            #print(" "*10,"after normalization sim_Q_D = ",sim_Q_D)
-            # print(sim_D_A)
+            # get authors of papre p_id
+            # print("paper_id = ",p_id)
             
-            # check if first time
+            auth_of_p_id = get_authors_of_paper(p_id, papers)
             
-            if a in score_authors_dict.keys():
+            # now is uniform 
+            #dist_Q_D = df_res.loc[p_id]
+            
+            sim_Q_D = df_res.loc[p_id]
+            
+            for a in auth_of_p_id:
+                
+    
+                
+                # NEW !
+                if dist_score_cluster == True:
+                    
+                    dist_D_A = dict_expertise[a]
+                    
+                    sim_D_A = dist2sim(dist_D_A)
+                    
+                 # END NEW  
+                            
+                ## normalization
                 
                 
-                # papers used in expertise
+                if norm == True:
+                    sim_Q_D = norm_fct( papers, p_id, sim_Q_D)
                 
-                papers_of_expertise[a].append(p_id)
-
-                score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
-                # score_authors_dict[a] += math.exp(sim_Q_D)
+                #print(" "*10,"after normalization sim_Q_D = ",sim_Q_D)
+                # print(sim_D_A)
                 
-            else:
-                # papers used in expertise
-                papers_of_expertise[a] = [p_id]
-                score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
-                # score_authors_dict[a] = math.exp(sim_Q_D)
+                # check if first time
+                
+                if a in score_authors_dict.keys():
+                    
+                    
+                    # papers used in expertise
+                    
+                    papers_of_expertise[a].append(p_id)
+    
+                    score_authors_dict[a] += math.exp(sim_D_A * sim_Q_D)
+                    # score_authors_dict[a] += math.exp(sim_Q_D)
+                    
+                else:
+                    # papers used in expertise
+                    papers_of_expertise[a] = [p_id]
+                    score_authors_dict[a] = math.exp(sim_D_A * sim_Q_D)
+                    # score_authors_dict[a] = math.exp(sim_Q_D)
+        else:
+            pass
+            
       
     # I comment this for optisation ( sort only one time outside tis fct)
     # sort the dict
@@ -676,7 +731,10 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
                                      authors, embedder, 
                          strategy = 'min', norm = False, 
                          transform_to_score_before=True
-                         ,k=1000, dist_score_cluster = False):
+                         ,k=1000, dist_score_cluster = False, deff_type = None):
+    
+    
+    
     
     
     
@@ -697,7 +755,7 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
         
         
         result = get_search_result(q,index_1,embedder,strategy,norm,
-                          transform_to_score_before,k)
+                          transform_to_score_before,k,deff_type )
         
         
         # init each query with a pandas.Serie of results from first index
