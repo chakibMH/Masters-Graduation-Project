@@ -611,6 +611,7 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
         # expo (  s[Q, D] * s[D, A] )
         
         # get authors of papre p_id
+        print("paper_id = ",p_id)
         
         auth_of_p_id = get_authors_of_paper(p_id, papers)
         
@@ -690,8 +691,10 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
     # get results from first index separatly
     
     index_1 = load_index(list_index_path[0])
+    print("searching in first index...")
     
     for q in queries:
+        
         
         result = get_search_result(q,index_1,embedder,strategy,norm,
                           transform_to_score_before,k)
