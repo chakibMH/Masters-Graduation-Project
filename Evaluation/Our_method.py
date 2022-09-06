@@ -480,8 +480,8 @@ def get_relevant_authors(list_index_path,file_name,strategy = 'min',norm=False, 
     # d_all_query =final_scores
     d_all_query = score_authors_dict
     df = pd.DataFrame(d_all_query)
-    all_authors = authors.id.values
-    l = list(df.index)
+    # all_authors = authors.id.values
+    # l = list(df.index)
     # to_drop = []
     # for i in l:
     #     if int(i) not in all_authors:
