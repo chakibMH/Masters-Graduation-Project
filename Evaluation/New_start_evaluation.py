@@ -41,7 +41,10 @@ data.rename(columns={'id_paper':'id'}, inplace=True)
 authors.rename(columns={'author_id':'id'}, inplace=True)
 
 
-exact, approximate = execute(file_name)
+# exact, approximate = execute(file_name)
+
+exact, approximate = execute_without_def(file_name)
+
 
 file_path = "final_results/scibert/bysent/scibert_sent_min_false_withdef_hyrid"
 
