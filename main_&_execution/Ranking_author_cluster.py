@@ -808,7 +808,7 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
         di+=1
         #td+=1
         
-        if (p_id in existing_ids) and (p_id not in df_embs.keys()):
+        if (p_id in existing_ids) and (df_embs != None) and (p_id not in df_embs.keys()):
         
             # NEW !
             if dist_score_cluster == True:
@@ -895,7 +895,8 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
     #score_authors_dict = {e[0]:e[1] for e in d}
                 
     return   score_authors_dict, papers_of_expertise
-    
+  
+# papers = pd.read_csv("ACM_papers.csv")  
 # papers = papers[['id_paper', 'authors', 'list_authors_name'] ]
 
 def get_relevant_experts_multi_index_v2(queries, list_index_path, papers, 
