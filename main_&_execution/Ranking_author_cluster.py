@@ -992,8 +992,10 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
         rel_docs_each_query[q] = rel_docs_each_query[q].sort_values(ascending=False).iloc[:k]
         #print("shape before : ",rel_docs_each_query[q].shape)
         # determine the embedding of each doc
-        
-        df_embs = read_emb(rel_docs_each_query[q], loc_embs)
+        if dist_score_cluster:
+            df_embs = read_emb(rel_docs_each_query[q], loc_embs)
+        else:
+            df_embs = None
     
         final_scores[q], papers_of_expertise[q] = get_scores(rel_docs_each_query[q], papers, 
                                                              authors,dist_score_cluster, 
