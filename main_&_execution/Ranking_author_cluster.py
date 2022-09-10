@@ -744,11 +744,13 @@ def get_search_result(query, sen_index, embedder,
         else:
             df = query_with_deff(query, deff_type,embedder,sen_index,k)
         print("relevant phrases extracted...")
-        
+        # print(df.shape)
+        # print(df.)
             
         if strategy == 'min':
             df_res =  df.groupby(['paper_id'])['dist_phrase_with_query'].min()
             # transform dist to sim
+            # print(df_res.shape)
             df_res = df_res.map(lambda x: dist2sim(x))
         elif strategy == 'mean':
         
@@ -756,6 +758,7 @@ def get_search_result(query, sen_index, embedder,
                 # transform dist to sim
                 df['score'] = df.dist_phrase_with_query.map(lambda x: dist2sim(x))
                 df_res = df.groupby(['paper_id'])['score'].mean()
+                # print(df_res.shape)
             else: # transform after
                 df_res = df.groupby(['paper_id'])['dist_phrase_with_query'].mean()
                 #calculate score
@@ -980,7 +983,8 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
         rel_docs_each_query[q].sort_values(ascending=False, inplace=True)
     
         #print("shape before : ",rel_docs_each_query[q].shape)
-        rel_docs_each_query[q] = rel_docs_each_query[q].iloc[:k]
+        sort_values(ascending=False)
+        rel_docs_each_query[q] = rel_docs_each_query[q].sort_values(ascending=False).iloc[:k]
         #print("shape before : ",rel_docs_each_query[q].shape)
         # determine the embedding of each doc
         
