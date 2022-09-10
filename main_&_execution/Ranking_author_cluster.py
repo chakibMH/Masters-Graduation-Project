@@ -985,7 +985,7 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
         
         
         
-        rel_docs_each_query[q].sort_values(ascending=False, inplace=True)
+        #rel_docs_each_query[q].sort_values(ascending=False, inplace=True)
     
         #print("shape before : ",rel_docs_each_query[q].shape)
     
