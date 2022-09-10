@@ -807,10 +807,16 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
         print("doc . [{}/{}]".format(di,td))
         di+=1
         #td+=1
+        valid = False
+        if (df_embs == None):
+            valid = True
+        else:
+            if p_id  in df_embs.keys():
+                valid = True
         
-        if (p_id in existing_ids) and (df_embs != None) and (p_id not in df_embs.keys()):
+        if (p_id in existing_ids) and  (valid == True):
         
-            # NEW !
+            # NEW ! 
             if dist_score_cluster == True:
                 print("*"*50)
                 
