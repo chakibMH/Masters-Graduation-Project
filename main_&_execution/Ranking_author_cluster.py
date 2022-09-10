@@ -631,7 +631,7 @@ def authors_expertise_to_paper_v3(p_id, papers, profiles, df_embs) :
     # search for the rigth embedding file
 
     v_doc = df_embs.loc[df_embs.id_paper == p_id].mean_embedding.values[0]
-
+    print("ee")
     
     #print("ccccccccccccccccccccccccccccc")
     v_doc = str_to_list(v_doc)
@@ -808,10 +808,10 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
         di+=1
         #td+=1
         valid = False
-        if (df_embs == None):
+        if type(df_embs) == None:
             valid = True
         else:
-            if p_id  in df_embs.keys():
+            if p_id  not in df_embs.keys():
                 valid = True
         
         if (p_id in existing_ids) and  (valid == True):
