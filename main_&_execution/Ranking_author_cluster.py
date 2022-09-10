@@ -948,7 +948,12 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
                 result = get_search_result(q,sen_index,embedder,strategy,norm,
                   transform_to_score_before,k)
                 
-                rel_docs_each_query[q].append(result)
+                print("before appand ",rel_docs_each_query[q].shape)
+                
+                
+                rel_docs_each_query[q] = rel_docs_each_query[q].append(result)
+                
+                print("after appand ",rel_docs_each_query[q].shape)
                 
                 
          # delete this index for optimization   
@@ -983,7 +988,7 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
         rel_docs_each_query[q].sort_values(ascending=False, inplace=True)
     
         #print("shape before : ",rel_docs_each_query[q].shape)
-        sort_values(ascending=False)
+    
         rel_docs_each_query[q] = rel_docs_each_query[q].sort_values(ascending=False).iloc[:k]
         #print("shape before : ",rel_docs_each_query[q].shape)
         # determine the embedding of each doc
