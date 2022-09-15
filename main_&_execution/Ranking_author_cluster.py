@@ -808,7 +808,9 @@ def get_scores(df_res, papers,authors, dist_score_cluster = False,
         di+=1
         #td+=1
         valid = False
-        if type(df_embs) == None:
+        
+        
+        if type(df_embs) == type(None):
             valid = True
         else:
             if p_id  not in df_embs.keys():
@@ -971,6 +973,7 @@ def get_relevant_experts_multi_index_v2(queries, list_index_path, papers,
     # sort the result and select top k
     print("got results from every index")
     if dist_score_cluster == True:
+        
         with open("dependencies/loc_embedding.pkl", "rb") as f:
             loc_embs = pickle.load(f)
             
