@@ -36,6 +36,18 @@ Scientific expert search is a crucial task in the academic world, used for ident
 - **[Full Project Report](./Docs/full-article.pdf)**: A comprehensive document detailing our methods and findings.
 - **[Presentation Slides](./Docs/slides.pdf)**: Key insights from our work in a slide format.
 
+## 📊 Key Charts & Results
+Here are some key visual results from our project:
+
+![Indexing Method Comparison](./Results/Plots/all_result.png)  
+*Figure 1: Performance comparison of different indexing methods.*
+
+![Query Expansion Impact](./Results/Plots/query_expansion_impact.png)  
+*Figure 2: Effect of query expansion on retrieval accuracy.*
+
+![CUDA Time Impact](./Results/Plots/cuda_vs_cpu.png)  
+*Figure 3: Analysis of gain in time while using CUDA (Nvidia Gtx 1660 Ti) compared to CPU (Ryzen 7 4800H).*
+
 ## ⚙️ Installation & Usage
 1. Clone the repository:
    ```sh
