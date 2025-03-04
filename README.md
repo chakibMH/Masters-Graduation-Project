@@ -14,15 +14,20 @@ Scientific expert search is a crucial task in the academic world, used for ident
 ## 📂 Repository Structure
 ```
 /Project-Name
-│── /code                # Source code for expert search system
-│── /data                # Datasets and processed files
+│── /Evaluation            # Scripts used to evaluate our methods, and compare it with previous works
+│── /Results                # An exaustive list of all our results described in the article (in the form of binary files and csv). Contains also plottings
+│── /Scraping                #
+│── /Test_&_Tutos                #
+│── /Web Site                #
+│── /Weighted_Sampling   # Utility package used in the code
+│── /Masters-Graduation-Project                # Script responsible of building the FAISS Index, for efficient similarity search [FAISS - AI Meta](https://ai.meta.com/tools/faiss/)
+│── /main_&_execution               # Scripts responsible for the Back End connexion with the app, in addition to running the indexation, query augmentation and similarity search
 │── /docs                # Documentation and articles
-│   │── full-article.pdf   # Detailed article about the project
-│   │── TAMARICS_2022.pdf  # Summary article presented at TAMARICS 2022
-│   │── slides.pdf         # Presentation slides
+│   │── full-article.pdf   # Detailed article about the project (in French)
+│   │── TAMARICS_2022.pdf  # Summary article presented at TAMARICS 2022 (English)
+│   │── slides.pdf         # Presentation slides (English)
 │── README.md             # Overview of the project
-│── requirements.txt      # Dependencies (if applicable)
-│── LICENSE              # License file (if open-source)
+
 ```
 
 ## 📖 Documentation
@@ -33,14 +38,12 @@ Scientific expert search is a crucial task in the academic world, used for ident
 ## ⚙️ Installation & Usage
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-username/your-repo.git
-   cd your-repo
+   git clone https://github.com/your-username/Masters-Graduation-Project.git
+   cd Masters-Graduation-Project
    ```
-2. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
+
    ```
-3. Run the expert search model:
+2. Run the web app:
    ```sh
    python main.py
    ```
