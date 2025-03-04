@@ -9,7 +9,7 @@ Scientific expert search is a crucial task in the academic world, used for ident
 - **New indexing approach**: Sentence-based indexing instead of full-document indexing.
 - **Query expansion**: Augmenting search queries using definitions to improve accuracy.
 - **Score distribution adjustment**: Mitigating the dominance of highly prolific authors.
-- **Dataset creation**: A new test corpus extracted from ACM for better benchmarking.
+- **Dataset creation**: A new test corpus extracted from ACM for better benchmarking for the Algerian Expert Search task.
 - **Optimization**: Implemented FAISS indexing with CUDA acceleration for efficient similarity search..
 
 ## 📂 Repository Structure
