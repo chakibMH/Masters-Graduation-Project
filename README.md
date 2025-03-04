@@ -32,9 +32,9 @@ Scientific expert search is a crucial task in the academic world, used for ident
 ```
 
 ## 📖 Documentation
-- **[TAMARICS 2022 Article](./docs/TAMARICS_2022.pdf)**: A summary of our project presented at an international competition.
-- **[Full Project Report](./docs/full-article.pdf)**: A comprehensive document detailing our methods and findings.
-- **[Presentation Slides](./docs/slides.pdf)**: Key insights from our work in a slide format.
+- **[TAMARICS 2022 Article](./Docs/TAMARICS_2022.pdf)**: A summary of our project presented at an international competition.
+- **[Full Project Report](./Docs/full-article.pdf)**: A comprehensive document detailing our methods and findings.
+- **[Presentation Slides](./Docs/slides.pdf)**: Key insights from our work in a slide format.
 
 ## ⚙️ Installation & Usage
 1. Clone the repository:
