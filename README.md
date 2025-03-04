@@ -10,23 +10,24 @@ Scientific expert search is a crucial task in the academic world, used for ident
 - **Query expansion**: Augmenting search queries using definitions to improve accuracy.
 - **Score distribution adjustment**: Mitigating the dominance of highly prolific authors.
 - **Dataset creation**: A new test corpus extracted from ACM for better benchmarking.
+- **Optimization**: Implemented FAISS indexing with CUDA acceleration for efficient similarity search..
 
 ## 📂 Repository Structure
 ```
 /Project-Name
-│── /Evaluation            # Scripts used to evaluate our methods, and compare it with previous works
-│── /Results                # An exaustive list of all our results described in the article (in the form of binary files and csv). Contains also plottings
-│── /Scraping                #
-│── /Test_&_Tutos                #
-│── /Web Site                #
-│── /Weighted_Sampling   # Utility package used in the code
-│── /Masters-Graduation-Project                # Script responsible of building the FAISS Index, for efficient similarity search [FAISS - AI Meta](https://ai.meta.com/tools/faiss/)
-│── /main_&_execution               # Scripts responsible for the Back End connexion with the app, in addition to running the indexation, query augmentation and similarity search
-│── /docs                # Documentation and articles
-│   │── full-article.pdf   # Detailed article about the project (in French)
+│── /Evaluation            # Scripts for evaluating our methods and comparing them with previous works
+│── /Results               # Comprehensive collection of results described in the article (binary files and CSVs), including plots
+│── /Scraping              # Web scraping scripts used for dataset construction
+│── /Test_&_Tutos          # Testing scripts and tutorial notebooks
+│── /Web_Site              # Codebase for the web portal implementation
+│── /Weighted_Sampling     # Utility package used within the code
+│── /Masters-Graduation-Project  # Script for building the FAISS Index for efficient similarity search ([FAISS - AI Meta](https://ai.meta.com/tools/faiss/))
+│── /main_&_execution      # Backend scripts handling app connection, indexing, query augmentation, and similarity search
+│── /docs                  # Documentation and articles
+│   │── full-article.pdf   # Detailed article about the project (French)
 │   │── TAMARICS_2022.pdf  # Summary article presented at TAMARICS 2022 (English)
 │   │── slides.pdf         # Presentation slides (English)
-│── README.md             # Overview of the project
+│── README.md              # Overview of the project
 
 ```
 
