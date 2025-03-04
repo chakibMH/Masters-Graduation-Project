@@ -39,18 +39,18 @@ Scientific expert search is a crucial task in the academic world, used for ident
 ## ⚙️ Installation & Usage
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-username/Masters-Graduation-Project.git
+   git clone https://github.com/chakibMH/Masters-Graduation-Project.git
    cd Masters-Graduation-Project
    ```
 
    ```
-2. Run the web app:
+2. Run the main AI part:
    ```sh
-   python main.py
+   python main_ranking.py
    ```
 
 ## 🏆 Acknowledgments
-This project was developed as part of our **Master’s thesis** at **University of Science and Technology Houari Boumediene** and was supervised by [Professor's Name]. Special thanks to **TAMARICS 2022** for providing a platform to present our research.
+This project was developed as part of our **Master’s thesis** at **University of Science and Technology Houari Boumediene** and was supervised by [ BELLAZZOUGUI Djamal and Mr. CHAA Messaoud ]. Special thanks to **TAMARICS 2022** for providing a platform to present our research.
 
 ---
 📌 *For more details, check the articles in the `/docs` folder.*
