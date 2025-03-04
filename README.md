@@ -1,6 +1,6 @@
 # Academic Expert Search - Graduation Project
 
-This repository contains the source code, datasets, and documentation for our **Master's graduation project**, which focuses on **scientific expert search using deep learning**. Our project was presented at **TAMARICS 2022**, an international competition held at the University of Tamanghasset, Algeria.
+This repository contains the source code, datasets, and documentation for our **Master's graduation project**, which focuses on **scientific expert search using deep learning**. Our project was presented at **TAMARICS 2022**, an international conference held at the University of Tamanghasset, Algeria [Check out my LinkedIn!](https://www.linkedin.com/posts/chakib-houati_tamarics-conference-artificialintelligence-activity-7015081826863960064-GckN?utm_source=share&utm_medium=member_desktop&rcm=ACoAADsWixIBaod4ObSEe6Iex8HIWodDMVIUGaM).
 
 ## 📌 Project Overview
 Scientific expert search is a crucial task in the academic world, used for identifying researchers for supervision, evaluation, or collaboration. Our work aims to enhance expert search systems by leveraging **deep learning** and **natural language processing (NLP)** techniques, specifically transformer-based models like **BERT, SciBERT, and RoBERTa**. 
